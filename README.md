@@ -50,9 +50,3 @@ Si prefieres no depender del sitio original al compilar, corre `npm run assets` 
 
 - **Real** (tomado del sitio actual): textos de "Qué es Sniper Pro", mentores y roles, reseñas de estudiantes (seleccionadas), cifras, teléfono, correo, redes, enlaces de la app y del broker.
 - **De ejemplo**: el catálogo de cursos (`src/infraestructura/demo/datos-cursos.ts`). El sitio actual no muestra cursos, así que se armó con los nombres que mencionan los estudiantes en sus reseñas. Se reemplaza conectando el backend real (`FUENTE_DATOS=api`).
-
-## Antes de mostrarlo
-
-- Revisa los recortes de las fotos de los mentores (`scripts/fetch-assets.mjs`, se recorta la franja central de cada tarjeta original). Si alguna queda cortada, ajusta `top` para ese mentor.
-- El apellido de Anderson no aparece en el sitio; está solo con el nombre.
-- La barra azul superior aclara que es una demo y el sitio tiene `noindex` para no competir en Google con el sitio oficial. Quítalos cuando se implemente de verdad.
