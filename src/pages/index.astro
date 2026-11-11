@@ -1,0 +1,521 @@
+---
+import Base from '../layouts/Base.astro';
+import HeroChart from '../components/HeroChart.astro';
+import MentorCard from '../components/MentorCard.astro';
+import Testimonios from '../components/Testimonios.astro';
+import LazyVideo from '../components/LazyVideo.astro';
+import Icon from '../components/Icon.astro';
+import { links } from '../config/sitio';
+import { repositorios } from '../infraestructura/contenedor';
+
+const mentores = await repositorios.mentores.listar();
+const resenas = await repositorios.resenas.listarDestacadas();
+const fundador = mentores.find((m) => m.esFundador) ?? mentores[0];
+const equipo = mentores.filter((m) => m !== fundador);
+---
+
+<Base>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <h1>Trading en modo plastilina.</h1>
+        <p class="lead">
+          Así describen nuestros estudiantes las clases: índices sintéticos y Forex desde cero, explicados sobre el
+          gráfico y tan simples que se moldean.
+        </p>
+        <div class="btn-row">
+          <a class="btn" href={links.telegram} target="_blank" rel="noopener">
+            <Icon name="telegram" />
+            Unirme gratis al Telegram
+          </a>
+          <a class="btn btn-ghost" href="/cursos/">
+            Ver cursos
+          </a>
+        </div>
+        <a class="con" href="#fundador">
+          <img src="/media/mentores/miguel-monsalve-400.webp" alt="" width="48" height="48" />
+          <span>
+            Con Miguel Monsalve <em>La Máquina</em> y su equipo de mentores
+          </span>
+        </a>
+      </div>
+      <HeroChart />
+    </div>
+  </section>
+
+  <!-- FUNDADOR -->
+  <section class="sec fundador" id="fundador">
+    <div class="wrap f-grid">
+      <MentorCard m={fundador} grande />
+      <div class="f-copy">
+        <h2>Detrás de cada clase hay alguien que opera todos los días</h2>
+        <p class="lead">
+          Miguel Monsalve fundó Sniper Pro en Cúcuta. Enseña índices sintéticos y Forex, y armó un equipo de mentores
+          que explica igual que él: simple, frente al gráfico y sin vender humo.
+        </p>
+        <ul class="f-quotes">
+          <li>
+            <blockquote>"Tiene alma y corazón para explicar y hacerse entender en cada mentoría."</blockquote>
+            <span>Luis, estudiante</span>
+          </li>
+          <li>
+            <blockquote>"Gracias por explicar en modo plastilina cada uno de los temas."</blockquote>
+            <span>Pilar, estudiante</span>
+          </li>
+        </ul>
+        <div class="f-links">
+          <a href={links.instagram} target="_blank" rel="noopener">
+            <Icon name="instagram" />
+            <span>
+              <strong>78 mil</strong> lo siguen en Instagram
+            </span>
+          </a>
+          <a href={links.youtube} target="_blank" rel="noopener">
+            <Icon name="youtube" />
+            <span>
+              <strong>Canal de YouTube</strong> clases y análisis
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EQUIPO -->
+  <section class="sec">
+    <div class="wrap">
+      <div class="sec-head row-head">
+        <div>
+          <h2>El equipo</h2>
+          <p class="lead">Cada mentor lidera un área de la academia.</p>
+        </div>
+        <a class="link" href="/mentores/">
+          Ver perfiles completos
+        </a>
+      </div>
+      <ul class="equipo">
+        {equipo.map((m) => (
+          <li>
+            <MentorCard m={m} />
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+
+  <!-- CLASE EN VIDEO -->
+  <section class="banda">
+    <LazyVideo
+      name="clase"
+      label="Clase presencial con Miguel Monsalve y estudiantes de Sniper Pro"
+      ratio="auto"
+      class="banda-video"
+    />
+    <div class="wrap banda-copy">
+      <h2>Así se ve una clase</h2>
+      <p>En vivo y presencial, sobre el gráfico en tiempo real, con el mentor operando frente a ti.</p>
+    </div>
+  </section>
+
+  <!-- RESEÑAS -->
+  <section class="sec">
+    <div class="wrap res">
+      <div class="res-copy">
+        <h2>Lo que dice la familia</h2>
+        <p class="lead">La palabra que más se repite en las reseñas es "plastilina". La segunda es "gracias".</p>
+        <a class="btn btn-ghost" href={links.telegram} target="_blank" rel="noopener">
+          <Icon name="telegram" />
+          Entrar a la comunidad
+        </a>
+      </div>
+      <Testimonios resenas={resenas} />
+    </div>
+  </section>
+
+  <!-- APP -->
+  <section class="sec" id="app">
+    <div class="wrap app">
+      <img src="/favicon.svg" alt="" width="64" height="64" class="app-ico" />
+      <div class="app-txt">
+        <h2>App Sniper Pro</h2>
+        <p class="muted">Las operaciones de los mentores, con entrada, stop y objetivo, en tu celular.</p>
+      </div>
+      <div class="btn-row">
+        <a class="btn btn-ghost" href={links.googlePlay} target="_blank" rel="noopener">
+          <Icon name="android" />
+          Google Play
+        </a>
+        <a class="btn btn-ghost" href={links.testflight} target="_blank" rel="noopener">
+          <Icon name="apple" />
+          iPhone (beta)
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAMILIA -->
+  <section class="familia">
+    <picture>
+      <source media="(max-width: 700px)" srcset="/media/familia-800.webp" />
+      <img
+        src="/media/familia-1600.webp"
+        width="1600"
+        height="578"
+        alt="Equipo de mentores de Sniper Pro"
+        loading="lazy"
+        decoding="async"
+      />
+    </picture>
+    <div class="wrap familia-copy">
+      <h2>Más que una academia, una familia</h2>
+      <p class="lead">Hacemos encuentros presenciales para estar más cerca de la comunidad.</p>
+    </div>
+  </section>
+
+  <!-- TELEGRAM -->
+  <section class="tg">
+    <div class="wrap tg-in">
+      <div>
+        <h2>La comunidad gratuita está en Telegram</h2>
+        <p>Análisis, avisos de clases en vivo y las fechas de los presenciales, primero ahí.</p>
+      </div>
+      <div class="btn-row">
+        <a class="btn tg-btn" href={links.telegram} target="_blank" rel="noopener">
+          <Icon name="telegram" />
+          Unirme gratis
+        </a>
+        <a class="btn tg-ghost" href={links.whatsapp} target="_blank" rel="noopener">
+          <Icon name="whatsapp" />
+          Escribir por WhatsApp
+        </a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* Hero */
+  .hero {
+    padding-block: clamp(2.5rem, 6vw, 5rem) clamp(3rem, 6vw, 5rem);
+    overflow: hidden;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: center;
+  }
+  .hero-copy {
+    display: grid;
+    gap: 1.6rem;
+    justify-items: start;
+  }
+  .hero-copy h1 {
+    max-width: 11ch;
+  }
+  .hero-copy .lead {
+    margin: 0;
+    max-width: 34em;
+  }
+  .con {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    text-decoration: none;
+    padding-top: 1.4rem;
+    border-top: 1px solid var(--linea);
+    width: 100%;
+    font-size: var(--t-sm);
+    color: var(--bruma);
+  }
+  .con img {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: 50% 12%;
+    border: 2px solid var(--cian);
+    background: #000;
+  }
+  .con em {
+    font-family: 'Allura', cursive;
+    font-style: normal;
+    font-size: 1.55em;
+    color: var(--hueso);
+    line-height: 1;
+  }
+  .con:hover span {
+    color: var(--hueso);
+  }
+
+  /* Fundador */
+  .f-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 420px) 1fr;
+    gap: clamp(2rem, 6vw, 5rem);
+    align-items: center;
+  }
+  .f-copy {
+    display: grid;
+    gap: 1.5rem;
+  }
+  .f-copy h2 {
+    max-width: 16ch;
+  }
+  .f-copy .lead {
+    margin: 0;
+  }
+  .f-quotes {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 1rem;
+  }
+  .f-quotes li {
+    padding-left: 1.1rem;
+    border-left: 2px solid var(--cian);
+  }
+  .f-quotes blockquote {
+    margin: 0 0 0.25rem;
+    font-size: var(--t-md);
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  .f-quotes span {
+    font-size: var(--t-sm);
+    color: var(--bruma);
+  }
+  .f-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .f-links a {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.7rem 1rem;
+    border: 1px solid var(--linea);
+    border-radius: var(--r-sm);
+    text-decoration: none;
+    font-size: var(--t-sm);
+    color: var(--bruma);
+  }
+  .f-links a:hover {
+    border-color: #2c3a7a;
+    color: var(--hueso);
+  }
+  .f-links :global(svg) {
+    width: 22px;
+    height: 22px;
+    color: var(--cian);
+  }
+  .f-links span {
+    display: grid;
+    line-height: 1.3;
+  }
+  .f-links strong {
+    color: var(--hueso);
+  }
+
+  /* Equipo */
+  .row-head {
+    max-width: none;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: end;
+    gap: 1rem;
+  }
+  .row-head h2 {
+    margin-bottom: 0.75rem;
+  }
+  .equipo {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  /* Banda de video */
+  .banda {
+    position: relative;
+  }
+  .banda :global(.banda-video) {
+    height: clamp(380px, 52vw, 640px);
+    border-radius: 0;
+  }
+  .banda::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(0deg, var(--noche) 4%, rgb(6 10 31 / 0.25) 50%, var(--noche) 100%);
+    pointer-events: none;
+  }
+  .banda-copy {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: clamp(1.5rem, 5vw, 3.5rem);
+    z-index: 1;
+  }
+  .banda-copy p {
+    max-width: 34em;
+    font-size: var(--t-md);
+    margin: 0.75rem 0 0;
+  }
+
+  /* Reseñas */
+  .res {
+    display: grid;
+    grid-template-columns: 1fr 1.25fr;
+    gap: clamp(2rem, 6vw, 5rem);
+    align-items: start;
+  }
+  .res-copy {
+    position: sticky;
+    top: 110px;
+    display: grid;
+    gap: 1.25rem;
+    justify-items: start;
+  }
+  .res-copy .lead {
+    margin: 0;
+  }
+
+  /* App */
+  .app {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 1.5rem 2rem;
+    align-items: center;
+    padding: 1.75rem 0;
+    border-block: 1px solid var(--linea);
+  }
+  .app-ico {
+    border-radius: 16px;
+  }
+  .app h2 {
+    font-size: var(--t-lg);
+  }
+  .app p {
+    margin: 0.35rem 0 0;
+  }
+
+  /* Familia */
+  .familia {
+    position: relative;
+  }
+  .familia picture img {
+    width: 100%;
+    height: clamp(320px, 46vw, 600px);
+    object-fit: cover;
+    object-position: center 25%;
+    background: var(--tinta);
+  }
+  .familia::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(0deg, var(--noche) 6%, rgb(6 10 31 / 0.4) 42%, transparent 70%);
+    pointer-events: none;
+  }
+  .familia-copy {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: clamp(1.5rem, 5vw, 3rem);
+    z-index: 1;
+  }
+  .familia-copy h2 {
+    max-width: 14ch;
+  }
+  .familia-copy .lead {
+    margin: 1rem 0 0;
+    color: var(--hueso);
+  }
+
+  /* Telegram */
+  .tg {
+    background: var(--azul);
+    margin-top: var(--sec);
+  }
+  .tg-in {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+    padding-block: clamp(3rem, 7vw, 5rem);
+  }
+  .tg h2 {
+    font-size: var(--t-lg);
+    max-width: 20ch;
+  }
+  .tg p {
+    margin: 0.75rem 0 0;
+    color: #dfe5ff;
+    max-width: 36em;
+  }
+  .tg-btn {
+    --bg: #fff;
+    --fg: var(--azul);
+  }
+  .tg-btn:hover {
+    --bg: #e9eeff;
+  }
+  .tg-ghost {
+    --bg: transparent;
+    --bd: rgb(255 255 255 / 0.5);
+    --fg: #fff;
+  }
+  .tg-ghost:hover {
+    --bg: rgb(255 255 255 / 0.12);
+  }
+
+  @media (max-width: 960px) {
+    .hero-grid,
+    .f-grid,
+    .res {
+      grid-template-columns: 1fr;
+    }
+    .f-grid :global(.mc) {
+      max-width: 420px;
+    }
+    .res-copy {
+      position: static;
+    }
+    .equipo {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+    .app {
+      grid-template-columns: auto 1fr;
+    }
+    .app .btn-row {
+      grid-column: 1 / -1;
+    }
+    .banda-copy,
+    .familia-copy {
+      position: relative;
+      bottom: auto;
+      margin-top: -5rem;
+    }
+  }
+  @media (max-width: 420px) {
+    .equipo :global(.first) {
+      font-size: 1.15rem;
+    }
+    .equipo :global(.last) {
+      font-size: 1.35rem;
+      margin-left: 0.8em;
+    }
+    .equipo :global(.mc-info) {
+      padding: 0.8rem;
+    }
+  }
+</style>

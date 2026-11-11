@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.astro/
+.DS_Store
+.env
+
+# Material privado: hallazgos del sitio del cliente
+privado/
+
+# Instrucciones y estado de trabajo con agentes: solo locales
+AGENTS.md
+CLAUDE.md
+agentes/
+.claude/

@@ -1,0 +1,246 @@
+---
+// Tarjeta de mentor. Al pasar el mouse (o al enfocarla con teclado) la tarjeta sube,
+// aparece el rol y luego las redes una por una. En pantallas táctiles todo queda visible.
+import Icon from './Icon.astro';
+import { contacto } from '../config/sitio';
+import { nombreCompleto } from '../dominio/mentor';
+import type { Mentor } from '../dominio/mentor';
+
+interface Props {
+  m: Mentor;
+  bio?: boolean;
+  eager?: boolean;
+  grande?: boolean;
+}
+const { m, bio = false, eager = false, grande = false } = Astro.props;
+const full = nombreCompleto(m);
+const wa = `https://wa.me/${contacto.whatsappNumero}?text=${encodeURIComponent(`Hola, quiero información de las clases de ${full} en Sniper Pro.`)}`;
+type Enlace = { name: string; href: string; label: string };
+const redes: Enlace[] = [];
+if (m.redes.instagram) {
+  redes.push({ name: 'instagram', href: m.redes.instagram, label: `Instagram de ${full}` });
+}
+if (m.redes.tiktok) {
+  redes.push({ name: 'tiktok', href: m.redes.tiktok, label: `TikTok de ${full}` });
+}
+if (m.redes.youtube) {
+  redes.push({ name: 'youtube', href: m.redes.youtube, label: `YouTube de ${full}` });
+}
+redes.push({ name: 'whatsapp', href: wa, label: `Preguntar por las clases de ${full}` });
+---
+
+<article class:list={['mc', { grande }]}>
+  <div class="mc-frame">
+    <img
+      src={`/media/mentores/${m.slug}-400.webp`}
+      srcset={`/media/mentores/${m.slug}-400.webp 400w, /media/mentores/${m.slug}-800.webp 800w`}
+      sizes={grande ? '(max-width: 700px) 90vw, 480px' : '(max-width: 700px) 45vw, 340px'}
+      width="400"
+      height="500"
+      alt={`Retrato de ${full}`}
+      loading={eager ? 'eager' : 'lazy'}
+      decoding="async"
+    />
+    <div class="mc-info">
+      <h3 class="mc-name">
+        <span class="first">{m.nombre}</span>
+        {m.apellido && <span class="last">{m.apellido}</span>}
+      </h3>
+      <div class="mc-more">
+        <p class="mc-rol">
+          <strong>{m.rol}</strong>
+          <span>{m.enfoque}</span>
+        </p>
+        <ul class="mc-social">
+          {redes.map((r, i) => (
+            <li style={`--d:${0.12 + i * 0.07}s`}>
+              <a href={r.href} target="_blank" rel="noopener" aria-label={r.label}>
+                <Icon name={r.name} />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  </div>
+  {bio && m.bio && <p class="mc-bio">{m.bio}</p>}
+</article>
+
+<style>
+  .mc-frame {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border-radius: var(--r-md);
+    background: #000;
+    isolation: isolate;
+    transition:
+      transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1),
+      box-shadow 0.35s;
+  }
+  .mc-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .mc-frame::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: linear-gradient(0deg, rgb(6 10 31 / 0.95) 6%, rgb(6 10 31 / 0.55) 34%, transparent 58%);
+    transition: opacity 0.35s;
+  }
+  .mc-info {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2;
+    padding: 1.1rem 1.1rem 1rem;
+  }
+
+  /* Nombre como en sus piezas gráficas: nombre ancho en cian y apellido en firma */
+  .mc-name {
+    display: grid;
+    line-height: 0.9;
+    letter-spacing: 0;
+  }
+  .first {
+    font-size: clamp(1.35rem, 1.1rem + 0.8vw, 1.75rem);
+    font-weight: 900;
+    font-stretch: 125%;
+    text-transform: uppercase;
+    color: var(--cian);
+  }
+  .last {
+    font-family: 'Allura', cursive;
+    font-weight: 400;
+    font-stretch: 100%;
+    font-size: clamp(1.5rem, 1.2rem + 0.9vw, 1.95rem);
+    color: #fff;
+    margin: -0.12em 0 0 1.9em;
+  }
+
+  .mc-more {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 0.6rem;
+  }
+  .mc-rol {
+    margin: 0;
+    display: grid;
+    font-size: var(--t-sm);
+    line-height: 1.35;
+  }
+  .mc-rol strong {
+    color: var(--hueso);
+  }
+  .mc-rol span {
+    color: var(--bruma);
+  }
+  .mc-social {
+    display: flex;
+    gap: 0.45rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .mc-social a {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgb(255 255 255 / 0.1);
+    color: #fff;
+    backdrop-filter: blur(6px);
+    transition:
+      background 0.2s,
+      color 0.2s;
+  }
+  .mc-social a:hover {
+    background: var(--cian);
+    color: var(--noche);
+  }
+  .mc-social :global(svg) {
+    width: 19px;
+    height: 19px;
+  }
+  .mc-bio {
+    margin: 1rem 0 0;
+    font-size: var(--t-sm);
+    color: var(--bruma);
+  }
+
+  /* Interacción con mouse */
+  @media (hover: hover) {
+    .mc-more {
+      opacity: 0;
+      transform: translateY(10px);
+      transition:
+        opacity 0.3s,
+        transform 0.3s,
+        max-height 0.35s;
+      max-height: 0;
+      overflow: hidden;
+    }
+    .mc-social li {
+      opacity: 0;
+      transform: translateY(12px);
+      transition:
+        opacity 0.3s,
+        transform 0.3s;
+    }
+    .mc:hover .mc-frame,
+    .mc:focus-within .mc-frame {
+      transform: translateY(-8px);
+      box-shadow:
+        0 24px 50px -18px rgb(35 72 255 / 0.75),
+        0 0 0 1.5px rgb(34 225 255 / 0.55);
+    }
+    .mc:hover img,
+    .mc:focus-within img {
+      transform: scale(1.04);
+    }
+    .mc:hover .mc-more,
+    .mc:focus-within .mc-more {
+      opacity: 1;
+      transform: none;
+      max-height: 200px;
+      transition-delay: 0.05s;
+    }
+    .mc:hover .mc-social li,
+    .mc:focus-within .mc-social li {
+      opacity: 1;
+      transform: none;
+      transition-delay: var(--d);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .mc-frame,
+    .mc-frame img,
+    .mc-more,
+    .mc-social li {
+      transition: none !important;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .mc:not(.grande) .mc-rol span {
+      display: none;
+    }
+    .mc:not(.grande) .mc-social a {
+      width: 36px;
+      height: 36px;
+    }
+  }
+  .grande .first {
+    font-size: clamp(1.8rem, 1.3rem + 2vw, 2.6rem);
+  }
+  .grande .last {
+    font-size: clamp(2rem, 1.5rem + 2vw, 2.9rem);
+  }
+</style>

@@ -1,0 +1,146 @@
+---
+// Reseñas presentadas como mensajes de la comunidad, al estilo del grupo de Telegram
+// donde vive la comunidad Sniper Pro. El texto aclara que son reseñas de la plataforma.
+import type { Resena } from '../dominio/resena';
+
+interface Props {
+  resenas: Resena[];
+}
+const { resenas } = Astro.props;
+const VISIBLES = 8;
+const colores = ['#6ec9ff', '#ffb86b', '#b9a6ff', '#7ee3a2', '#ff8fa3', '#f5d76e'];
+const colorDe = (n: string) => colores[[...n].reduce((a, c) => a + c.charCodeAt(0), 0) % colores.length];
+---
+
+<div class="chat">
+  <div class="chat-head">
+    <img src="/favicon.svg" alt="" width="40" height="40" />
+    <div>
+      <strong>Familia Sniper Pro</strong>
+      <span>Reseñas de estudiantes en la plataforma</span>
+    </div>
+  </div>
+  <ul class="chat-list" id="chat-list">
+    {resenas.map((t, i) => (
+      <li class="msg" hidden={i >= VISIBLES ? true : undefined}>
+        <span class="av" style={`--c:${colorDe(t.nombre)}`} aria-hidden="true">
+          {t.nombre.charAt(0)}
+        </span>
+        <div class="bubble">
+          <p class="who" style={`color:${colorDe(t.nombre)}`}>
+            {t.nombre}
+          </p>
+          <p class="txt">{t.texto}</p>
+        </div>
+      </li>
+    ))}
+  </ul>
+  <button class="chat-more" type="button" aria-controls="chat-list">
+    Ver más reseñas
+  </button>
+</div>
+
+<script>
+  document.querySelector('.chat-more')?.addEventListener('click', (e) => {
+    document.querySelectorAll<HTMLLIElement>('.msg[hidden]').forEach((li) => (li.hidden = false));
+    (e.currentTarget as HTMLElement).remove();
+  });
+</script>
+
+<style>
+  .chat {
+    background: #0b1230;
+    border: 1px solid var(--linea);
+    border-radius: 18px;
+    overflow: hidden;
+  }
+  .chat-head {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.9rem 1.1rem;
+    background: #0f1840;
+    border-bottom: 1px solid var(--linea);
+  }
+  .chat-head img {
+    border-radius: 50%;
+  }
+  .chat-head div {
+    display: grid;
+    line-height: 1.25;
+  }
+  .chat-head strong {
+    font-size: var(--t-sm);
+  }
+  .chat-head span {
+    font-size: var(--t-xs);
+    color: var(--bruma);
+  }
+  .chat-list {
+    list-style: none;
+    margin: 0;
+    padding: 1.25rem 1.1rem 0.5rem;
+    display: grid;
+    gap: 0.7rem;
+    background-image: radial-gradient(rgb(255 255 255 / 0.035) 1px, transparent 1px);
+    background-size: 18px 18px;
+  }
+  .msg {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.55rem;
+    max-width: 92%;
+  }
+  .msg[hidden] {
+    display: none;
+  }
+  .msg:nth-child(3n + 2) {
+    margin-left: 2.2rem;
+  }
+  .av {
+    flex: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    font-size: var(--t-sm);
+    color: var(--noche);
+    background: var(--c);
+  }
+  .msg:nth-child(3n + 2) .av {
+    display: none;
+  }
+  .bubble {
+    background: #17204f;
+    padding: 0.55rem 0.85rem 0.6rem;
+    border-radius: 14px 14px 14px 4px;
+  }
+  .who {
+    margin: 0 0 0.15rem;
+    font-size: var(--t-xs);
+    font-weight: 700;
+  }
+  .txt {
+    margin: 0;
+    font-size: var(--t-sm);
+    line-height: 1.5;
+  }
+  .chat-more {
+    display: block;
+    width: 100%;
+    padding: 0.9rem;
+    background: none;
+    border: 0;
+    border-top: 1px solid var(--linea);
+    color: var(--cian);
+    font: inherit;
+    font-weight: 700;
+    font-size: var(--t-sm);
+    cursor: pointer;
+  }
+  .chat-more:hover {
+    background: #0f1840;
+  }
+</style>

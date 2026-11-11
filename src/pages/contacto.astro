@@ -1,0 +1,202 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import { links, contacto } from '../config/sitio';
+---
+
+<Base
+  title="Contacto | Sniper Pro Academy"
+  description="Escríbenos por WhatsApp, Telegram o correo. Sniper Pro, Cúcuta, Colombia."
+>
+  <section class="sec page-top">
+    <div class="wrap ct">
+      <div>
+        <h1 class="h-page">Hablemos</h1>
+        <p class="lead">
+          La forma más rápida de resolver tus dudas es WhatsApp. Cuéntanos qué quieres aprender y te recomendamos por
+          dónde empezar.
+        </p>
+
+        <ul class="canales">
+          <li>
+            <a href={links.whatsapp} target="_blank" rel="noopener">
+              <Icon name="whatsapp" />
+              <span>
+                <strong>WhatsApp</strong>Respuesta directa del equipo
+              </span>
+            </a>
+          </li>
+          <li>
+            <a href={links.telegram} target="_blank" rel="noopener">
+              <Icon name="telegram" />
+              <span>
+                <strong>Telegram gratuito</strong>Comunidad, análisis y avisos
+              </span>
+            </a>
+          </li>
+          <li>
+            <a href={contacto.telefonoHref}>
+              <Icon name="phone" />
+              <span>
+                <strong>{contacto.telefono}</strong>Llamadas
+              </span>
+            </a>
+          </li>
+          <li>
+            <a href={`mailto:${contacto.email}`}>
+              <Icon name="mail" />
+              <span>
+                <strong>Correo</strong>
+                {contacto.email}
+              </span>
+            </a>
+          </li>
+          <li>
+            <div>
+              <Icon name="pin" />
+              <span>
+                <strong>{contacto.ciudad}</strong>Encuentros presenciales en varias ciudades
+              </span>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <form class="form" id="form-wa" data-wa={contacto.whatsappNumero} novalidate>
+        <h2>Escríbenos</h2>
+        <p class="muted">Al enviar se abre WhatsApp con tu mensaje listo.</p>
+        <div class="field">
+          <label for="f-nombre">Tu nombre</label>
+          <input class="input" id="f-nombre" name="nombre" autocomplete="given-name" required />
+          <p class="err" id="e-nombre" hidden>
+            Escribe tu nombre para saber cómo llamarte.
+          </p>
+        </div>
+        <div class="field">
+          <label for="f-interes">¿Qué te interesa?</label>
+          <select class="input" id="f-interes" name="interes">
+            <option>Empezar desde cero</option>
+            <option>Índices sintéticos</option>
+            <option>Forex</option>
+            <option>Mentalidad</option>
+            <option>App de señales</option>
+            <option>Mentoría personalizada</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="f-msg">Mensaje (opcional)</label>
+          <textarea class="input" id="f-msg" name="mensaje" rows="4"></textarea>
+        </div>
+        <button class="btn" type="submit">
+          <Icon name="whatsapp" />
+          Abrir WhatsApp
+        </button>
+      </form>
+    </div>
+  </section>
+</Base>
+
+<script>
+  const formulario = document.getElementById('form-wa') as HTMLFormElement;
+  const campoNombre = document.getElementById('f-nombre') as HTMLInputElement;
+  const campoInteres = document.getElementById('f-interes') as HTMLSelectElement;
+  const campoMensaje = document.getElementById('f-msg') as HTMLTextAreaElement;
+  const errorNombre = document.getElementById('e-nombre') as HTMLParagraphElement;
+  const numero = formulario.dataset.wa;
+
+  formulario.addEventListener('submit', (evento) => {
+    evento.preventDefault();
+    const nombre = campoNombre.value.trim();
+    if (!nombre) {
+      errorNombre.hidden = false;
+      campoNombre.setAttribute('aria-invalid', 'true');
+      campoNombre.focus();
+      return;
+    }
+    errorNombre.hidden = true;
+    campoNombre.removeAttribute('aria-invalid');
+    const mensaje = campoMensaje.value.trim();
+    const extra = mensaje ? ` ${mensaje}` : '';
+    const texto = `Hola, soy ${nombre}. Me interesa: ${campoInteres.value}.${extra}`;
+    window.open(`https://wa.me/${numero}?text=${encodeURIComponent(texto)}`, '_blank', 'noopener');
+  });
+</script>
+
+<style>
+  .page-top {
+    padding-top: clamp(2.5rem, 6vw, 4.5rem);
+  }
+  .h-page {
+    font-size: var(--t-xl);
+    margin-bottom: 1.25rem;
+  }
+  .ct {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: clamp(2rem, 6vw, 5rem);
+    align-items: start;
+  }
+  .canales {
+    list-style: none;
+    padding: 0;
+    margin: 2rem 0 0;
+    border-top: 1px solid var(--linea);
+  }
+  .canales li > * {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--linea);
+    text-decoration: none;
+  }
+  .canales a:hover strong {
+    color: var(--cian);
+  }
+  .canales :global(svg) {
+    width: 24px;
+    height: 24px;
+    color: var(--cian);
+    flex: none;
+  }
+  .canales span {
+    display: grid;
+    font-size: var(--t-sm);
+    color: var(--bruma);
+  }
+  .canales strong {
+    color: var(--hueso);
+    font-size: var(--t-base);
+  }
+  .form {
+    display: grid;
+    gap: 1.2rem;
+    padding: clamp(1.5rem, 4vw, 2.25rem);
+    background: var(--tinta);
+    border: 1px solid var(--linea);
+    border-radius: var(--r-md);
+  }
+  .form h2 {
+    font-size: var(--t-lg);
+  }
+  .form > p {
+    margin: -0.6rem 0 0;
+    font-size: var(--t-sm);
+  }
+  .err {
+    margin: 0;
+    color: var(--baja);
+    font-size: var(--t-sm);
+  }
+  .input[aria-invalid='true'] {
+    border-color: var(--baja);
+  }
+  textarea.input {
+    resize: vertical;
+  }
+  @media (max-width: 860px) {
+    .ct {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

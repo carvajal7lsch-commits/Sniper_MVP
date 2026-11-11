@@ -1,0 +1,179 @@
+---
+import { links, contacto, nav } from '../config/sitio';
+import Icon from './Icon.astro';
+const year = new Date().getFullYear();
+const redes = [
+  { name: 'instagram', href: links.instagram, label: 'Instagram' },
+  { name: 'youtube', href: links.youtube, label: 'YouTube' },
+  { name: 'facebook', href: links.facebook, label: 'Facebook' },
+  { name: 'telegram', href: links.telegram, label: 'Telegram' },
+  { name: 'whatsapp', href: links.whatsapp, label: 'WhatsApp' },
+];
+---
+
+<footer class="ft">
+  <div class="wrap ft-grid">
+    <div class="ft-brand">
+      <img src="/media/logo.webp" alt="Sniper Pro Trading" width="152" height="44" loading="lazy" />
+      <p class="muted">Academia de trading en Cúcuta para toda Latinoamérica. Más que una academia, una familia.</p>
+      <ul class="ft-social" aria-label="Redes sociales">
+        {redes.map((r) => (
+          <li>
+            <a href={r.href} target="_blank" rel="noopener" aria-label={r.label}>
+              <Icon name={r.name} />
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <nav aria-label="Pie de página">
+      <h2 class="ft-h">Navegación</h2>
+      <ul class="ft-list">
+        {nav.map((n) => (
+          <li>
+            <a href={n.href}>{n.label}</a>
+          </li>
+        ))}
+        <li>
+          <a href={links.login}>Ingresar a la plataforma</a>
+        </li>
+      </ul>
+    </nav>
+
+    <div>
+      <h2 class="ft-h">App Sniper Pro</h2>
+      <ul class="ft-list">
+        <li>
+          <a href={links.googlePlay} target="_blank" rel="noopener">
+            Google Play
+          </a>
+        </li>
+        <li>
+          <a href={links.testflight} target="_blank" rel="noopener">
+            iPhone (beta en TestFlight)
+          </a>
+        </li>
+        <li>
+          <a href={links.weltrade} target="_blank" rel="noopener">
+            Abrir cuenta en Weltrade
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div>
+      <h2 class="ft-h">Contacto</h2>
+      <ul class="ft-list">
+        <li>
+          <a href={contacto.telefonoHref}>{contacto.telefono}</a>
+        </li>
+        <li>
+          <a href={`mailto:${contacto.email}`}>{contacto.email}</a>
+        </li>
+        <li>{contacto.ciudad}</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="wrap ft-legal">
+    <p>
+      <strong>Aviso de riesgo.</strong> Operar índices sintéticos, Forex y otros instrumentos apalancados implica un
+      riesgo alto de pérdida y puede no ser adecuado para todas las personas. Los resultados pasados no garantizan
+      resultados futuros. El contenido de Sniper Pro es educativo y no constituye asesoría financiera personalizada.
+    </p>
+    <p>© {year} Sniper Pro Trading. Todos los derechos reservados.</p>
+  </div>
+</footer>
+
+<style>
+  .ft {
+    border-top: 1px solid var(--linea);
+    background: #050818;
+    padding-top: clamp(3rem, 7vw, 5rem);
+    font-size: var(--t-sm);
+  }
+  .ft-grid {
+    display: grid;
+    gap: 2.5rem;
+    grid-template-columns: 1.6fr 1fr 1fr 1.2fr;
+  }
+  .ft-brand img {
+    height: 40px;
+    width: auto;
+    margin-bottom: 1rem;
+  }
+  .ft-brand p {
+    max-width: 30ch;
+  }
+  .ft-h {
+    font-size: var(--t-sm);
+    font-stretch: 112%;
+    letter-spacing: 0;
+    margin-bottom: 1rem;
+  }
+  .ft-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.6rem;
+    color: var(--bruma);
+  }
+  .ft-list a {
+    text-decoration: none;
+    color: var(--bruma);
+  }
+  .ft-list a:hover {
+    color: var(--hueso);
+    text-decoration: underline;
+  }
+  .ft-social {
+    display: flex;
+    gap: 0.5rem;
+    list-style: none;
+    padding: 0;
+    margin: 1.25rem 0 0;
+  }
+  .ft-social a {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border: 1px solid var(--linea);
+    border-radius: var(--r-sm);
+    color: var(--bruma);
+  }
+  .ft-social a:hover {
+    color: var(--hueso);
+    border-color: #2c3a7a;
+  }
+  .ft-social :global(svg) {
+    width: 20px;
+    height: 20px;
+  }
+  .ft-legal {
+    margin-top: 3rem;
+    padding-block: 1.75rem 2.5rem;
+    border-top: 1px solid var(--linea);
+    color: #6f79a6;
+    font-size: var(--t-xs);
+    display: grid;
+    gap: 0.5rem;
+  }
+  .ft-legal p {
+    margin: 0;
+    max-width: 90ch;
+  }
+  .ft-legal strong {
+    color: var(--bruma);
+  }
+  @media (max-width: 860px) {
+    .ft-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .ft-brand {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

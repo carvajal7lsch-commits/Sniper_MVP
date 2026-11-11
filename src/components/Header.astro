@@ -1,0 +1,191 @@
+---
+import { nav, links } from '../config/sitio';
+import Icon from './Icon.astro';
+const path = Astro.url.pathname;
+const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+---
+
+<header class="hd">
+  <div class="wrap hd-in">
+    <a href="/" class="hd-logo" aria-label="Sniper Pro, inicio">
+      <img src="/media/logo.webp" alt="Sniper Pro Trading" width="152" height="44" />
+    </a>
+
+    <nav class="hd-nav" aria-label="Principal">
+      <ul>
+        {nav.map((n) => (
+          <li>
+            <a href={n.href} aria-current={isActive(n.href) ? 'page' : undefined}>
+              {n.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="hd-actions">
+      <a class="btn btn-ghost hd-login" href={links.login}>
+        Ingresar
+      </a>
+      <a class="btn" href={links.telegram} target="_blank" rel="noopener">
+        <Icon name="telegram" />
+        <span>Únete gratis</span>
+      </a>
+      <button class="hd-toggle" type="button" aria-expanded="false" aria-controls="menu-movil">
+        <Icon name="menu" class="i-open" />
+        <Icon name="close" class="i-close" />
+        <span class="sr-only">Menú</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="hd-mobile" id="menu-movil" hidden>
+    <ul class="wrap">
+      {nav.map((n) => (
+        <li>
+          <a href={n.href} aria-current={isActive(n.href) ? 'page' : undefined}>
+            {n.label}
+          </a>
+        </li>
+      ))}
+      <li>
+        <a href={links.login}>Ingresar a la plataforma</a>
+      </li>
+    </ul>
+  </div>
+</header>
+
+<script>
+  const btn = document.querySelector<HTMLButtonElement>('.hd-toggle');
+  const menu = document.getElementById('menu-movil');
+  btn?.addEventListener('click', () => {
+    const open = btn.getAttribute('aria-expanded') === 'true';
+    btn.setAttribute('aria-expanded', String(!open));
+    if (menu) menu.hidden = open;
+  });
+</script>
+
+<style>
+  .hd {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgb(6 10 31 / 0.86);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--linea);
+  }
+  .hd-in {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    min-height: 68px;
+  }
+  .hd-logo img {
+    height: 40px;
+    width: auto;
+  }
+  .hd-nav {
+    margin-left: auto;
+  }
+  .hd-nav ul {
+    display: flex;
+    gap: 0.25rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .hd-nav a {
+    display: block;
+    padding: 0.5rem 0.8rem;
+    border-radius: var(--r-sm);
+    text-decoration: none;
+    font-size: var(--t-sm);
+    font-weight: 600;
+    color: var(--bruma);
+  }
+  .hd-nav a:hover {
+    color: var(--hueso);
+  }
+  .hd-nav a[aria-current='page'] {
+    color: var(--hueso);
+    box-shadow: inset 0 -2px 0 var(--cian);
+    border-radius: 0;
+  }
+  .hd-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .hd-actions .btn {
+    min-height: 42px;
+    padding: 0.5rem 1rem;
+  }
+  .hd-toggle {
+    display: none;
+    width: 44px;
+    height: 44px;
+    border: 1.5px solid var(--linea);
+    border-radius: var(--r-sm);
+    background: none;
+    color: var(--hueso);
+    cursor: pointer;
+    place-items: center;
+  }
+  .hd-toggle :global(svg) {
+    width: 22px;
+    height: 22px;
+  }
+  .hd-toggle :global(.i-close) {
+    display: none;
+  }
+  .hd-toggle[aria-expanded='true'] :global(.i-open) {
+    display: none;
+  }
+  .hd-toggle[aria-expanded='true'] :global(.i-close) {
+    display: block;
+  }
+  .hd-mobile {
+    border-top: 1px solid var(--linea);
+  }
+  .hd-mobile ul {
+    list-style: none;
+    padding-block: 0.5rem 1rem;
+    margin-block: 0;
+  }
+  .hd-mobile a {
+    display: block;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--linea);
+    text-decoration: none;
+    font-weight: 700;
+    font-stretch: 112%;
+    font-size: var(--t-md);
+  }
+  .hd-mobile a[aria-current='page'] {
+    color: var(--cian);
+  }
+
+  @media (max-width: 960px) {
+    .hd-nav,
+    .hd-login {
+      display: none;
+    }
+    .hd-actions {
+      margin-left: auto;
+    }
+    .hd-toggle {
+      display: grid;
+    }
+  }
+  @media (max-width: 420px) {
+    .hd-actions .btn span {
+      display: none;
+    }
+    .hd-actions .btn {
+      padding-inline: 0.8rem;
+    }
+    .hd-logo img {
+      height: 34px;
+    }
+  }
+</style>

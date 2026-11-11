@@ -1,0 +1,277 @@
+---
+import Base from '../layouts/Base.astro';
+import Icon from '../components/Icon.astro';
+import { contacto, mentoriaPersonalizada as personalizado } from '../config/sitio';
+import { NIVELES as niveles } from '../dominio/curso';
+import { repositorios } from '../infraestructura/contenedor';
+
+const cursos = await repositorios.cursos.listar();
+const categorias = await repositorios.cursos.listarCategorias();
+const catNombre = Object.fromEntries(categorias.map((c) => [c.id, c.nombre]));
+const wa = (t: string) =>
+  `https://wa.me/${contacto.whatsappNumero}?text=${encodeURIComponent(`Hola, quiero información del curso "${t}" de Sniper Pro.`)}`;
+---
+
+<Base
+  title="Cursos de trading | Sniper Pro Academy"
+  description="Cursos de índices sintéticos, Forex, mentalidad y educación financiera, desde cero hasta tu propio plan de trading."
+>
+  <section class="sec page-top">
+    <div class="wrap">
+      <div class="sec-head">
+        <h1 class="h-page">Cursos</h1>
+        <p class="lead">Desde la primera vela hasta tu propio plan de trading. Filtra por tema o nivel.</p>
+      </div>
+
+      <div class="filtros" role="group" aria-label="Filtrar cursos">
+        <div class="chips" data-group="cat">
+          <button class="chip" type="button" aria-pressed="true" data-value="">
+            Todos
+          </button>
+          {categorias.map((c) => (
+            <button class="chip" type="button" aria-pressed="false" data-value={c.id}>
+              {c.nombre}
+            </button>
+          ))}
+        </div>
+        <div class="filtros-2">
+          <label class="sr-only" for="nivel">
+            Nivel
+          </label>
+          <select id="nivel" class="input">
+            <option value="">Todos los niveles</option>
+            {niveles.map((n) => (
+              <option value={n}>{n}</option>
+            ))}
+          </select>
+          <label class="sr-only" for="q">
+            Buscar curso
+          </label>
+          <input id="q" class="input" type="search" placeholder="Buscar curso" autocomplete="off" />
+        </div>
+      </div>
+
+      <p class="conteo muted" aria-live="polite" id="conteo">
+        {cursos.length} cursos
+      </p>
+
+      <ul class="grid-cursos" id="lista">
+        {cursos.map((c) => (
+          <li
+            class="curso"
+            data-cat={c.categoria}
+            data-nivel={c.nivel}
+            data-text={`${c.titulo} ${c.resumen}`.toLowerCase()}
+          >
+            <div class="curso-meta">
+              <span class="tag">{catNombre[c.categoria]}</span>
+              <span class="tag">{c.nivel}</span>
+            </div>
+            <h2 class="curso-t">{c.titulo}</h2>
+            <p class="muted">{c.resumen}</p>
+            <div class="curso-pie">
+              <span class="formato">{c.formato}</span>
+              <a class="btn btn-ghost" href={wa(c.titulo)} target="_blank" rel="noopener">
+                <Icon name="whatsapp" />
+                Pedir información
+              </a>
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      <div class="vacio" id="vacio" hidden>
+        <p>
+          <strong>Ningún curso coincide con esos filtros.</strong>
+        </p>
+        <p class="muted">Prueba con otro tema o nivel, o escríbenos y te recomendamos uno.</p>
+        <button class="btn btn-ghost" type="button" id="limpiar">
+          Quitar filtros
+        </button>
+      </div>
+
+      <aside class="personal">
+        <div>
+          <h2>{personalizado.titulo}</h2>
+          <p class="lead">{personalizado.resumen}</p>
+        </div>
+        <a class="btn" href={wa(personalizado.titulo)} target="_blank" rel="noopener">
+          <Icon name="whatsapp" />
+          Agendar por WhatsApp
+        </a>
+      </aside>
+
+      <p class="nota muted">
+        Catálogo de ejemplo para la demo, armado con los cursos que mencionan los estudiantes. En la versión final se
+        conecta al catálogo real de la plataforma.
+      </p>
+    </div>
+  </section>
+</Base>
+
+<script>
+  const state = { cat: '', nivel: '', q: '' };
+  const items = [...document.querySelectorAll<HTMLLIElement>('.curso')];
+  const conteo = document.getElementById('conteo')!;
+  const vacio = document.getElementById('vacio')!;
+  const nivel = document.getElementById('nivel') as HTMLSelectElement;
+  const q = document.getElementById('q') as HTMLInputElement;
+  const chips = [...document.querySelectorAll<HTMLButtonElement>('[data-group="cat"] .chip')];
+
+  function render() {
+    let n = 0;
+    for (const li of items) {
+      const ok =
+        (!state.cat || li.dataset.cat === state.cat) &&
+        (!state.nivel || li.dataset.nivel === state.nivel) &&
+        (!state.q || li.dataset.text!.includes(state.q));
+      li.hidden = !ok;
+      if (ok) n++;
+    }
+    conteo.textContent = n === 1 ? '1 curso' : `${n} cursos`;
+    vacio.hidden = n !== 0;
+  }
+  chips.forEach((b) =>
+    b.addEventListener('click', () => {
+      chips.forEach((c) => c.setAttribute('aria-pressed', String(c === b)));
+      state.cat = b.dataset.value || '';
+      render();
+    }),
+  );
+  nivel.addEventListener('change', () => {
+    state.nivel = nivel.value;
+    render();
+  });
+  q.addEventListener('input', () => {
+    state.q = q.value.trim().toLowerCase();
+    render();
+  });
+  document.getElementById('limpiar')!.addEventListener('click', () => {
+    state.cat = state.nivel = state.q = '';
+    nivel.value = '';
+    q.value = '';
+    chips.forEach((c, i) => c.setAttribute('aria-pressed', String(i === 0)));
+    render();
+  });
+</script>
+
+<style>
+  .page-top {
+    padding-top: clamp(2.5rem, 6vw, 4.5rem);
+  }
+  .h-page {
+    font-size: var(--t-xl);
+  }
+  .filtros {
+    display: grid;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .filtros-2 {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 360px);
+    gap: 0.75rem;
+  }
+  .conteo {
+    font-size: var(--t-sm);
+    margin: 0 0 1.25rem;
+  }
+  .grid-cursos {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    border-top: 1px solid var(--linea);
+    border-left: 1px solid var(--linea);
+  }
+  .curso {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    padding: 1.6rem;
+    border-right: 1px solid var(--linea);
+    border-bottom: 1px solid var(--linea);
+  }
+  .curso[hidden] {
+    display: none;
+  }
+  .curso-meta {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+  .curso-t {
+    font-size: var(--t-md);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+  .curso p {
+    margin: 0;
+    flex: 1;
+    font-size: var(--t-sm);
+  }
+  .curso-pie {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 0.4rem;
+  }
+  .formato {
+    font-size: var(--t-sm);
+    color: var(--cian);
+    font-weight: 600;
+  }
+  .curso-pie .btn {
+    min-height: 42px;
+    padding: 0.45rem 0.9rem;
+  }
+  .vacio {
+    padding: 2.5rem 0;
+  }
+  .vacio p {
+    margin: 0 0 0.5rem;
+  }
+  .personal {
+    margin-top: 3rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.5rem;
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    border-radius: var(--r-md);
+    background: radial-gradient(80% 140% at 100% 0%, rgb(35 72 255 / 0.35), transparent 60%), var(--tinta);
+    border: 1px solid var(--linea);
+  }
+  .personal h2 {
+    font-size: var(--t-lg);
+  }
+  .personal .lead {
+    margin: 0.5rem 0 0;
+  }
+  .nota {
+    font-size: var(--t-xs);
+    margin-top: 2rem;
+    max-width: 70ch;
+  }
+  @media (max-width: 600px) {
+    .filtros-2 {
+      grid-template-columns: 1fr;
+    }
+    .chips {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      padding-bottom: 0.25rem;
+    }
+    .chip {
+      flex: none;
+    }
+  }
+</style>

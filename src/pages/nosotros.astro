@@ -1,0 +1,151 @@
+---
+import Base from '../layouts/Base.astro';
+import LazyVideo from '../components/LazyVideo.astro';
+import Icon from '../components/Icon.astro';
+import { links, cifras } from '../config/sitio';
+const pilares = [
+  { t: 'Educación', d: 'Cursos desde cero hasta nivel profesional en índices sintéticos y Forex.' },
+  { t: 'Mentalidad', d: 'Disciplina y manejo de emociones: sin mente sana no hay trade rentable.' },
+  { t: 'Señales', d: 'Operaciones de los mentores con entrada, stop y objetivo, para aprender viendo.' },
+  { t: 'App', d: 'Todo lo anterior en el celular, con la app Sniper Pro.' },
+];
+---
+
+<Base
+  title="Nosotros | Sniper Pro Academy"
+  description="Sniper Pro es una academia de trading de Cúcuta que lleva a sus estudiantes desde cero hasta operar con un plan."
+>
+  <section class="sec page-top">
+    <div class="wrap nos">
+      <div class="nos-copy">
+        <h1 class="h-page">Qué es Sniper Pro</h1>
+        <p class="lead">
+          Una academia de trading que lleva a sus estudiantes desde cero hasta profesional en los mercados financieros,
+          con foco en Forex e índices sintéticos.
+        </p>
+        <p>
+          Nació en Cúcuta y hoy reúne estudiantes de toda Latinoamérica. El nombre lo dice: entrar al mercado con
+          precisión, con un plan y con el riesgo medido, no por impulso.
+        </p>
+        <dl class="cifras">
+          {cifras.map((c) => (
+            <div>
+              <dt>{c.texto}</dt>
+              <dd>{c.valor}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+      <LazyVideo name="clase" label="Clase presencial de Sniper Pro" ratio="4 / 3" />
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>En qué nos apoyamos</h2>
+      </div>
+      <dl class="pilares">
+        {pilares.map((p) => (
+          <div>
+            <dt>{p.t}</dt>
+            <dd class="muted">{p.d}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  </section>
+
+  <section class="sec">
+    <div class="wrap pres">
+      <h2>Encuentros presenciales</h2>
+      <p class="lead">
+        Llevamos la academia a distintas ciudades para estar más cerca de la comunidad. Las fechas se anuncian primero
+        en el Telegram.
+      </p>
+      <a class="btn" href={links.telegram} target="_blank" rel="noopener">
+        <Icon name="telegram" />
+        Unirme al Telegram
+      </a>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-top {
+    padding-top: clamp(2.5rem, 6vw, 4.5rem);
+  }
+  .h-page {
+    font-size: var(--t-xl);
+    margin-bottom: 1.25rem;
+  }
+  .nos {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: center;
+  }
+  .nos-copy p {
+    max-width: 36em;
+  }
+  .cifras {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 2.5rem;
+    margin: 1.5rem 0 0;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--linea);
+  }
+  .cifras div {
+    display: flex;
+    flex-direction: column-reverse;
+  }
+  .cifras dd {
+    margin: 0;
+    font-size: var(--t-lg);
+    font-weight: 800;
+    font-stretch: 125%;
+    line-height: 1.1;
+  }
+  .cifras dt {
+    font-size: var(--t-sm);
+    color: var(--bruma);
+  }
+  .pilares {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    margin: 0;
+    border-top: 2px solid var(--azul);
+  }
+  .pilares div {
+    padding: 1.5rem 1.5rem 0 0;
+  }
+  .pilares dt {
+    font-size: var(--t-md);
+    font-weight: 800;
+    font-stretch: 125%;
+    margin-bottom: 0.5rem;
+  }
+  .pilares dd {
+    margin: 0;
+    font-size: var(--t-sm);
+  }
+  .pres {
+    display: grid;
+    gap: 1.2rem;
+    justify-items: start;
+  }
+  .pres .lead {
+    margin: 0;
+  }
+  @media (max-width: 860px) {
+    .nos {
+      grid-template-columns: 1fr;
+    }
+    .pilares {
+      grid-template-columns: 1fr 1fr;
+      row-gap: 1rem;
+    }
+  }
+</style>

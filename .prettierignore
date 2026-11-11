@@ -1,0 +1,7 @@
+dist
+node_modules
+.astro
+public/media
+package-lock.json
+src/generado
+privado

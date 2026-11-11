@@ -1,0 +1,53 @@
+---
+import Base from '../layouts/Base.astro';
+import MentorCard from '../components/MentorCard.astro';
+import { repositorios } from '../infraestructura/contenedor';
+
+const mentores = await repositorios.mentores.listar();
+---
+
+<Base
+  title="Mentores | Sniper Pro Academy"
+  description="Conoce a los mentores de Sniper Pro: traders y educadores en índices sintéticos, Forex, mentalidad y finanzas."
+>
+  <section class="sec page-top">
+    <div class="wrap">
+      <div class="sec-head">
+        <h1 class="h-page">Mentores</h1>
+        <p class="lead">Traders que enseñan lo que operan. Cada uno lidera un área de la academia.</p>
+      </div>
+      <ul class="grid-m">
+        {mentores.map((m, i) => (
+          <li>
+            <MentorCard m={m} bio eager={i < 2} grande={i === 0} />
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-top {
+    padding-top: clamp(2.5rem, 6vw, 4.5rem);
+  }
+  .h-page {
+    font-size: var(--t-xl);
+  }
+  .grid-m {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 2.5rem 1.5rem;
+  }
+  .grid-m li:first-child {
+    grid-column: span 2;
+  }
+  @media (max-width: 560px) {
+    .grid-m li:first-child {
+      grid-column: auto;
+    }
+  }
+</style>

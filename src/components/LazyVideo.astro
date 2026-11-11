@@ -1,0 +1,63 @@
+---
+// Reemplaza los GIF pesados: MP4/WebM que solo se descarga cuando entra en pantalla.
+interface Props {
+  name: string;
+  label: string;
+  ratio?: string;
+  class?: string;
+}
+const { name, label, ratio = '16 / 9', class: cls } = Astro.props;
+---
+
+<div class:list={['lv-wrap', cls]} style={`--ratio:${ratio}`}>
+  <video
+    class="lv-video"
+    muted
+    loop
+    playsinline
+    preload="none"
+    poster={`/media/${name}-poster.webp`}
+    aria-label={label}
+    data-lazy-video
+  >
+    <source data-src={`/media/${name}.webm`} type="video/webm" />
+    <source data-src={`/media/${name}.mp4`} type="video/mp4" />
+  </video>
+</div>
+
+<script>
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) {
+        const v = e.target as HTMLVideoElement;
+        if (e.isIntersecting) {
+          if (!v.dataset.loaded) {
+            v.querySelectorAll<HTMLSourceElement>('source[data-src]').forEach((s) => (s.src = s.dataset.src!));
+            v.load();
+            v.dataset.loaded = '1';
+          }
+          if (reduce) v.controls = true;
+          else v.play().catch(() => {});
+        } else if (!v.paused) v.pause();
+      }
+    },
+    { rootMargin: '200px 0px' },
+  );
+  document.querySelectorAll('[data-lazy-video]').forEach((v) => io.observe(v));
+</script>
+
+<style>
+  .lv-wrap {
+    aspect-ratio: var(--ratio);
+    position: relative;
+    border-radius: var(--r-md);
+    overflow: hidden;
+    background: var(--tinta);
+  }
+  .lv-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+</style>

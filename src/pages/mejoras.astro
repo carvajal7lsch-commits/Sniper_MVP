@@ -1,0 +1,189 @@
+---
+import Base from '../layouts/Base.astro';
+import medidas from '../generado/medidas.json';
+
+// "Antes": medido en sniperproacademy.com (home, 11 nov 2026, navegador de escritorio).
+const antes = { pesoMB: 71.7, solicitudes: 99, css: 16, js: 24, errores: 2, gifMB: 49.8 };
+const d = medidas;
+const fmt = (kb: number) => (kb >= 1024 ? `${(kb / 1024).toFixed(1).replace('.', ',')} MB` : `${Math.round(kb)} KB`);
+const veces = d.totalKB ? Math.round((antes.pesoMB * 1024) / d.totalKB) : null;
+
+const filas = [
+  { k: 'Peso de la página de inicio', a: '71,7 MB', b: d.totalKB ? fmt(d.totalKB) : 'Se mide al compilar' },
+  {
+    k: 'Lo que se descarga antes de ver la página',
+    a: 'Todo (71,7 MB)',
+    b: d.inicialKB ? fmt(d.inicialKB) : 'Se mide al compilar',
+  },
+  { k: 'Archivos solicitados', a: '99', b: d.solicitudes ? String(d.solicitudes) : 'Se mide al compilar' },
+  { k: 'Hojas de estilo (CSS)', a: '16', b: d.css != null ? String(d.css) : '1' },
+  { k: 'Archivos de JavaScript', a: '24 (jQuery, 20 plugins y Angular)', b: d.js != null ? String(d.js) : '0' },
+  { k: 'Errores en la consola', a: '2 en cada página', b: '0' },
+];
+
+const hallazgos = [
+  {
+    t: 'Rendimiento',
+    items: [
+      'Un solo GIF de la sección "¿Qué es Sniper Pro?" pesa 49,8 MB, y lo que muestra es texto. Ahora es texto real.',
+      'Los "videos" son GIF animados: pesan 10 a 20 veces más que un video equivalente. Se convirtieron a MP4/WebM que solo se descarga al llegar a esa parte de la página.',
+      'Las fotos de los testimonios se descargan en tamaño de cámara (hasta 4896 × 6528 px) para mostrarse a 61 px. Se reemplazaron por iniciales.',
+      'Fondos decorativos en PNG de 2 a 6 MB cada uno. Se reemplazaron por gradientes en CSS (0 KB).',
+      'La plantilla carga jQuery y 20 plugins además de Angular, aunque casi ninguno se usa.',
+    ],
+  },
+  {
+    t: 'Experiencia de usuario',
+    items: [
+      'El botón "Cursos" lleva a una página titulada "Instructores" y no muestra ningún curso.',
+      'Los contadores de estudiantes y cursos aparecen en "00" hasta que se activa una animación.',
+      'Más de 90 testimonios en un carrusel sin fin, con duplicados y dos reseñas negativas visibles. Ahora hay 9 seleccionados y un botón para ver más.',
+      'La página se queda en blanco varios segundos mientras carga todo.',
+      'Textos en inglés de la plantilla ("Your shopping cart", "Terms of service") y frases genéricas en el pie de página.',
+    ],
+  },
+  {
+    t: 'Contenido y confianza',
+    items: [
+      'Los títulos, nombres de mentores y mensajes clave están dentro de imágenes: Google y los lectores de pantalla no los pueden leer.',
+      'No hay aviso de riesgo, algo esperable en una academia de trading. Ahora está en el pie de todas las páginas.',
+      'El enlace "Apple Store" lleva a TestFlight (beta). Ahora se indica con claridad.',
+      'El copyright dice 2025 y la pestaña del navegador dice "Websniper".',
+    ],
+  },
+  {
+    t: 'Posicionamiento (SEO)',
+    items: [
+      'El sitio está marcado en inglés (lang="en") y no tiene descripción para Google ni vista previa al compartir en WhatsApp.',
+      'Cada página nueva mantiene el mismo título genérico.',
+    ],
+  },
+];
+---
+
+<Base
+  title="Qué mejoró | Demo Sniper Pro"
+  description="Comparación entre el sitio actual de Sniper Pro y esta propuesta de rediseño."
+>
+  <section class="sec page-top">
+    <div class="wrap">
+      <div class="sec-head">
+        <h1 class="h-page">Qué mejoró en esta propuesta</h1>
+        <p class="lead">
+          {veces
+            ? `La página de inicio pasa de 71,7 MB a ${fmt(d.totalKB)}: unas ${veces} veces más liviana.`
+            : 'Comparación entre el sitio actual y esta propuesta.'}{' '}
+          Mismo contenido, misma marca, sin esperas.
+        </p>
+      </div>
+
+      <div class="tabla-wrap">
+        <table>
+          <caption class="sr-only">Comparación de rendimiento de la página de inicio</caption>
+          <thead>
+            <tr>
+              <th scope="col">Medida</th>
+              <th scope="col">Sitio actual</th>
+              <th scope="col">Propuesta</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filas.map((f) => (
+              <tr>
+                <th scope="row">{f.k}</th>
+                <td class="antes">{f.a}</td>
+                <td class="despues">{f.b}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p class="nota muted">
+        Sitio actual medido el 11 de noviembre de 2026 en un navegador de escritorio. La propuesta se mide
+        automáticamente cada vez que se compila.
+      </p>
+
+      <div class="hall">
+        {hallazgos.map((g) => (
+          <section>
+            <h2>{g.t}</h2>
+            <ul>
+              {g.items.map((i) => (
+                <li>{i}</li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .page-top {
+    padding-top: clamp(2.5rem, 6vw, 4.5rem);
+  }
+  .h-page {
+    font-size: var(--t-xl);
+  }
+  .tabla-wrap {
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--t-sm);
+    min-width: 560px;
+  }
+  th,
+  td {
+    text-align: left;
+    padding: 1rem 1rem 1rem 0;
+    border-bottom: 1px solid var(--linea);
+    vertical-align: top;
+  }
+  thead th {
+    color: var(--bruma);
+    font-weight: 600;
+  }
+  tbody th {
+    font-weight: 600;
+    width: 40%;
+  }
+  .antes {
+    color: var(--baja);
+  }
+  .despues {
+    color: var(--sube);
+    font-weight: 700;
+  }
+  .nota {
+    font-size: var(--t-xs);
+    margin-top: 1rem;
+  }
+  .hall {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 3rem 4rem;
+    margin-top: var(--sec);
+  }
+  .hall h2 {
+    font-size: var(--t-lg);
+    margin-bottom: 1rem;
+  }
+  .hall ul {
+    margin: 0;
+    padding-left: 1.1rem;
+    display: grid;
+    gap: 0.8rem;
+    color: var(--bruma);
+  }
+  .hall li::marker {
+    color: var(--cian);
+  }
+  @media (max-width: 860px) {
+    .hall {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

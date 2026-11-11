@@ -1,0 +1,279 @@
+---
+// Gráfico de velas generado en build (SVG puro, 0 KB de JS).
+// Secuencia: aparecen las velas → la retícula fija la entrada en el martillo →
+// se trazan entrada / stop / objetivo → el precio sube hasta el objetivo.
+const W = 600,
+  H = 440,
+  PADL = 16,
+  PADR = 92,
+  TOP = 28,
+  BOT = 30;
+const N = 26,
+  ENTRY = 16;
+
+let seed = 7;
+const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+type C = { o: number; c: number; h: number; l: number };
+const candles: C[] = [];
+let p = 71;
+for (let i = 0; i < N; i++) {
+  let o = p,
+    c: number;
+  if (i < ENTRY) c = o - (1.2 + rnd() * 3.2) + (rnd() < 0.3 ? 3.4 : 0);
+  else if (i === ENTRY) {
+    o = p;
+    c = p + 1.4;
+  } else c = o + (0.8 + rnd() * 3.4) - (rnd() < 0.22 ? 3.6 : 0);
+  let h = Math.max(o, c) + rnd() * 1.6;
+  let l = Math.min(o, c) - rnd() * 1.6;
+  if (i === ENTRY) l = Math.min(o, c) - 9; // mecha larga: martillo
+  candles.push({ o, c, h, l });
+  p = c;
+}
+const lo = Math.min(...candles.map((k) => k.l)) - 2;
+const entry = candles[ENTRY].c;
+const stop = candles[ENTRY].l - 1.2;
+const target = entry + (entry - stop) * 2.4; // relación 1:2.4
+const hi = Math.max(target + 3, ...candles.map((k) => k.h));
+const y = (v: number) => TOP + ((hi - v) / (hi - lo)) * (H - TOP - BOT);
+const step = (W - PADL - PADR) / N;
+const x = (i: number) => PADL + step * i + step / 2;
+const bw = step * 0.56;
+
+const ex = x(ENTRY),
+  ey = y(entry);
+const grid = Array.from({ length: 6 }, (_, i) => TOP + ((H - TOP - BOT) / 5) * i);
+---
+
+<figure
+  class="chart"
+  aria-label="Ilustración: la mira de Sniper Pro fija una entrada en el gráfico, con stop y objetivo"
+>
+  <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-hidden="true">
+    <defs>
+      <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+        <stop offset="0" stop-color="#2348ff" stop-opacity=".55" />
+        <stop offset="1" stop-color="#2348ff" stop-opacity="0" />
+      </radialGradient>
+    </defs>
+
+    <g class="grid">
+      {grid.map((gy) => (
+        <line x1="0" x2={W - PADR + 8} y1={gy} y2={gy} />
+      ))}
+    </g>
+
+    <circle cx={ex} cy={ey} r="150" fill="url(#glow)" class="glow" />
+
+    <g class="candles">
+      {candles.map((k, i) => {
+        const up = k.c >= k.o;
+        const top = y(Math.max(k.o, k.c));
+        const hgt = Math.max(2, Math.abs(y(k.o) - y(k.c)));
+        return (
+          <g
+            class:list={['cd', up ? 'up' : 'down', i > ENTRY ? 'after' : 'before']}
+            style={`--i:${i > ENTRY ? i - ENTRY : i}`}
+          >
+            <line x1={x(i)} x2={x(i)} y1={y(k.h)} y2={y(k.l)} />
+            <rect x={x(i) - bw / 2} y={top} width={bw} height={hgt} rx="1.5" />
+          </g>
+        );
+      })}
+    </g>
+
+    <g class="levels">
+      <g class="lv lv-target">
+        <line x1={ex} x2={W - PADR + 8} y1={y(target)} y2={y(target)} />
+        <rect x={W - PADR + 12} y={y(target) - 12} width="78" height="24" rx="4" />
+        <text x={W - PADR + 51} y={y(target) + 4.5}>
+          Objetivo
+        </text>
+      </g>
+      <g class="lv lv-entry">
+        <line x1={ex} x2={W - PADR + 8} y1={ey} y2={ey} />
+        <rect x={W - PADR + 12} y={ey - 12} width="78" height="24" rx="4" />
+        <text x={W - PADR + 51} y={ey + 4.5}>
+          Entrada
+        </text>
+      </g>
+      <g class="lv lv-stop">
+        <line x1={ex} x2={W - PADR + 8} y1={y(stop)} y2={y(stop)} />
+        <rect x={W - PADR + 12} y={y(stop) - 12} width="78" height="24" rx="4" />
+        <text x={W - PADR + 51} y={y(stop) + 4.5}>
+          Stop
+        </text>
+      </g>
+    </g>
+
+    <g transform={`translate(${ex} ${ey})`}>
+      <g class="reticle">
+        <circle r="34" class="ring" />
+        <circle r="3" class="dot" />
+        <line x1="-52" x2="-14" y1="0" y2="0" />
+        <line x1="14" x2="52" y1="0" y2="0" />
+        <line y1="-52" y2="-14" x1="0" x2="0" />
+        <line y1="14" y2="52" x1="0" x2="0" />
+        <path d="M-24 -34 A34 34 0 0 1 24 -34" class="tick" />
+      </g>
+    </g>
+  </svg>
+</figure>
+
+<style>
+  .chart {
+    margin: 0;
+    position: relative;
+  }
+  .chart svg {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  .grid line {
+    stroke: #1d2756;
+    stroke-width: 1;
+    stroke-dasharray: 2 6;
+  }
+  .cd line {
+    stroke-width: 1.4;
+  }
+  .cd.up line {
+    stroke: var(--sube);
+  }
+  .cd.up rect {
+    fill: var(--sube);
+  }
+  .cd.down line {
+    stroke: var(--baja);
+  }
+  .cd.down rect {
+    fill: var(--baja);
+  }
+  .lv line {
+    stroke-width: 1.5;
+    stroke-dasharray: 5 5;
+  }
+  .lv text {
+    font: 700 12px var(--font);
+    font-stretch: 112%;
+    text-anchor: middle;
+  }
+  .lv-entry line {
+    stroke: var(--cian);
+  }
+  .lv-entry rect {
+    fill: var(--cian);
+  }
+  .lv-entry text {
+    fill: var(--noche);
+  }
+  .lv-stop line {
+    stroke: var(--baja);
+  }
+  .lv-stop rect {
+    fill: var(--baja);
+  }
+  .lv-stop text {
+    fill: #fff;
+  }
+  .lv-target line {
+    stroke: var(--sube);
+  }
+  .lv-target rect {
+    fill: var(--sube);
+  }
+  .lv-target text {
+    fill: var(--noche);
+  }
+  .reticle {
+    color: var(--cian);
+  }
+  .reticle .ring {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+  }
+  .reticle .dot {
+    fill: currentColor;
+  }
+  .reticle line {
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+  .reticle .tick {
+    fill: none;
+    stroke: #fff;
+    stroke-width: 2.5;
+    opacity: 0.9;
+  }
+
+  /* Secuencia única al cargar */
+  @media (prefers-reduced-motion: no-preference) {
+    .cd.before {
+      animation: cd-in 0.35s ease-out both;
+      animation-delay: calc(var(--i) * 40ms);
+    }
+    .cd.after {
+      animation: cd-in 0.3s ease-out both;
+      animation-delay: calc(2.35s + var(--i) * 110ms);
+    }
+    .reticle {
+      animation: lock 1s cubic-bezier(0.2, 0.9, 0.25, 1.15) 0.75s both;
+    }
+    .reticle .tick {
+      animation: spin 1s ease-out 0.75s both;
+      transform-origin: 0 0;
+    }
+    .lv {
+      animation: lv-in 0.45s ease-out both;
+    }
+    .lv-entry {
+      animation-delay: 1.75s;
+    }
+    .lv-stop {
+      animation-delay: 1.95s;
+    }
+    .lv-target {
+      animation-delay: 2.15s;
+    }
+    .glow {
+      animation: glow 1.4s ease-out 1.5s both;
+    }
+  }
+  @keyframes cd-in {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+  }
+  @keyframes lock {
+    0% {
+      opacity: 0;
+      transform: translate(150px, -120px) scale(1.6);
+    }
+    70% {
+      opacity: 1;
+    }
+    100% {
+      transform: none;
+    }
+  }
+  @keyframes spin {
+    from {
+      transform: rotate(-200deg);
+    }
+  }
+  @keyframes lv-in {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes glow {
+    from {
+      opacity: 0;
+    }
+  }
+</style>
