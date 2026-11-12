@@ -1,6 +1,33 @@
 # Historial de versiones
 
-## 0.8.1 (Actual)
+## 0.9.3 (Actual)
+
+**Inicio**
+
+- Las reseñas de la franja usan el estilo de notificación de Telegram: ícono, encabezado y "Nombre: reseña". El encabezado dice "Sniper Pro · reseña" y no "ahora", porque son reseñas de la plataforma, no mensajes del grupo.
+
+## 0.9.2
+
+**Inicio**
+
+- La comunidad gratuita tiene entrada: el texto baja desde arriba y el celular llega desde la derecha.
+- Las entradas de las reseñas, la comunidad, "App señales" y "Próximos eventos" son más notorias y se repiten cada vez que vuelves a la sección, sin recargar.
+
+## 0.9.1
+
+**Inicio**
+
+- Solo el título de "La Máquina y su equipo" sigue ligado al scroll. Las tarjetas ahora entran de golpe, repartidas desde la izquierda en menos de un segundo, apenas la fila aparece en pantalla. Al salir de la sección se recogen, así la entrada se repite cada vez que vuelves, sin recargar.
+
+## 0.9.0
+
+**Inicio**
+
+- La entrada de "La Máquina y su equipo" va ligada al scroll: el título cae desde arriba y las tarjetas se reparten desde la izquierda, una tras otra, como cartas. Al subir se deshace y al volver a bajar se repite. En Firefox, que no tiene animaciones por scroll, se repite cada vez que la sección vuelve a la pantalla.
+- Las reseñas son burbujas de chat, con nombre en color, avatar con inicial y colita, de alto variable y alineadas por abajo. Ya no parecen tarjetas iguales.
+- Se corrige la salida del hero: el minificador juntaba la animación y su línea de tiempo en un atajo que Chrome descarta, y no se veía.
+
+## 0.8.1
 
 **Inicio**
 

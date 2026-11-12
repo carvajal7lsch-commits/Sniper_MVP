@@ -75,19 +75,21 @@ const mentores = await repositorios.mentores.listar();
     </script>
     <script>
       // Entrada de los bloques marcados con data-revelar: sus hijos bajan desde arriba y se enfocan,
-      // uno tras otro, la primera vez que el bloque entra en pantalla.
+      // uno tras otro, cuando el bloque entra en pantalla. Al salir del todo se reinicia, así la entrada
+      // se repite al volver sin recargar.
       const bloques = document.querySelectorAll<HTMLElement>('[data-revelar]');
       bloques.forEach((b) => [...b.children].forEach((h, i) => (h as HTMLElement).style.setProperty('--i', String(i))));
       const vigia = new IntersectionObserver(
         (entradas) => {
           entradas.forEach((e) => {
-            if (e.isIntersecting) {
+            if (e.intersectionRatio >= 0.2) {
               e.target.classList.add('visible');
-              vigia.unobserve(e.target);
+            } else if (!e.isIntersecting) {
+              e.target.classList.remove('visible');
             }
           });
         },
-        { threshold: 0.2, rootMargin: '0px 0px -8% 0px' },
+        { threshold: [0, 0.2] },
       );
       bloques.forEach((b) => vigia.observe(b));
     </script>

@@ -205,6 +205,11 @@ import Icon from './Icon.astro';
       .hero-bajar,
       .hero-video {
         animation: hero-salida linear both;
+      }
+      /* Línea de tiempo en regla aparte para que el minificador no la meta en el atajo "animation" */
+      .hero .hero-copy,
+      .hero .hero-bajar,
+      .hero .hero-video {
         animation-timeline: --hero;
         animation-range: exit 0% exit 75%;
       }

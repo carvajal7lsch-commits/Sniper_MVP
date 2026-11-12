@@ -38,6 +38,7 @@ const enlaces = (m: Mentor): Enlace[] => {
   {mentores.map((m, i) => (
     <li
       class:list={['eq-panel', { activo: i === 0 }]}
+      style={`--k:${i}`}
       id={m.slug}
       tabindex="0"
       aria-label={`${nombreCompleto(m)}, ${m.rol}`}

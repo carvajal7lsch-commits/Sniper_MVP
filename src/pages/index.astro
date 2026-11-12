@@ -21,7 +21,7 @@ const equipo = [fundador, ...mentores.filter((m) => m !== fundador)];
   <!-- LA MÁQUINA Y SU EQUIPO: la fila de mentores a lo ancho y, debajo, las reseñas corriendo -->
   <section class="fe" id="fundador" aria-labelledby="fe-titulo">
     <div class="fe-ancho">
-      <div class="fe-cabeza" data-revelar>
+      <div class="fe-cabeza">
         <div>
           <h2 id="fe-titulo">La Máquina y su equipo</h2>
           <p>Miguel Monsalve y los mentores de Sniper Pro.</p>
@@ -30,7 +30,7 @@ const equipo = [fundador, ...mentores.filter((m) => m !== fundador)];
           Ver perfiles completos
         </a>
       </div>
-      <div class="fe-equipo" data-revelar>
+      <div class="fe-equipo">
         <EquipoPanel mentores={equipo} />
       </div>
     </div>
@@ -38,6 +38,33 @@ const equipo = [fundador, ...mentores.filter((m) => m !== fundador)];
       <ResenasCarril resenas={resenas} />
     </div>
   </section>
+
+  <script>
+    // Tarjetas: se reparten cuando la fila se ve en buena parte y se recogen cuando sale del todo,
+    // así la entrada se repite cada vez que se vuelve a la sección.
+    const fila = document.querySelector<HTMLElement>('.fe-equipo');
+    if (fila) {
+      new IntersectionObserver(
+        ([e]) => {
+          if (e.intersectionRatio >= 0.35) {
+            fila.classList.add('repartidas');
+          } else if (!e.isIntersecting) {
+            fila.classList.remove('repartidas');
+          }
+        },
+        { threshold: [0, 0.35] },
+      ).observe(fila);
+    }
+    // Respaldo del título para navegadores sin animaciones ligadas al scroll (Firefox).
+    if (!CSS.supports('animation-timeline: view()')) {
+      const fe = document.querySelector<HTMLElement>('.fe');
+      if (fe) {
+        new IntersectionObserver(([e]) => fe.classList.toggle('en-vista', e.isIntersecting), {
+          threshold: 0.25,
+        }).observe(fe);
+      }
+    }
+  </script>
 
   <Comunidad />
   <AppSenales />
@@ -80,5 +107,69 @@ const equipo = [fundador, ...mentores.filter((m) => m !== fundador)];
   /* Las reseñas son el paso entre el equipo y la comunidad: una franja propia, con aire arriba y abajo */
   .fe-resenas {
     margin-top: clamp(3rem, 9vh, 5.5rem);
+  }
+
+  /* Título ligado al scroll: cae desde arriba mientras se baja; al subir se deshace y se repite. */
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      /* La línea de tiempo va en una regla aparte (más específica): el minificador junta
+         "animation" + "animation-timeline" en un solo atajo que Chrome no acepta. */
+      .fe-cabeza > * {
+        animation: caer linear both;
+      }
+      .fe .fe-cabeza > * {
+        animation-timeline: view();
+        animation-range: entry 0% cover 40%;
+      }
+      .fe .fe-cabeza > :last-child {
+        animation-range: entry 15% cover 48%;
+      }
+    }
+    @supports not (animation-timeline: view()) {
+      :global(.js) .fe-cabeza > * {
+        transition:
+          opacity 0.6s ease,
+          transform 0.9s cubic-bezier(0.2, 0.8, 0.2, 1),
+          filter 0.6s ease;
+      }
+      :global(.js) .fe:not(.en-vista) .fe-cabeza > * {
+        opacity: 0;
+        transform: translateY(-160px);
+        filter: blur(12px);
+      }
+    }
+  }
+  @keyframes caer {
+    from {
+      opacity: 0;
+      transform: translateY(-30vh);
+      filter: blur(12px);
+    }
+  }
+  /* Las tarjetas no van con el scroll: entran de golpe, repartidas desde la izquierda, cuando la fila
+     aparece en pantalla, y se recogen al salir para que la entrada se repita sin recargar. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .fe-equipo :global(.eq-panel) {
+      transition:
+        flex 0.55s cubic-bezier(0.2, 0.8, 0.2, 1),
+        box-shadow 0.35s,
+        opacity 0.35s ease calc(var(--k) * 55ms),
+        transform 0.6s cubic-bezier(0.16, 0.9, 0.25, 1.04) calc(var(--k) * 55ms);
+    }
+    :global(.js) .fe-equipo:not(.repartidas) :global(.eq-panel) {
+      opacity: 0;
+      transform: translateX(calc(-70% - var(--k) * 100%)) rotate(-14deg);
+    }
+  }
+  .fe-equipo :global(.eq-panel) {
+    transform-origin: 0% 100%;
+  }
+  /* En celular la fila es un carrusel deslizable: se muestra quieta */
+  @media (max-width: 760px) {
+    .fe-equipo :global(.eq-panel) {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
   }
 </style>
