@@ -1,17 +1,8 @@
 ---
 // Comunidad gratuita: a la izquierda la invitación, a la derecha la pieza real de la academia
-// (captura del grupo de Telegram con los íconos 3D). Sobre ella, una notificación de Telegram
-// va mostrando reseñas reales de estudiantes, una a la vez.
+// (captura del grupo de Telegram con los íconos 3D).
 import Icon from './Icon.astro';
 import { links } from '../config/sitio';
-import type { Resena } from '../dominio/resena';
-
-interface Props {
-  resenas: Resena[];
-}
-const { resenas } = Astro.props;
-// Reseñas cortas: caben en la notificación sin cortarse a mitad de idea.
-const avisos = resenas.filter((r) => r.texto.length <= 150).slice(0, 8);
 ---
 
 <section class="com" aria-labelledby="com-titulo">
@@ -55,53 +46,9 @@ const avisos = resenas.filter((r) => r.texto.length <= 150).slice(0, 8);
           decoding="async"
         />
       </picture>
-
-      <div class="aviso" data-avisos aria-live="polite">
-        <span class="aviso-ico" aria-hidden="true">
-          <Icon name="telegram" />
-        </span>
-        <div class="aviso-txt">
-          <p class="aviso-cabeza">
-            <strong>Comunidad Sniper Pro</strong>
-            <span>ahora</span>
-          </p>
-          {avisos.map((r, i) => (
-            <p class="aviso-msg" data-aviso hidden={i > 0 ? true : undefined}>
-              <strong>{r.nombre}:</strong> {r.texto}
-            </p>
-          ))}
-        </div>
-      </div>
-      <figcaption class="sr-only">Reseñas reales de estudiantes, mostradas como notificación.</figcaption>
     </figure>
   </div>
 </section>
-
-<script>
-  // Rota las reseñas cada pocos segundos solo mientras la sección está en pantalla.
-  const aviso = document.querySelector<HTMLElement>('[data-avisos]');
-  const mensajes = aviso ? [...aviso.querySelectorAll<HTMLElement>('[data-aviso]')] : [];
-  const quieto = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (aviso && mensajes.length > 1 && !quieto) {
-    let actual = 0;
-    let reloj = 0;
-    const siguiente = () => {
-      aviso.classList.add('saliendo');
-      window.setTimeout(() => {
-        mensajes[actual].hidden = true;
-        actual = (actual + 1) % mensajes.length;
-        mensajes[actual].hidden = false;
-        aviso.classList.remove('saliendo');
-      }, 350);
-    };
-    new IntersectionObserver(([e]) => {
-      window.clearInterval(reloj);
-      if (e.isIntersecting) {
-        reloj = window.setInterval(siguiente, 4500);
-      }
-    }).observe(aviso);
-  }
-</script>
 
 <style>
   .com {
@@ -177,70 +124,6 @@ const avisos = resenas.filter((r) => r.texto.length <= 150).slice(0, 8);
     mask-image: radial-gradient(ellipse 62% 58% at 50% 50%, #000 60%, transparent 100%);
   }
 
-  /* Notificación de Telegram con una reseña real */
-  .aviso {
-    position: absolute;
-    left: -4%;
-    bottom: 10%;
-    display: grid;
-    grid-template-columns: 38px 1fr;
-    gap: 0.65rem;
-    width: min(340px, 92%);
-    padding: 0.7rem 0.85rem;
-    border-radius: 16px;
-    background: rgb(23 33 43 / 0.92);
-    border: 1px solid rgb(255 255 255 / 0.08);
-    box-shadow: 0 18px 40px -14px rgb(0 0 0 / 0.8);
-    backdrop-filter: blur(10px);
-    transition:
-      opacity 0.35s ease,
-      transform 0.35s ease;
-  }
-  .aviso.saliendo {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  .aviso-ico {
-    display: grid;
-    place-items: center;
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    background: linear-gradient(180deg, #37bbfe, #007dbb);
-    color: #fff;
-  }
-  .aviso-ico :global(svg) {
-    width: 20px;
-    height: 20px;
-  }
-  .aviso-cabeza {
-    display: flex;
-    justify-content: space-between;
-    gap: 0.5rem;
-    margin: 0 0 0.15rem;
-    font-size: 0.8rem;
-  }
-  .aviso-cabeza span {
-    color: #7f91a4;
-    font-size: 0.72rem;
-  }
-  .aviso-msg {
-    margin: 0;
-    font-size: 0.82rem;
-    line-height: 1.4;
-    color: #dbe4ee;
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  .aviso-msg[hidden] {
-    display: none;
-  }
-  .aviso-msg strong {
-    color: #6ec9ff;
-  }
-
   @media (max-width: 860px) {
     .com-in {
       grid-template-columns: 1fr;
@@ -248,10 +131,6 @@ const avisos = resenas.filter((r) => r.texto.length <= 150).slice(0, 8);
     .com-cel {
       height: auto;
       width: min(380px, 100%);
-    }
-    .aviso {
-      left: 0;
-      bottom: 6%;
     }
   }
 </style>

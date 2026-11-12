@@ -92,6 +92,23 @@ if (need('comunidad-tg-900.webp') || need('comunidad-tg-450.webp')) {
   log('comunidad-tg-900.webp, comunidad-tg-450.webp');
 }
 
+// Íconos de redes tal como los usa la academia en "Próximos eventos" (hasta 96 px → 192 px)
+const redes = {
+  instagram: 'instagram.png',
+  whatsapp: 'whatsapp.png',
+  facebook: 'facebook.png',
+  youtube: 'YOUTUBE.png',
+};
+for (const [nombre, archivo] of Object.entries(redes)) {
+  if (!need(`red-${nombre}.webp`)) continue;
+  const buf = await download(`${SITE}/assets/images/icons/${archivo}`);
+  await sharp(buf)
+    .resize({ width: 192, height: 192, fit: 'cover' })
+    .webp({ quality: 88 })
+    .toFile(join(OUT, `red-${nombre}.webp`));
+  log(`red-${nombre}.webp`);
+}
+
 // Ícono de Weltrade (se muestra hasta 96 px → 192 px para retina)
 if (need('weltrade.webp')) {
   const buf = await download(`${SITE}/assets/images/icons/WELTRADE.png`);

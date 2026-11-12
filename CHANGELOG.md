@@ -1,6 +1,21 @@
 # Historial de versiones
 
-## 0.7.0 (Actual)
+## 0.8.1 (Actual)
+
+**Inicio**
+
+- La fila del equipo vuelve al ancho del contenido (1.100 px) y es más alta, para que las tarjetas tengan proporción de retrato.
+- Las reseñas se separan del equipo y quedan como una franja propia entre el equipo y la comunidad.
+
+## 0.8.0
+
+**Inicio**
+
+- "La Máquina y su equipo": la fila de mentores ocupa casi todo el ancho, con Miguel primero como fundador, y debajo corren las reseñas reales de derecha a izquierda, como en el sitio original. La franja se detiene al pasar el cursor. Se retira el texto largo de la presentación.
+- Comunidad gratuita queda solo con la invitación y la pieza real del celular. Las reseñas ya no se repiten aquí.
+- "Próximos eventos" usa los íconos originales de la academia para Instagram, WhatsApp, Facebook y YouTube. Weltrade sigue con su ícono original y Telegram se mantiene dibujado.
+
+## 0.7.0
 
 **Inicio**
 

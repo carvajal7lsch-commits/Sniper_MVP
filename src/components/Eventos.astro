@@ -4,12 +4,12 @@
 import { links } from '../config/sitio';
 import Icon from './Icon.astro';
 
+// Los íconos de redes son los PNG originales de la academia; Telegram no está en su fila y va dibujado.
 const redes = [
-  { nombre: 'Instagram', icono: 'instagram', href: links.instagram, clase: 'ig' },
-  { nombre: 'WhatsApp', icono: 'whatsapp', href: links.whatsapp, clase: 'wa' },
-  { nombre: 'Facebook', icono: 'facebook', href: links.facebook, clase: 'fb' },
-  { nombre: 'YouTube', icono: 'youtube', href: links.youtube, clase: 'yt' },
-  { nombre: 'Telegram', icono: 'telegram', href: links.telegram, clase: 'tg' },
+  { nombre: 'Instagram', imagen: 'red-instagram', href: links.instagram },
+  { nombre: 'WhatsApp', imagen: 'red-whatsapp', href: links.whatsapp },
+  { nombre: 'Facebook', imagen: 'red-facebook', href: links.facebook },
+  { nombre: 'YouTube', imagen: 'red-youtube', href: links.youtube },
 ];
 ---
 
@@ -47,11 +47,16 @@ const redes = [
       </li>
       {redes.map((r) => (
         <li>
-          <a class:list={['app-ico', r.clase]} href={r.href} target="_blank" rel="noopener" aria-label={r.nombre}>
-            <Icon name={r.icono} />
+          <a class="app-ico" href={r.href} target="_blank" rel="noopener" aria-label={r.nombre}>
+            <img src={`/media/${r.imagen}.webp`} alt="" width="96" height="96" loading="lazy" />
           </a>
         </li>
       ))}
+      <li>
+        <a class="app-ico tg" href={links.telegram} target="_blank" rel="noopener" aria-label="Telegram">
+          <Icon name="telegram" />
+        </a>
+      </li>
     </ul>
     <p class="ev-siguenos">Síguenos</p>
   </div>
@@ -153,21 +158,9 @@ const redes = [
   .wt {
     background: #3a55f2;
   }
-  /* El PNG original trae sombra alrededor del ícono: se amplía para que el azul llene la tarjeta */
-  .wt img {
+  /* Los PNG originales traen sombra alrededor del ícono: se amplían para que el color llene la tarjeta */
+  .app-ico img {
     transform: scale(1.2);
-  }
-  .ig {
-    background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285aeb 90%);
-  }
-  .wa {
-    background: linear-gradient(180deg, #5df875, #1ebe3f);
-  }
-  .fb {
-    background: linear-gradient(180deg, #18acfe, #0163e0);
-  }
-  .yt {
-    background: linear-gradient(180deg, #ff2b2b, #d40000);
   }
   .tg {
     background: linear-gradient(180deg, #37bbfe, #007dbb);

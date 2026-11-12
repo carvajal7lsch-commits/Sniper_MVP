@@ -2,235 +2,83 @@
 import Base from '../layouts/Base.astro';
 import HeroCine from '../components/HeroCine.astro';
 import EquipoPanel from '../components/EquipoPanel.astro';
+import ResenasCarril from '../components/ResenasCarril.astro';
 import Comunidad from '../components/Comunidad.astro';
 import AppSenales from '../components/AppSenales.astro';
 import Eventos from '../components/Eventos.astro';
-import Icon from '../components/Icon.astro';
-import { links } from '../config/sitio';
 import { repositorios } from '../infraestructura/contenedor';
 
 const mentores = await repositorios.mentores.listar();
 const resenas = await repositorios.resenas.listarDestacadas();
+// Miguel abre la fila: es el fundador y también parte del equipo.
 const fundador = mentores.find((m) => m.esFundador) ?? mentores[0];
-const equipo = mentores.filter((m) => m !== fundador);
-
-// Las reseñas que nombran a Miguel acompañan al fundador; el resto va al chat de la comunidad.
-const sobreMiguel = resenas.filter((r) => r.texto.includes('Miguel')).slice(0, 2);
-const paraElChat = resenas.filter((r) => !sobreMiguel.includes(r));
-
-const colores = ['#6ec9ff', '#ffb86b', '#b9a6ff', '#7ee3a2', '#ff8fa3', '#f5d76e'];
-const colorDe = (nombre: string) => colores[[...nombre].reduce((a, c) => a + c.charCodeAt(0), 0) % colores.length];
+const equipo = [fundador, ...mentores.filter((m) => m !== fundador)];
 ---
 
 <Base>
   <HeroCine />
 
-  <!-- FUNDADOR Y EQUIPO: una sola sección; Miguel abre la fila del equipo -->
+  <!-- LA MÁQUINA Y SU EQUIPO: la fila de mentores a lo ancho y, debajo, las reseñas corriendo -->
   <section class="fe" id="fundador" aria-labelledby="fe-titulo">
-    <div class="wrap fe-grid">
-      <div class="fe-copy" data-revelar>
-        <h2 id="fe-titulo">Detrás de cada clase hay alguien que opera todos los días</h2>
-        <p class="fe-lead">
-          Miguel Monsalve "La Máquina" fundó Sniper Pro en Cúcuta y armó un equipo de mentores que explica igual que él:
-          simple, frente al gráfico y sin vender humo.
-        </p>
-
-        <ul class="coment" aria-label="Reseñas de estudiantes sobre Miguel">
-          {sobreMiguel.map((r) => (
-            <li class="cm">
-              <span class="cm-av" style={`--c:${colorDe(r.nombre)}`} aria-hidden="true">
-                {r.nombre.charAt(0)}
-              </span>
-              <div class="cm-cuerpo">
-                <p class="cm-cabeza">
-                  <strong>{r.nombre}</strong>
-                  <span class="cm-insignia">Estudiante</span>
-                </p>
-                <p class="cm-texto">{r.texto}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
-
-        <div class="f-links">
-          <a href={links.instagram} target="_blank" rel="noopener">
-            <Icon name="instagram" />
-            <span>
-              <strong>78 mil</strong> en Instagram
-            </span>
-          </a>
-          <a href={links.youtube} target="_blank" rel="noopener">
-            <Icon name="youtube" />
-            <span>
-              <strong>YouTube</strong> clases y análisis
-            </span>
-          </a>
-          <a class="link fe-perfiles" href="/mentores/">
-            Ver perfiles completos
-          </a>
+    <div class="fe-ancho">
+      <div class="fe-cabeza" data-revelar>
+        <div>
+          <h2 id="fe-titulo">La Máquina y su equipo</h2>
+          <p>Miguel Monsalve y los mentores de Sniper Pro.</p>
         </div>
+        <a class="link" href="/mentores/">
+          Ver perfiles completos
+        </a>
       </div>
-
       <div class="fe-equipo" data-revelar>
-        <EquipoPanel mentores={[fundador, ...equipo]} />
+        <EquipoPanel mentores={equipo} />
       </div>
+    </div>
+    <div class="fe-resenas" data-revelar>
+      <ResenasCarril resenas={resenas} />
     </div>
   </section>
 
-  <Comunidad resenas={paraElChat} />
+  <Comunidad />
   <AppSenales />
   <Eventos />
 </Base>
 
 <style>
-  /* Fundador y equipo: cabe en una pantalla (texto a la izquierda, paneles a la derecha) */
+  /* Cabe en una pantalla: encabezado corto, fila del equipo casi a todo el ancho y reseñas debajo */
   .fe {
     scroll-margin-top: 64px;
-    padding-block: clamp(1.5rem, 4vh, 3rem) clamp(3rem, 8vh, 5rem);
+    padding-block: clamp(1.25rem, 3vh, 2rem) clamp(0.5rem, 2vh, 1.5rem);
   }
-  .fe-grid {
-    display: grid;
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-    gap: clamp(1.5rem, 4vw, 3.5rem);
-    align-items: center;
+  .fe-ancho {
+    width: min(100% - 2 * var(--gutter), 1100px);
+    margin-inline: auto;
   }
-  .fe-copy {
-    display: grid;
-    gap: 1.1rem;
-  }
-  .fe-copy h2 {
-    font-size: clamp(1.8rem, 1rem + 2.1vw, 2.9rem);
-    max-width: 16ch;
-  }
-  .fe-lead {
-    margin: 0;
-    color: var(--bruma);
-    font-size: clamp(0.98rem, 0.9rem + 0.25vw, 1.1rem);
-    line-height: 1.55;
-    max-width: 40em;
-  }
-  .fe-equipo {
-    --eq-alto: clamp(420px, calc(100svh - 64px - 7rem), 600px);
-    --eq-activo: 5;
-    --eq-hueco: 0.5rem;
-  }
-
-  /* Comentarios: avatar, nombre, insignia y globo, como en una plataforma real */
-  .coment {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: grid;
-    gap: 0.6rem;
-  }
-  .cm {
-    display: grid;
-    grid-template-columns: 34px 1fr;
-    gap: 0.7rem;
-    align-items: start;
-  }
-  .cm-av {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    display: grid;
-    place-items: center;
-    font-weight: 800;
-    font-size: 0.9rem;
-    color: #0b1020;
-    background: var(--c);
-  }
-  .cm-cuerpo {
-    padding: 0.55rem 0.9rem 0.6rem;
-    border-radius: 4px 14px 14px 14px;
-    background: #121831;
-    border: 1px solid var(--linea);
-  }
-  .cm-cabeza {
-    display: flex;
-    align-items: center;
-    gap: 0.45rem;
-    margin: 0 0 0.2rem;
-    font-size: 0.85rem;
-  }
-  .cm-insignia {
-    padding: 0.05rem 0.45rem;
-    border-radius: 999px;
-    background: rgb(34 241 255 / 0.12);
-    color: var(--cian);
-    font-size: 0.7rem;
-    font-weight: 700;
-  }
-  .cm-texto {
-    margin: 0;
-    font-size: 0.92rem;
-    line-height: 1.45;
-  }
-
-  .f-links {
+  .fe-cabeza {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
-    gap: 0.6rem;
+    justify-content: space-between;
+    align-items: end;
+    gap: 0.5rem 1.25rem;
+    margin-bottom: clamp(0.9rem, 2.2vh, 1.4rem);
   }
-  .f-links a:not(.link) {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    padding: 0.5rem 0.85rem;
-    border: 1px solid var(--linea);
-    border-radius: var(--r-sm);
-    text-decoration: none;
-    font-size: 0.82rem;
+  .fe-cabeza h2 {
+    font-size: clamp(1.7rem, 1rem + 1.8vw, 2.6rem);
+  }
+  .fe-cabeza p {
+    margin: 0.35rem 0 0;
     color: var(--bruma);
   }
-  .f-links a:not(.link):hover {
-    border-color: #2c3a7a;
-    color: var(--hueso);
+  .fe-cabeza .link {
+    font-size: 0.92rem;
   }
-  .f-links :global(svg) {
-    width: 20px;
-    height: 20px;
-    color: var(--cian);
+  .fe-equipo {
+    --eq-alto: clamp(420px, calc(100svh - 64px - 10rem), 680px);
+    --eq-activo: 3.6;
+    --eq-hueco: 0.6rem;
   }
-  .f-links span {
-    display: grid;
-    line-height: 1.25;
-  }
-  .f-links strong {
-    color: var(--hueso);
-  }
-  .fe-perfiles {
-    margin-left: 0.4rem;
-    font-size: 0.9rem;
-  }
-
-  /* Portátiles con poca altura (1366 × 768): todo el bloque sigue cabiendo en una pantalla */
-  @media (min-width: 1101px) and (max-height: 760px) {
-    .fe-copy {
-      gap: 0.75rem;
-    }
-    .fe-copy h2 {
-      font-size: clamp(1.7rem, 1rem + 1.5vw, 2.3rem);
-    }
-    .fe-lead {
-      font-size: 0.95rem;
-    }
-    .cm-texto {
-      font-size: 0.85rem;
-    }
-  }
-
-  @media (max-width: 1100px) {
-    .fe-grid {
-      grid-template-columns: 1fr;
-    }
-    .fe-copy h2 {
-      max-width: 22ch;
-    }
-    .fe-equipo {
-      --eq-alto: clamp(420px, 60vw, 540px);
-      --eq-activo: 4;
-    }
+  /* Las reseñas son el paso entre el equipo y la comunidad: una franja propia, con aire arriba y abajo */
+  .fe-resenas {
+    margin-top: clamp(3rem, 9vh, 5.5rem);
   }
 </style>
