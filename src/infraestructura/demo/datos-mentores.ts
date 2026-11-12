@@ -65,7 +65,7 @@ export const mentores = [
   {
     slug: 'anderson',
     nombre: 'Anderson',
-    apellido: '',
+    apellido: 'Arango',
     rol: 'Trader',
     enfoque: 'Índices sintéticos',
     bio: 'Trader del equipo, especializado en índices sintéticos.',

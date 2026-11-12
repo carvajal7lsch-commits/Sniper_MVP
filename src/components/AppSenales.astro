@@ -1,0 +1,179 @@
+---
+// Banner de la app, recreado con código a partir de la pieza original de la academia:
+// fondo azul con puntos y velas, titular en cian e insignias de tienda.
+// No se publica la cifra de efectividad del original hasta que el cliente la respalde.
+import { links } from '../config/sitio';
+import Icon from './Icon.astro';
+
+// Velas decorativas del fondo, generadas en el build.
+let semilla = 3;
+const azar = () => {
+  semilla = (semilla * 16807) % 2147483647;
+  return semilla / 2147483647;
+};
+const velas: { x: number; y: number; h: number; mecha: number }[] = [];
+let nivel = 260;
+for (let x = 30; x < 1440; x += 46) {
+  nivel = Math.min(330, Math.max(120, nivel + (azar() - 0.55) * 60));
+  const h = 30 + azar() * 90;
+  velas.push({ x, y: nivel - h / 2, h, mecha: h + 20 + azar() * 40 });
+}
+const linea = velas.map((v, i) => `${i === 0 ? 'M' : 'L'}${v.x} ${(v.y + v.h / 2).toFixed(1)}`).join(' ');
+---
+
+<section class="app" id="app" aria-labelledby="app-titulo">
+  <svg class="app-velas" viewBox="0 0 1440 420" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    {velas.map((v) => (
+      <g>
+        <line x1={v.x} x2={v.x} y1={v.y + v.h / 2 - v.mecha / 2} y2={v.y + v.h / 2 + v.mecha / 2} />
+        <rect x={v.x - 11} y={v.y} width="22" height={v.h} rx="2" />
+      </g>
+    ))}
+    <path d={linea} class="app-linea" />
+  </svg>
+
+  <div class="wrap app-in">
+    <h2 id="app-titulo">App señales</h2>
+    <p class="app-sub">Copia y pega las señales de expertos con más de 5 años de experiencia, directo en tu celular.</p>
+    <div class="tiendas">
+      <a class="tienda" href={links.googlePlay} target="_blank" rel="noopener" aria-label="Disponible en Google Play">
+        <svg viewBox="0 0 24 26" class="play" aria-hidden="true">
+          <path d="M1 1.2 13.3 13 1 24.8c-.4-.3-.6-.8-.6-1.4V2.6c0-.6.2-1.1.6-1.4Z" fill="#00d7fe" />
+          <path d="m17.4 17.1-4.1-4.1 4.1-4.1 4.8 2.8c1.3.8 1.3 2 0 2.7l-4.8 2.7Z" fill="#ffce00" />
+          <path d="M17.4 17.1 13.3 13 1 24.8c.5.5 1.2.5 2.1 0l14.3-7.7Z" fill="#ff3a44" />
+          <path d="M17.4 8.9 3.1 1.2C2.2.7 1.5.7 1 1.2L13.3 13l4.1-4.1Z" fill="#48ff48" />
+        </svg>
+        <span>
+          <small>Disponible en</small>Google Play
+        </span>
+      </a>
+      <a
+        class="tienda"
+        href={links.testflight}
+        target="_blank"
+        rel="noopener"
+        aria-label="Beta para iPhone en TestFlight"
+      >
+        <Icon name="apple" />
+        <span>
+          <small>Beta para iPhone</small>TestFlight
+        </span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .app {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    padding-block: clamp(4rem, 9vw, 7rem);
+    background:
+      radial-gradient(50% 70% at 50% 110%, rgb(34 225 255 / 0.25), transparent 70%),
+      radial-gradient(70% 90% at 15% 0%, #1b3bd6, transparent 70%),
+      linear-gradient(160deg, #0b1f9c 0%, #071367 55%, #050a3a 100%);
+  }
+  /* Puntos del fondo, como el mapa punteado del banner original */
+  .app::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image: radial-gradient(rgb(120 170 255 / 0.35) 1.4px, transparent 1.6px);
+    background-size: 14px 14px;
+    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 45%, #000, transparent 85%);
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 45%, #000, transparent 85%);
+  }
+  .app-velas {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    opacity: 0.35;
+  }
+  .app-velas line {
+    stroke: #6fb1ff;
+    stroke-width: 2;
+  }
+  .app-velas rect {
+    fill: #2c7dff;
+    opacity: 0.55;
+  }
+  .app-linea {
+    fill: none;
+    stroke: #3ff0ff;
+    stroke-width: 3;
+    filter: drop-shadow(0 0 6px #3ff0ff);
+  }
+
+  .app-in {
+    display: grid;
+    justify-items: center;
+    text-align: center;
+    gap: 1.2rem;
+  }
+  .app-in h2 {
+    font-size: clamp(2.8rem, 1.2rem + 6vw, 6rem);
+    font-weight: 900;
+    color: #22f1ff;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    text-shadow: 0 6px 30px rgb(0 0 0 / 0.45);
+  }
+  .app-sub {
+    margin: 0;
+    max-width: 34em;
+    font-size: clamp(1rem, 0.9rem + 0.5vw, 1.25rem);
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 2px 12px rgb(0 0 0 / 0.5);
+  }
+  .tiendas {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.9rem;
+    margin-top: 1rem;
+  }
+  .tienda {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    min-width: 190px;
+    padding: 0.6rem 1.1rem 0.6rem 0.9rem;
+    border: 1px solid rgb(255 255 255 / 0.4);
+    border-radius: 10px;
+    background: #000;
+    color: #fff;
+    text-decoration: none;
+    transition:
+      transform 0.15s,
+      border-color 0.15s;
+  }
+  .tienda:hover {
+    transform: translateY(-2px);
+    border-color: #fff;
+  }
+  .tienda svg,
+  .tienda :global(svg) {
+    width: 28px;
+    height: 28px;
+    flex: none;
+  }
+  .tienda span {
+    display: grid;
+    text-align: left;
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+  }
+  .tienda small {
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+</style>

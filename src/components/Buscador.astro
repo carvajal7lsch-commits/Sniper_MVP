@@ -1,0 +1,270 @@
+---
+// Buscador del encabezado, como el de TradingView: una barra que abre una ventana de búsqueda
+// (también con Ctrl+K o "/"). Busca en cursos, mentores y páginas con el índice armado en el build.
+import type { ItemBusqueda } from '../dominio/busqueda';
+import Icon from './Icon.astro';
+
+interface Props {
+  indice: ItemBusqueda[];
+}
+const { indice } = Astro.props;
+---
+
+<button
+  class="bs-icono"
+  type="button"
+  data-abrir-busqueda
+  aria-label="Buscar (Ctrl + K)"
+  title="Buscar (Ctrl + K)"
+  aria-haspopup="dialog"
+>
+  <Icon name="buscar" />
+</button>
+
+<dialog class="bs" data-busqueda aria-label="Buscar en el sitio">
+  <div class="bs-campo">
+    <Icon name="buscar" />
+    <label class="sr-only" for="bs-q">
+      Buscar cursos, mentores o páginas
+    </label>
+    <input
+      id="bs-q"
+      type="search"
+      placeholder="Busca un curso, un mentor o un tema"
+      autocomplete="off"
+      maxlength="60"
+      aria-controls="bs-lista"
+      data-busqueda-campo
+    />
+    <button type="button" class="bs-cerrar" data-cerrar-busqueda aria-label="Cerrar búsqueda">
+      Esc
+    </button>
+  </div>
+  <ul class="bs-lista" id="bs-lista" role="listbox" aria-label="Resultados" data-busqueda-lista></ul>
+  <p class="bs-vacio" data-busqueda-vacio hidden></p>
+  <p class="bs-ayuda" data-busqueda-ayuda>
+    Prueba con "forex", "mentalidad" o "La Máquina".
+  </p>
+</dialog>
+
+<script type="application/json" data-indice-busqueda set:html={JSON.stringify(indice)} />
+<script>
+  import { buscar } from '../dominio/busqueda';
+  import type { ItemBusqueda } from '../dominio/busqueda';
+
+  const ventana = document.querySelector<HTMLDialogElement>('[data-busqueda]');
+  const campo = document.querySelector<HTMLInputElement>('[data-busqueda-campo]');
+  const lista = document.querySelector<HTMLUListElement>('[data-busqueda-lista]');
+  const vacio = document.querySelector<HTMLParagraphElement>('[data-busqueda-vacio]');
+  const ayuda = document.querySelector<HTMLParagraphElement>('[data-busqueda-ayuda]');
+  const datos = document.querySelector('[data-indice-busqueda]')?.textContent ?? '[]';
+  const indice = JSON.parse(datos) as ItemBusqueda[];
+  let resultados: ItemBusqueda[] = [];
+  let activo = 0;
+
+  const pintar = () => {
+    if (!lista || !campo || !vacio || !ayuda) {
+      return;
+    }
+    const consulta = campo.value.trim();
+    resultados = buscar(indice, consulta);
+    activo = 0;
+    lista.replaceChildren();
+    resultados.forEach((item, posicion) => {
+      const fila = document.createElement('li');
+      fila.setAttribute('role', 'option');
+      fila.id = `bs-op-${posicion}`;
+      const enlace = document.createElement('a');
+      enlace.href = item.href;
+      const tipo = document.createElement('span');
+      tipo.className = 'bs-tipo';
+      tipo.textContent = item.tipo;
+      const titulo = document.createElement('strong');
+      titulo.textContent = item.titulo;
+      const detalle = document.createElement('small');
+      detalle.textContent = item.detalle;
+      enlace.append(tipo, titulo, detalle);
+      fila.append(enlace);
+      lista.append(fila);
+    });
+    ayuda.hidden = consulta.length > 0;
+    vacio.hidden = consulta.length === 0 || resultados.length > 0;
+    vacio.textContent = `Sin resultados para "${consulta}". Prueba con otro tema o escríbenos por WhatsApp.`;
+    marcarActivo();
+  };
+
+  const marcarActivo = () => {
+    lista?.querySelectorAll('li').forEach((fila, posicion) => {
+      fila.setAttribute('aria-selected', String(posicion === activo));
+    });
+    if (resultados.length > 0) {
+      campo?.setAttribute('aria-activedescendant', `bs-op-${activo}`);
+    } else {
+      campo?.removeAttribute('aria-activedescendant');
+    }
+  };
+
+  const abrir = () => {
+    if (!ventana || ventana.open) {
+      return;
+    }
+    ventana.showModal();
+    campo?.focus();
+    campo?.select();
+  };
+
+  document.querySelectorAll('[data-abrir-busqueda]').forEach((boton) => boton.addEventListener('click', abrir));
+  document.querySelector('[data-cerrar-busqueda]')?.addEventListener('click', () => ventana?.close());
+  ventana?.addEventListener('click', (evento) => {
+    if (evento.target === ventana) {
+      ventana.close();
+    }
+  });
+
+  document.addEventListener('keydown', (evento) => {
+    const escribiendo = evento.target instanceof HTMLInputElement || evento.target instanceof HTMLTextAreaElement;
+    const atajo = (evento.ctrlKey || evento.metaKey) && evento.key.toLowerCase() === 'k';
+    if (atajo || (evento.key === '/' && !escribiendo)) {
+      evento.preventDefault();
+      abrir();
+    }
+  });
+
+  campo?.addEventListener('input', pintar);
+  campo?.addEventListener('keydown', (evento) => {
+    // En un campo de búsqueda, Escape primero borra el texto; aquí cierra la ventana a la primera.
+    if (evento.key === 'Escape') {
+      evento.preventDefault();
+      ventana?.close();
+    }
+    if (evento.key === 'ArrowDown' && resultados.length > 0) {
+      evento.preventDefault();
+      activo = (activo + 1) % resultados.length;
+      marcarActivo();
+    }
+    if (evento.key === 'ArrowUp' && resultados.length > 0) {
+      evento.preventDefault();
+      activo = (activo - 1 + resultados.length) % resultados.length;
+      marcarActivo();
+    }
+    if (evento.key === 'Enter' && resultados[activo]) {
+      evento.preventDefault();
+      window.location.href = resultados[activo].href;
+    }
+  });
+</script>
+
+<style>
+  .bs-icono :global(svg),
+  .bs-campo :global(svg) {
+    width: 20px;
+    height: 20px;
+    flex: none;
+  }
+  .bs-icono {
+    display: grid;
+    width: 40px;
+    height: 40px;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .bs-icono:hover {
+    background: rgb(255 255 255 / 0.1);
+  }
+
+  .bs {
+    width: min(100% - 2rem, 600px);
+    margin: 12vh auto auto;
+    padding: 0;
+    border: 1px solid rgb(255 255 255 / 0.1);
+    border-radius: 16px;
+    background: #141722;
+    color: var(--hueso);
+    box-shadow: 0 30px 80px -20px rgb(0 0 0 / 0.8);
+  }
+  .bs::backdrop {
+    background: rgb(0 0 0 / 0.6);
+    backdrop-filter: blur(4px);
+  }
+  .bs-campo {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.4rem 0.7rem 0.4rem 1rem;
+    border-bottom: 1px solid rgb(255 255 255 / 0.08);
+    color: #9aa1c4;
+  }
+  .bs-campo input {
+    flex: 1;
+    min-height: 52px;
+    border: 0;
+    background: none;
+    color: var(--hueso);
+    font: inherit;
+    font-size: 1.05rem;
+    outline: none;
+  }
+  .bs-campo input::-webkit-search-cancel-button {
+    appearance: none;
+  }
+  .bs-campo input::placeholder {
+    color: #6f7699;
+  }
+  .bs-cerrar {
+    padding: 0.25rem 0.5rem;
+    border: 0;
+    border-radius: 6px;
+    background: rgb(255 255 255 / 0.08);
+    color: #9aa1c4;
+    font: inherit;
+    font-size: 0.75rem;
+    cursor: pointer;
+  }
+  .bs-lista {
+    list-style: none;
+    margin: 0;
+    padding: 0.4rem;
+    max-height: 55vh;
+    overflow-y: auto;
+  }
+  .bs-lista:empty {
+    display: none;
+  }
+  .bs-lista :global(a) {
+    display: grid;
+    grid-template-columns: 74px 1fr;
+    column-gap: 0.75rem;
+    padding: 0.65rem 0.75rem;
+    border-radius: 10px;
+    text-decoration: none;
+  }
+  .bs-lista :global(li[aria-selected='true'] a),
+  .bs-lista :global(a:hover) {
+    background: rgb(255 255 255 / 0.07);
+  }
+  .bs-lista :global(.bs-tipo) {
+    grid-row: span 2;
+    align-self: center;
+    font-size: 0.72rem;
+    color: var(--cian);
+  }
+  .bs-lista :global(strong) {
+    font-size: 0.95rem;
+  }
+  .bs-lista :global(small) {
+    color: #8b92b5;
+    font-size: 0.8rem;
+  }
+  .bs-vacio,
+  .bs-ayuda {
+    margin: 0;
+    padding: 1rem 1.1rem 1.2rem;
+    font-size: 0.88rem;
+    color: #8b92b5;
+  }
+</style>

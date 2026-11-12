@@ -1,0 +1,176 @@
+---
+// Cierre de la página, recreado a partir de la sección original de la academia:
+// foto nocturna de la ciudad de fondo, titular en cian y los accesos a sus redes en color.
+import { links } from '../config/sitio';
+import Icon from './Icon.astro';
+
+const redes = [
+  { nombre: 'Instagram', icono: 'instagram', href: links.instagram, clase: 'ig' },
+  { nombre: 'WhatsApp', icono: 'whatsapp', href: links.whatsapp, clase: 'wa' },
+  { nombre: 'Facebook', icono: 'facebook', href: links.facebook, clase: 'fb' },
+  { nombre: 'YouTube', icono: 'youtube', href: links.youtube, clase: 'yt' },
+  { nombre: 'Telegram', icono: 'telegram', href: links.telegram, clase: 'tg' },
+];
+---
+
+<section class="ev" aria-labelledby="ev-titulo">
+  <picture>
+    <source media="(max-width: 700px)" srcset="/media/eventos-800.webp" />
+    <img
+      class="ev-fondo"
+      src="/media/eventos-1600.webp"
+      width="1600"
+      height="900"
+      alt=""
+      loading="lazy"
+      decoding="async"
+    />
+  </picture>
+
+  <div class="wrap ev-in">
+    <p class="ev-pastilla">Sniper Pro</p>
+    <h2 id="ev-titulo">Próximos eventos</h2>
+    <p class="ev-sub">Presenciales Sniper Pro, más cerca de tu comunidad.</p>
+    <p class="ev-nota">Las fechas y ciudades se anuncian primero en el Telegram y en las redes.</p>
+
+    <ul class="ev-redes" aria-label="Redes de Sniper Pro">
+      <li>
+        <a
+          class="app-ico wt"
+          href={links.weltrade}
+          target="_blank"
+          rel="noopener"
+          aria-label="Abrir cuenta en Weltrade, el broker de la academia"
+        >
+          <img src="/media/weltrade.webp" alt="" width="96" height="96" loading="lazy" />
+        </a>
+      </li>
+      {redes.map((r) => (
+        <li>
+          <a class:list={['app-ico', r.clase]} href={r.href} target="_blank" rel="noopener" aria-label={r.nombre}>
+            <Icon name={r.icono} />
+          </a>
+        </li>
+      ))}
+    </ul>
+    <p class="ev-siguenos">Síguenos</p>
+  </div>
+</section>
+
+<style>
+  .ev {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    padding-block: clamp(5rem, 11vw, 8rem) clamp(3rem, 6vw, 4.5rem);
+  }
+  .ev picture {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+  }
+  .ev-fondo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(1) brightness(0.55);
+  }
+  /* Degradado azul y morado arriba, como la pieza original, fundido con la página */
+  .ev::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      linear-gradient(180deg, var(--noche) 0%, transparent 18%),
+      linear-gradient(100deg, rgb(35 20 170 / 0.75) 0%, rgb(60 10 120 / 0.55) 55%, rgb(120 20 160 / 0.6) 100%),
+      linear-gradient(180deg, transparent 40%, rgb(5 6 13 / 0.85) 100%);
+  }
+
+  .ev-in {
+    display: grid;
+    justify-items: center;
+    text-align: center;
+    gap: 1rem;
+  }
+  .ev-pastilla {
+    margin: 0;
+    padding: 0.4rem 1.1rem;
+    border-radius: 999px;
+    background: rgb(150 60 255 / 0.25);
+    color: #d6a8ff;
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+  .ev-in h2 {
+    font-size: clamp(2.4rem, 1.2rem + 4.4vw, 4.6rem);
+    color: #19d3e0;
+  }
+  .ev-sub {
+    margin: 0;
+    font-size: clamp(1.1rem, 0.95rem + 0.7vw, 1.5rem);
+    font-weight: 800;
+    font-stretch: 112%;
+  }
+  .ev-nota {
+    margin: 0;
+    color: #c9cfea;
+  }
+
+  .ev-redes {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: clamp(0.5rem, 2vw, 1.4rem);
+    list-style: none;
+    margin: 2rem 0 0;
+    padding: 0;
+  }
+  .app-ico {
+    display: grid;
+    place-items: center;
+    width: clamp(46px, 12.5vw, 96px);
+    height: clamp(46px, 12.5vw, 96px);
+    border-radius: 24%;
+    color: #fff;
+    overflow: hidden;
+    box-shadow: 0 14px 30px -12px rgb(0 0 0 / 0.7);
+    transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .app-ico:hover {
+    transform: translateY(-6px) scale(1.04);
+  }
+  .app-ico :global(svg) {
+    width: 56%;
+    height: 56%;
+  }
+  .app-ico img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .wt {
+    background: #3a55f2;
+  }
+  .ig {
+    background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285aeb 90%);
+  }
+  .wa {
+    background: linear-gradient(180deg, #5df875, #1ebe3f);
+  }
+  .fb {
+    background: linear-gradient(180deg, #18acfe, #0163e0);
+  }
+  .yt {
+    background: linear-gradient(180deg, #ff2b2b, #d40000);
+  }
+  .tg {
+    background: linear-gradient(180deg, #37bbfe, #007dbb);
+  }
+  .ev-siguenos {
+    margin: 0.4rem 0 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #c9cfea;
+  }
+</style>

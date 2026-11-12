@@ -3,18 +3,33 @@
 // toma fondo al bajar, enlaces de texto y un único botón. Cursos abre un panel flotante.
 import { nav, links, mentoriaPersonalizada } from '../config/sitio';
 import type { Categoria, Curso } from '../dominio/curso';
+import type { Mentor } from '../dominio/mentor';
+import { crearIndiceBusqueda } from '../dominio/busqueda';
+import Buscador from './Buscador.astro';
 import Icon from './Icon.astro';
 
 interface Props {
   categorias: Categoria[];
   cursos: Curso[];
+  mentores: Mentor[];
 }
-const { categorias, cursos } = Astro.props;
+const { categorias, cursos, mentores } = Astro.props;
 const path = Astro.url.pathname;
 const esActiva = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
 const destacado = cursos.find((c) => c.nivel === 'Desde cero');
 const conteo = (id: string) => cursos.filter((c) => c.categoria === id).length;
+const inicio = nav.find((n) => n.href === '/');
 const otros = nav.filter((n) => n.href !== '/' && n.href !== '/cursos/');
+const paginas = [
+  { titulo: 'Inicio', detalle: 'Sniper Pro Academy', href: '/' },
+  { titulo: 'Cursos', detalle: 'Catálogo por tema y nivel', href: '/cursos/' },
+  { titulo: 'Mentoría personalizada', detalle: 'Sesiones uno a uno con un mentor', href: '/cursos/#mentoria' },
+  { titulo: 'Mentores', detalle: 'El equipo de la academia', href: '/mentores/' },
+  { titulo: 'Nosotros', detalle: 'Qué es Sniper Pro y los presenciales', href: '/nosotros/' },
+  { titulo: 'Contacto', detalle: 'WhatsApp, Telegram y correo', href: '/contacto/' },
+  { titulo: 'Comunidad en Telegram', detalle: 'Gratis: análisis y avisos de clases', href: links.telegram },
+];
+const indice = crearIndiceBusqueda(cursos, categorias, mentores, paginas);
 ---
 
 <header class="hd" data-hd>
@@ -29,6 +44,13 @@ const otros = nav.filter((n) => n.href !== '/' && n.href !== '/cursos/');
 
     <nav class="hd-nav" aria-label="Principal">
       <ul>
+        {inicio && (
+          <li>
+            <a href={inicio.href} class="hd-link" aria-current={esActiva(inicio.href) ? 'page' : undefined}>
+              {inicio.label}
+            </a>
+          </li>
+        )}
         <li class="dd">
           <a href="/cursos/" class="hd-link" aria-current={esActiva('/cursos/') ? 'page' : undefined}>
             Cursos
@@ -87,6 +109,7 @@ const otros = nav.filter((n) => n.href !== '/' && n.href !== '/cursos/');
     </nav>
 
     <div class="hd-actions">
+      <Buscador indice={indice} />
       <a class="hd-login" href={links.login}>
         Ingresar
       </a>
@@ -190,7 +213,7 @@ const otros = nav.filter((n) => n.href !== '/' && n.href !== '/cursos/');
     margin-inline: auto;
   }
   .hd-logo img {
-    height: 34px;
+    height: 46px;
     width: auto;
   }
 
@@ -456,15 +479,20 @@ const otros = nav.filter((n) => n.href !== '/' && n.href !== '/cursos/');
     .hd-login {
       display: none;
     }
+    .hd-actions {
+      margin-left: auto;
+      gap: 0.5rem;
+    }
+    .hd-logo img {
+      height: 38px;
+    }
     .hd-in {
       gap: 0.5rem;
     }
     .hd-burger {
       display: grid;
     }
-    .hd-actions {
-      margin-left: auto;
-    }
+
     .hd-actions .btn-blanco {
       min-height: 38px;
       padding-inline: 1rem 1.3rem;

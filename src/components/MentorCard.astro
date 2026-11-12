@@ -29,7 +29,7 @@ if (m.redes.youtube) {
 redes.push({ name: 'whatsapp', href: wa, label: `Preguntar por las clases de ${full}` });
 ---
 
-<article class:list={['mc', { grande }]}>
+<article class:list={['mc', { grande }]} id={m.slug}>
   <div class="mc-frame">
     <img
       src={`/media/mentores/${m.slug}-400.webp`}
@@ -67,6 +67,9 @@ redes.push({ name: 'whatsapp', href: wa, label: `Preguntar por las clases de ${f
 </article>
 
 <style>
+  .mc {
+    scroll-margin-top: 90px;
+  }
   .mc-frame {
     position: relative;
     aspect-ratio: 4 / 5;

@@ -16,6 +16,7 @@ const {
 } = Astro.props;
 const categorias = await repositorios.cursos.listarCategorias();
 const cursos = await repositorios.cursos.listar();
+const mentores = await repositorios.mentores.listar();
 ---
 
 <!doctype html>
@@ -41,7 +42,7 @@ const cursos = await repositorios.cursos.listar();
     <a class="skip" href="#contenido">
       Saltar al contenido
     </a>
-    <Header categorias={categorias} cursos={cursos} />
+    <Header categorias={categorias} cursos={cursos} mentores={mentores} />
     <main id="contenido">
       <slot />
     </main>

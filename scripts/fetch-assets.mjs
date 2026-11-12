@@ -67,6 +67,37 @@ if (need('familia-1600.webp') || need('familia-800.webp')) {
   log('familia-1600.webp, familia-800.webp');
 }
 
+// Prueba varias rutas porque el sitio original no es consistente con sus carpetas
+async function downloadFirst(rutas) {
+  for (const r of rutas) {
+    const res = await fetch(`${SITE}${r}`);
+    if (res.ok) return Buffer.from(await res.arrayBuffer());
+  }
+  throw new Error(`No se encontró ninguna de: ${rutas.join(', ')}`);
+}
+
+// Fondo de "Próximos eventos" (ciudad de noche)
+if (need('eventos-1600.webp') || need('eventos-800.webp')) {
+  const buf = await downloadFirst([
+    '/assets/images/material/FONDOPROXIMOSEVENTOS.png',
+    '/assets/images/backgrounds/FONDOPROXIMOSEVENTOS.png',
+    '/assets/images/FONDOPROXIMOSEVENTOS.png',
+  ]);
+  await sharp(buf).resize({ width: 1600 }).webp({ quality: 66 }).toFile(join(OUT, 'eventos-1600.webp'));
+  await sharp(buf).resize({ width: 800 }).webp({ quality: 64 }).toFile(join(OUT, 'eventos-800.webp'));
+  log('eventos-1600.webp, eventos-800.webp');
+}
+
+// Ícono de Weltrade (se muestra hasta 96 px → 192 px para retina)
+if (need('weltrade.webp')) {
+  const buf = await downloadFirst(['/assets/images/icons/WELTRADE.png', '/assets/images/material/WELTRADE.png']);
+  await sharp(buf)
+    .resize({ width: 192, height: 192, fit: 'cover' })
+    .webp({ quality: 88 })
+    .toFile(join(OUT, 'weltrade.webp'));
+  log('weltrade.webp');
+}
+
 // Retratos: las tarjetas originales traen nombre y rol como texto dentro de la imagen.
 // Se recorta solo la franja del retrato (4:5) para mostrar nombre y rol como texto real.
 for (const [slug, url] of Object.entries(mentores)) {

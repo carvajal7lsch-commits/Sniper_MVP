@@ -1,6 +1,42 @@
 # Historial de versiones
 
-## 0.4.1 (Actual)
+## 0.6.0 (Actual)
+
+**Encabezado**
+
+- El buscador vuelve a ser solo la lupa, como en el sitio actual. Sigue abriendo con Ctrl+K o "/".
+
+**Inicio**
+
+- Al bajar desde la primera pantalla, el titular y el video se desenfocan y se apagan mientras entra la presentación de Miguel, que aparece desde el desenfoque. Solo en navegadores que lo soportan y nunca con "reducir movimiento".
+- Las reseñas junto a Miguel se ven como comentarios: avatar, nombre, insignia de estudiante y globo.
+- El equipo cabe en una sola franja: un panel por mentor; al pasar el cursor, enfocar con teclado o tocar, el panel se abre con foto, rol y redes. En celular se desliza de lado.
+- Comunidad y reseñas en una sola sección: invitación al Telegram gratuito y un celular con un chat de Telegram donde las reseñas reales van llegando una a una.
+- Banda "App señales" recreada en código a partir de la pieza original, con insignias de Google Play y TestFlight.
+- "Próximos eventos" cierra la página como en el sitio actual: foto de la ciudad de fondo y accesos en color a Weltrade, Instagram, WhatsApp, Facebook, YouTube y Telegram. Reemplaza la banda azul final, la foto de familia y la banda de la app anterior.
+
+**Datos**
+
+- Anderson aparece como Anderson Arango.
+
+## 0.5.0
+
+**Encabezado**
+
+- Buscador como el de TradingView: barra "Buscar" que también abre con Ctrl+K o "/". Busca en cursos, mentores y páginas sin importar tildes, se recorre con las flechas y Enter lleva al resultado. En celular queda como ícono de lupa.
+- "Inicio" vuelve al menú.
+- Logo más grande (46 px de alto en escritorio, 38 px en celular).
+
+**Inicio**
+
+- Titular un poco más pequeño.
+
+**Cursos y mentores**
+
+- El catálogo abre con la búsqueda que llega del encabezado (`/cursos/?q=forex`) y su buscador ya no distingue tildes.
+- Cada mentor tiene su enlace directo (`/mentores/#miguel-monsalve`).
+
+## 0.4.1
 
 **Marca**
 

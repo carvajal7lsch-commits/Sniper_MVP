@@ -4,6 +4,7 @@ import Icon from '../components/Icon.astro';
 import { contacto, mentoriaPersonalizada as personalizado } from '../config/sitio';
 import { NIVELES as niveles } from '../dominio/curso';
 import { repositorios } from '../infraestructura/contenedor';
+import { normalizar } from '../dominio/busqueda';
 
 const cursos = await repositorios.cursos.listar();
 const categorias = await repositorios.cursos.listarCategorias();
@@ -61,7 +62,7 @@ const wa = (t: string) =>
             class="curso"
             data-cat={c.categoria}
             data-nivel={c.nivel}
-            data-text={`${c.titulo} ${c.resumen}`.toLowerCase()}
+            data-text={normalizar(`${c.titulo} ${c.resumen}`)}
           >
             <div class="curso-meta">
               <span class="tag">{catNombre[c.categoria]}</span>
@@ -110,6 +111,8 @@ const wa = (t: string) =>
 </Base>
 
 <script>
+  import { normalizar } from '../dominio/busqueda';
+
   const state = { cat: '', nivel: '', q: '' };
   const items = [...document.querySelectorAll<HTMLLIElement>('.curso')];
   const conteo = document.getElementById('conteo')!;
@@ -143,7 +146,7 @@ const wa = (t: string) =>
     render();
   });
   q.addEventListener('input', () => {
-    state.q = q.value.trim().toLowerCase();
+    state.q = normalizar(q.value);
     render();
   });
   document.getElementById('limpiar')!.addEventListener('click', () => {
@@ -164,6 +167,14 @@ const wa = (t: string) =>
   }
   filtrarDesdeUrl();
   window.addEventListener('hashchange', filtrarDesdeUrl);
+
+  // El buscador del encabezado llega con la consulta en la URL (/cursos/?q=forex).
+  const consulta = new URLSearchParams(location.search).get('q');
+  if (consulta) {
+    q.value = consulta;
+    state.q = normalizar(consulta);
+    render();
+  }
 </script>
 
 <style>

@@ -80,8 +80,18 @@ import VelasFondo from './VelasFondo.astro';
     height: 100%;
     object-fit: cover;
     object-position: center 30%;
-    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 16%);
-    mask-image: linear-gradient(180deg, transparent 0%, #000 16%);
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 16%, #000 70%, transparent 100%);
+    mask-image: linear-gradient(180deg, transparent 0%, #000 16%, #000 70%, transparent 100%);
+  }
+  /* Borde inferior suave: el video y las velas se funden con la sección siguiente, sin corte */
+  .hero::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    height: 28%;
+    z-index: -1;
+    background: linear-gradient(180deg, transparent, var(--noche));
+    pointer-events: none;
   }
   .hero-velo {
     position: absolute;
@@ -104,7 +114,7 @@ import VelasFondo from './VelasFondo.astro';
     margin-inline: auto;
   }
   .hero-copy h1 {
-    font-size: clamp(2.4rem, 1rem + 5.2vw, 5.1rem);
+    font-size: clamp(2.2rem, 1rem + 4.4vw, 4.4rem);
     letter-spacing: -0.035em;
     max-width: none;
     text-shadow: 0 2px 30px rgb(0 0 0 / 0.5);
@@ -129,6 +139,38 @@ import VelasFondo from './VelasFondo.astro';
     margin: -0.6rem 0 0;
     font-size: 0.8rem;
     color: #9aa1c4;
+  }
+
+  /* Al bajar, el titular se desenfoca y se apaga mientras entra la siguiente sección (como TradingView).
+     Solo donde el navegador soporta animaciones ligadas al scroll; en el resto queda quieto. */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .hero {
+        view-timeline: --hero block;
+      }
+      .hero-copy,
+      .hero-video {
+        animation: hero-salida linear both;
+        animation-timeline: --hero;
+        animation-range: exit 0% exit 75%;
+      }
+      .hero-video {
+        animation-name: hero-video-salida;
+      }
+    }
+  }
+  @keyframes hero-salida {
+    to {
+      opacity: 0;
+      filter: blur(14px);
+      transform: translateY(-6vh) scale(0.97);
+    }
+  }
+  @keyframes hero-video-salida {
+    to {
+      opacity: 0.25;
+      filter: blur(10px);
+    }
   }
 
   @media (max-width: 700px) {
