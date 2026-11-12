@@ -1,6 +1,7 @@
 ---
-// Comunidad + reseñas en una sola sección (menos scroll): a la izquierda la invitación al Telegram
-// gratuito, a la derecha un celular con un chat de Telegram donde las reseñas reales van llegando.
+// Comunidad gratuita: a la izquierda la invitación, a la derecha la pieza real de la academia
+// (captura del grupo de Telegram con los íconos 3D). Sobre ella, una notificación de Telegram
+// va mostrando reseñas reales de estudiantes, una a la vez.
 import Icon from './Icon.astro';
 import { links } from '../config/sitio';
 import type { Resena } from '../dominio/resena';
@@ -9,16 +10,15 @@ interface Props {
   resenas: Resena[];
 }
 const { resenas } = Astro.props;
-const colores = ['#6ec9ff', '#ffb86b', '#b9a6ff', '#7ee3a2', '#ff8fa3', '#f5d76e'];
-const colorDe = (nombre: string) => colores[[...nombre].reduce((a, c) => a + c.charCodeAt(0), 0) % colores.length];
-const mensajes = resenas.slice(0, 12);
+// Reseñas cortas: caben en la notificación sin cortarse a mitad de idea.
+const avisos = resenas.filter((r) => r.texto.length <= 150).slice(0, 8);
 ---
 
 <section class="com" aria-labelledby="com-titulo">
   <div class="wrap com-in">
-    <div class="com-texto">
+    <div class="com-texto" data-revelar>
       <h2 id="com-titulo">Únete a nuestra comunidad free</h2>
-      <p class="lead">Recibe información de primera mano y mantente al tanto de nuestra labor.</p>
+      <p class="com-lead">Recibe información de primera mano y mantente al tanto de nuestra labor.</p>
       <ul class="com-lista">
         <li>
           <Icon name="mira" />
@@ -33,358 +33,225 @@ const mensajes = resenas.slice(0, 12);
           Fechas de los presenciales
         </li>
       </ul>
-      <a class="btn-blanco" href={links.telegram} target="_blank" rel="noopener">
-        <Icon name="telegram" />
-        Unirme al Telegram
-      </a>
-      <p class="com-nota">Gratis. Sin tarjeta ni compromiso.</p>
+      <div class="com-accion">
+        <a class="btn-blanco" href={links.telegram} target="_blank" rel="noopener">
+          <Icon name="telegram" />
+          Unirme al Telegram
+        </a>
+        <p class="com-nota">Gratis. Sin tarjeta ni compromiso.</p>
+      </div>
     </div>
 
-    <div class="com-escena">
-      <span class="tg-burbuja b1" aria-hidden="true">
-        <Icon name="telegram" />
-      </span>
-      <span class="tg-burbuja b2" aria-hidden="true">
-        <Icon name="telegram" />
-      </span>
-      <span class="tg-burbuja b3" aria-hidden="true">
-        <Icon name="telegram" />
-      </span>
+    <figure class="com-escena">
+      <picture>
+        <source media="(max-width: 700px)" srcset="/media/comunidad-tg-450.webp" />
+        <img
+          class="com-cel"
+          src="/media/comunidad-tg-900.webp"
+          width="900"
+          height="1048"
+          alt="Grupo de Telegram de la comunidad Sniper Pro en un celular"
+          loading="lazy"
+          decoding="async"
+        />
+      </picture>
 
-      <figure class="cel">
-        <div class="cel-pantalla">
-          <div class="tg-barra">
-            <Icon name="chevron" class="tg-atras" />
-            <img src="/favicon.svg" alt="" width="36" height="36" />
-            <div>
-              <strong>Comunidad Sniper Pro</strong>
-              <span data-tg-estado>reseñas de estudiantes</span>
-            </div>
-          </div>
-          <ol class="tg-chat" data-tg-chat aria-label="Reseñas de estudiantes">
-            {mensajes.map((m, i) => (
-              <li class="tg-msg" data-tg-msg hidden={i > 1 ? true : undefined}>
-                <span class="tg-av" style={`--c:${colorDe(m.nombre)}`} aria-hidden="true">
-                  {m.nombre.charAt(0)}
-                </span>
-                <div class="tg-globo">
-                  <p class="tg-quien" style={`color:${colorDe(m.nombre)}`}>
-                    {m.nombre}
-                  </p>
-                  <p>{m.texto}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
-          <div class="tg-escribir" aria-hidden="true">
-            <span>Mensaje</span>
-            <Icon name="telegram" />
-          </div>
+      <div class="aviso" data-avisos aria-live="polite">
+        <span class="aviso-ico" aria-hidden="true">
+          <Icon name="telegram" />
+        </span>
+        <div class="aviso-txt">
+          <p class="aviso-cabeza">
+            <strong>Comunidad Sniper Pro</strong>
+            <span>ahora</span>
+          </p>
+          {avisos.map((r, i) => (
+            <p class="aviso-msg" data-aviso hidden={i > 0 ? true : undefined}>
+              <strong>{r.nombre}:</strong> {r.texto}
+            </p>
+          ))}
         </div>
-        <figcaption>Reseñas reales de estudiantes, mostradas como chat.</figcaption>
-      </figure>
-    </div>
+      </div>
+      <figcaption class="sr-only">Reseñas reales de estudiantes, mostradas como notificación.</figcaption>
+    </figure>
   </div>
 </section>
 
 <script>
-  // Las reseñas llegan una a una cuando la sección entra en pantalla, como en un grupo activo.
-  const chat = document.querySelector<HTMLElement>('[data-tg-chat]');
-  const estado = document.querySelector<HTMLElement>('[data-tg-estado]');
-  const pendientes = [...document.querySelectorAll<HTMLElement>('[data-tg-msg][hidden]')];
-  const reducir = matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  const mostrarTodo = () => {
-    pendientes.forEach((m) => {
-      m.hidden = false;
-    });
-  };
-
-  const siguiente = () => {
-    const mensaje = pendientes.shift();
-    if (!mensaje || !estado) {
-      if (estado) {
-        estado.textContent = 'reseñas de estudiantes';
+  // Rota las reseñas cada pocos segundos solo mientras la sección está en pantalla.
+  const aviso = document.querySelector<HTMLElement>('[data-avisos]');
+  const mensajes = aviso ? [...aviso.querySelectorAll<HTMLElement>('[data-aviso]')] : [];
+  const quieto = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (aviso && mensajes.length > 1 && !quieto) {
+    let actual = 0;
+    let reloj = 0;
+    const siguiente = () => {
+      aviso.classList.add('saliendo');
+      window.setTimeout(() => {
+        mensajes[actual].hidden = true;
+        actual = (actual + 1) % mensajes.length;
+        mensajes[actual].hidden = false;
+        aviso.classList.remove('saliendo');
+      }, 350);
+    };
+    new IntersectionObserver(([e]) => {
+      window.clearInterval(reloj);
+      if (e.isIntersecting) {
+        reloj = window.setInterval(siguiente, 4500);
       }
-      return;
-    }
-    estado.textContent = 'alguien está escribiendo…';
-    window.setTimeout(() => {
-      mensaje.hidden = false;
-      mensaje.classList.add('llega');
-      estado.textContent = 'reseñas de estudiantes';
-      window.setTimeout(siguiente, 1100);
-    }, 900);
-  };
-
-  if (chat) {
-    if (reducir) {
-      mostrarTodo();
-    } else {
-      const observador = new IntersectionObserver(
-        ([entrada]) => {
-          if (entrada.isIntersecting) {
-            observador.disconnect();
-            siguiente();
-          }
-        },
-        { threshold: 0.4 },
-      );
-      observador.observe(chat);
-    }
+    }).observe(aviso);
   }
 </script>
 
 <style>
   .com {
-    padding-block: var(--sec);
+    padding-block: clamp(3rem, 8vh, 5rem);
     overflow: hidden;
-    background: radial-gradient(60% 70% at 85% 60%, rgb(35 72 255 / 0.28), transparent 70%);
   }
   .com-in {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: clamp(2rem, 6vw, 5rem);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(1.5rem, 4vw, 3rem);
     align-items: center;
   }
   .com-texto {
     display: grid;
-    gap: 1.25rem;
+    gap: 1rem;
     justify-items: start;
   }
   .com-texto h2 {
-    color: var(--cian);
-    font-size: clamp(2.2rem, 1.2rem + 3.4vw, 3.8rem);
+    font-size: clamp(2rem, 1.1rem + 2.4vw, 3.3rem);
+    color: #19e6f2;
     max-width: 12ch;
   }
-  .com-texto .lead {
+  .com-lead {
     margin: 0;
-    color: var(--hueso);
+    color: var(--bruma);
+    max-width: 30em;
   }
   .com-lista {
     list-style: none;
     margin: 0;
     padding: 0;
     display: grid;
-    gap: 0.55rem;
+    gap: 0.45rem;
+    font-weight: 600;
+    font-size: 0.95rem;
   }
   .com-lista li {
     display: flex;
     align-items: center;
-    gap: 0.6rem;
-    font-weight: 600;
+    gap: 0.55rem;
   }
   .com-lista :global(svg) {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     color: var(--cian);
   }
+  .com-accion {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem 1.1rem;
+    margin-top: 0.4rem;
+  }
   .com-nota {
-    margin: -0.5rem 0 0;
+    margin: 0;
     font-size: 0.8rem;
-    color: #9aa1c4;
+    color: var(--bruma);
   }
 
-  /* Celular con Telegram (tema oscuro) */
   .com-escena {
     position: relative;
+    margin: 0;
     justify-self: center;
   }
-  .cel {
-    position: relative;
-    z-index: 1;
-    margin: 0;
-    width: min(330px, 82vw);
-    transform: rotate(-4deg);
+  /* La pieza original trae fondo negro con un degradado azul abajo: se funde con la página por los bordes */
+  .com-cel {
+    display: block;
+    width: auto;
+    height: min(560px, calc(100svh - 64px - 7rem));
+    max-width: 100%;
+    object-fit: contain;
+    -webkit-mask-image: radial-gradient(ellipse 62% 58% at 50% 50%, #000 60%, transparent 100%);
+    mask-image: radial-gradient(ellipse 62% 58% at 50% 50%, #000 60%, transparent 100%);
   }
-  .cel-pantalla {
-    display: flex;
-    flex-direction: column;
-    height: 560px;
-    border: 10px solid #1c2233;
-    border-radius: 38px;
-    overflow: hidden;
-    background: #0e1621;
-    box-shadow:
-      0 40px 80px -30px rgb(0 0 0 / 0.9),
-      0 0 0 1px rgb(255 255 255 / 0.06);
-  }
-  .tg-barra {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    padding: 1.2rem 0.8rem 0.6rem;
-    background: #17212b;
-  }
-  .tg-barra :global(.tg-atras) {
-    width: 18px;
-    height: 18px;
-    transform: rotate(90deg);
-    color: #8a9aa9;
-  }
-  .tg-barra img {
-    border-radius: 50%;
-  }
-  .tg-barra div {
+
+  /* Notificación de Telegram con una reseña real */
+  .aviso {
+    position: absolute;
+    left: -4%;
+    bottom: 10%;
     display: grid;
-    line-height: 1.25;
+    grid-template-columns: 38px 1fr;
+    gap: 0.65rem;
+    width: min(340px, 92%);
+    padding: 0.7rem 0.85rem;
+    border-radius: 16px;
+    background: rgb(23 33 43 / 0.92);
+    border: 1px solid rgb(255 255 255 / 0.08);
+    box-shadow: 0 18px 40px -14px rgb(0 0 0 / 0.8);
+    backdrop-filter: blur(10px);
+    transition:
+      opacity 0.35s ease,
+      transform 0.35s ease;
   }
-  .tg-barra strong {
-    font-size: 0.9rem;
+  .aviso.saliendo {
+    opacity: 0;
+    transform: translateY(8px);
   }
-  .tg-barra span {
-    font-size: 0.75rem;
-    color: #6ab3f3;
-  }
-  .tg-chat {
-    flex: 1;
-    list-style: none;
-    margin: 0;
-    padding: 0.8rem 0.6rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    gap: 0.45rem;
-    overflow: hidden;
-    background-color: #0e1621;
-    background-image: radial-gradient(rgb(255 255 255 / 0.04) 1px, transparent 1px);
-    background-size: 16px 16px;
-  }
-  .tg-msg {
-    display: flex;
-    align-items: flex-end;
-    gap: 0.4rem;
-    flex: none;
-  }
-  .tg-msg[hidden] {
-    display: none;
-  }
-  .tg-msg.llega {
-    animation: llegar 0.35s ease-out both;
-  }
-  @keyframes llegar {
-    from {
-      opacity: 0;
-      transform: translateY(12px) scale(0.98);
-    }
-  }
-  .tg-av {
-    flex: none;
-    width: 28px;
-    height: 28px;
+  .aviso-ico {
     display: grid;
     place-items: center;
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
-    background: var(--c);
-    color: #0e1621;
-    font-weight: 800;
-    font-size: 0.75rem;
+    background: linear-gradient(180deg, #37bbfe, #007dbb);
+    color: #fff;
   }
-  .tg-globo {
-    max-width: 82%;
-    padding: 0.4rem 0.65rem 0.45rem;
-    border-radius: 12px 12px 12px 4px;
-    background: #182533;
-    font-size: 0.82rem;
-    line-height: 1.4;
-  }
-  .tg-globo p {
-    margin: 0;
-  }
-  .tg-quien {
-    font-size: 0.75rem;
-    font-weight: 700;
-    margin-bottom: 0.1rem !important;
-  }
-  .tg-escribir {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.7rem 0.9rem 1rem;
-    background: #17212b;
-    color: #6d7f8f;
-    font-size: 0.85rem;
-  }
-  .tg-escribir :global(svg) {
+  .aviso-ico :global(svg) {
     width: 20px;
     height: 20px;
-    color: #6ab3f3;
   }
-  figcaption {
-    margin-top: 1rem;
-    text-align: center;
-    font-size: 0.75rem;
-    color: #7d84a8;
-    transform: rotate(4deg);
+  .aviso-cabeza {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin: 0 0 0.15rem;
+    font-size: 0.8rem;
   }
-
-  /* Íconos de Telegram flotando alrededor, como en la pieza original */
-  .tg-burbuja {
-    position: absolute;
-    z-index: 2;
-    display: grid;
-    place-items: center;
-    border-radius: 50%;
-    background: radial-gradient(circle at 35% 30%, #5fb4ff, #1d7fe0 70%);
-    color: #fff;
-    box-shadow:
-      0 12px 30px -8px rgb(29 127 224 / 0.8),
-      inset 0 -4px 0 rgb(0 0 0 / 0.15),
-      0 0 0 4px rgb(255 255 255 / 0.85);
+  .aviso-cabeza span {
+    color: #7f91a4;
+    font-size: 0.72rem;
   }
-  .tg-burbuja :global(svg) {
-    width: 52%;
-    height: 52%;
-    margin-left: -6%;
+  .aviso-msg {
+    margin: 0;
+    font-size: 0.82rem;
+    line-height: 1.4;
+    color: #dbe4ee;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
-  .b1 {
-    width: 86px;
-    height: 86px;
-    top: 4%;
-    right: -14%;
+  .aviso-msg[hidden] {
+    display: none;
   }
-  .b2 {
-    width: 70px;
-    height: 70px;
-    top: 38%;
-    left: -16%;
-  }
-  .b3 {
-    width: 60px;
-    height: 60px;
-    bottom: 12%;
-    right: -10%;
-  }
-  @media (prefers-reduced-motion: no-preference) {
-    .tg-burbuja {
-      animation: flotar 6s ease-in-out infinite;
-    }
-    .b2 {
-      animation-delay: -2s;
-    }
-    .b3 {
-      animation-delay: -4s;
-    }
-  }
-  @keyframes flotar {
-    50% {
-      transform: translateY(-10px);
-    }
+  .aviso-msg strong {
+    color: #6ec9ff;
   }
 
-  @media (max-width: 900px) {
+  @media (max-width: 860px) {
     .com-in {
       grid-template-columns: 1fr;
     }
-    .cel-pantalla {
-      height: 480px;
+    .com-cel {
+      height: auto;
+      width: min(380px, 100%);
     }
-    .b2 {
-      left: -6%;
-    }
-    .b1,
-    .b3 {
-      right: -4%;
+    .aviso {
+      left: 0;
+      bottom: 6%;
     }
   }
 </style>

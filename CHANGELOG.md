@@ -1,6 +1,17 @@
 # Historial de versiones
 
-## 0.6.0 (Actual)
+## 0.7.0 (Actual)
+
+**Inicio**
+
+- Flecha abajo al centro de la primera pantalla que invita a bajar y lleva a la sección de Miguel.
+- Al bajar, la siguiente sección aparece de inmediato (se quitó el espacio oscuro) y sus textos entran desde arriba, enfocándose uno tras otro, como en TradingView. Con "reducir movimiento" no hay animación.
+- Miguel y el equipo quedan en una sola sección que cabe en una pantalla: a la izquierda la presentación y las reseñas; a la derecha la fila del equipo, que abre con Miguel como fundador. Así no se presenta dos veces.
+- Comunidad gratuita más compacta y con la pieza real de la academia (el celular con el grupo de Telegram y los íconos 3D). Encima, una notificación de Telegram va mostrando reseñas reales.
+- "App señales" se funde hacia abajo con "Próximos eventos", que ahora es oscuro, con la ciudad de fondo y un tinte azul que continúa el de la app.
+- La insignia de iPhone dice "Disponible para iPhone" y sigue apuntando a TestFlight, que es el enlace que publica la academia.
+
+## 0.6.0
 
 **Encabezado**
 

@@ -67,30 +67,34 @@ if (need('familia-1600.webp') || need('familia-800.webp')) {
   log('familia-1600.webp, familia-800.webp');
 }
 
-// Prueba varias rutas porque el sitio original no es consistente con sus carpetas
-async function downloadFirst(rutas) {
-  for (const r of rutas) {
-    const res = await fetch(`${SITE}${r}`);
-    if (res.ok) return Buffer.from(await res.arrayBuffer());
-  }
-  throw new Error(`No se encontró ninguna de: ${rutas.join(', ')}`);
-}
-
 // Fondo de "Próximos eventos" (ciudad de noche)
 if (need('eventos-1600.webp') || need('eventos-800.webp')) {
-  const buf = await downloadFirst([
-    '/assets/images/material/FONDOPROXIMOSEVENTOS.png',
-    '/assets/images/backgrounds/FONDOPROXIMOSEVENTOS.png',
-    '/assets/images/FONDOPROXIMOSEVENTOS.png',
-  ]);
+  const buf = await download(`${SITE}/assets/images/material/FONDOPROXIMOSEVENTOS.png`);
   await sharp(buf).resize({ width: 1600 }).webp({ quality: 66 }).toFile(join(OUT, 'eventos-1600.webp'));
   await sharp(buf).resize({ width: 800 }).webp({ quality: 64 }).toFile(join(OUT, 'eventos-800.webp'));
   log('eventos-1600.webp, eventos-800.webp');
 }
 
+// Celular con el grupo de Telegram y los íconos 3D: se recorta del banner "Únete a nuestra comunidad"
+if (need('comunidad-tg-900.webp') || need('comunidad-tg-450.webp')) {
+  const buf = await download(`${SITE}/assets/images/material/FONDOTELEGRAMFREE.jpg`);
+  const { width, height } = await sharp(buf).metadata();
+  const recorte = await sharp(buf)
+    .extract({
+      left: Math.round(width * 0.07),
+      top: Math.round(height * 0.06),
+      width: Math.round(width * 0.35),
+      height: Math.round(height * 0.9),
+    })
+    .toBuffer();
+  await sharp(recorte).resize({ width: 900 }).webp({ quality: 78 }).toFile(join(OUT, 'comunidad-tg-900.webp'));
+  await sharp(recorte).resize({ width: 450 }).webp({ quality: 76 }).toFile(join(OUT, 'comunidad-tg-450.webp'));
+  log('comunidad-tg-900.webp, comunidad-tg-450.webp');
+}
+
 // Ícono de Weltrade (se muestra hasta 96 px → 192 px para retina)
 if (need('weltrade.webp')) {
-  const buf = await downloadFirst(['/assets/images/icons/WELTRADE.png', '/assets/images/material/WELTRADE.png']);
+  const buf = await download(`${SITE}/assets/images/icons/WELTRADE.png`);
   await sharp(buf)
     .resize({ width: 192, height: 192, fit: 'cover' })
     .webp({ quality: 88 })

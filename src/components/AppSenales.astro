@@ -32,7 +32,7 @@ const linea = velas.map((v, i) => `${i === 0 ? 'M' : 'L'}${v.x} ${(v.y + v.h / 2
     <path d={linea} class="app-linea" />
   </svg>
 
-  <div class="wrap app-in">
+  <div class="wrap app-in" data-revelar>
     <h2 id="app-titulo">App señales</h2>
     <p class="app-sub">Copia y pega las señales de expertos con más de 5 años de experiencia, directo en tu celular.</p>
     <div class="tiendas">
@@ -52,11 +52,11 @@ const linea = velas.map((v, i) => `${i === 0 ? 'M' : 'L'}${v.x} ${(v.y + v.h / 2
         href={links.testflight}
         target="_blank"
         rel="noopener"
-        aria-label="Beta para iPhone en TestFlight"
+        aria-label="Disponible para iPhone en TestFlight"
       >
         <Icon name="apple" />
         <span>
-          <small>Beta para iPhone</small>TestFlight
+          <small>Disponible para iPhone</small>TestFlight
         </span>
       </a>
     </div>
@@ -68,8 +68,9 @@ const linea = velas.map((v, i) => `${i === 0 ? 'M' : 'L'}${v.x} ${(v.y + v.h / 2
     position: relative;
     overflow: hidden;
     isolation: isolate;
-    padding-block: clamp(4rem, 9vw, 7rem);
+    padding-block: clamp(3.5rem, 8vh, 5.5rem) clamp(5rem, 12vh, 8rem);
     background:
+      linear-gradient(180deg, transparent 55%, var(--noche) 100%),
       radial-gradient(50% 70% at 50% 110%, rgb(34 225 255 / 0.25), transparent 70%),
       radial-gradient(70% 90% at 15% 0%, #1b3bd6, transparent 70%),
       linear-gradient(160deg, #0b1f9c 0%, #071367 55%, #050a3a 100%);
@@ -92,6 +93,9 @@ const linea = velas.map((v, i) => `${i === 0 ? 'M' : 'L'}${v.x} ${(v.y + v.h / 2
     width: 100%;
     height: 100%;
     opacity: 0.35;
+    /* Se apaga hacia abajo para fundirse con "Próximos eventos" */
+    -webkit-mask-image: linear-gradient(180deg, #000 45%, transparent 90%);
+    mask-image: linear-gradient(180deg, #000 45%, transparent 90%);
   }
   .app-velas line {
     stroke: #6fb1ff;
@@ -115,7 +119,7 @@ const linea = velas.map((v, i) => `${i === 0 ? 'M' : 'L'}${v.x} ${(v.y + v.h / 2
     gap: 1.2rem;
   }
   .app-in h2 {
-    font-size: clamp(2.8rem, 1.2rem + 6vw, 6rem);
+    font-size: clamp(2.6rem, 1.2rem + 4.6vw, 5rem);
     font-weight: 900;
     color: #22f1ff;
     text-transform: uppercase;

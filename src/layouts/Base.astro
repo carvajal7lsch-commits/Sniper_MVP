@@ -37,6 +37,9 @@ const mentores = await repositorios.mentores.listar();
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preload" href="/media/logo.webp" as="image" type="image/webp" />
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
   </head>
   <body>
     <a class="skip" href="#contenido">
@@ -69,6 +72,24 @@ const mentores = await repositorios.mentores.listar();
           sessionStorage.setItem('demoOculta', '1');
         } catch {}
       });
+    </script>
+    <script>
+      // Entrada de los bloques marcados con data-revelar: sus hijos bajan desde arriba y se enfocan,
+      // uno tras otro, la primera vez que el bloque entra en pantalla.
+      const bloques = document.querySelectorAll<HTMLElement>('[data-revelar]');
+      bloques.forEach((b) => [...b.children].forEach((h, i) => (h as HTMLElement).style.setProperty('--i', String(i))));
+      const vigia = new IntersectionObserver(
+        (entradas) => {
+          entradas.forEach((e) => {
+            if (e.isIntersecting) {
+              e.target.classList.add('visible');
+              vigia.unobserve(e.target);
+            }
+          });
+        },
+        { threshold: 0.2, rootMargin: '0px 0px -8% 0px' },
+      );
+      bloques.forEach((b) => vigia.observe(b));
     </script>
   </body>
 </html>

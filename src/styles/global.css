@@ -313,3 +313,23 @@ select.input {
   background-repeat: no-repeat;
   padding-right: 2.5rem;
 }
+
+/* ───────── Entrada de secciones (data-revelar) ─────────
+   Sin JavaScript o con "reducir movimiento" el contenido se ve tal cual. */
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-revelar] > * {
+    opacity: 0;
+    transform: translateY(-22px);
+    filter: blur(8px);
+    transition:
+      opacity 0.7s ease,
+      transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1),
+      filter 0.7s ease;
+    transition-delay: calc(var(--i, 0) * 90ms);
+  }
+  .js [data-revelar].visible > * {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
