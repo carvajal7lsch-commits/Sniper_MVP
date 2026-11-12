@@ -1,89 +1,39 @@
 ---
-// Hero de una sola idea: titular centrado, un botón y debajo la clase real a lo ancho,
-// con una línea de precio: cae, la mira fija la entrada y el precio sube. La línea se genera en el build
-// (SVG puro); el video solo se descarga después de cargar la página.
+// Hero de una sola idea: titular centrado y un botón sobre la clase real como fondo,
+// con velas interactivas detrás. El video solo se descarga después de cargar la página.
 import { links } from '../config/sitio';
-
-const W = 1440;
-const H = 360;
-const N = 120;
-const ENTRADA = 74;
-
-let semilla = 11;
-const azar = () => {
-  semilla = (semilla * 16807) % 2147483647;
-  return semilla / 2147483647;
-};
-
-// Precio: baja con ruido hasta la entrada y luego sube.
-const precios: number[] = [];
-let precio = 120;
-for (let i = 0; i < N; i++) {
-  const tendencia = i < ENTRADA ? -1.15 : 2.1;
-  precio = precio + tendencia + (azar() - 0.5) * 9;
-  if (i === ENTRADA) {
-    precio = Math.min(...precios) - 14;
-  }
-  precios.push(precio);
-}
-const minimo = Math.min(...precios);
-const maximo = Math.max(...precios);
-const x = (i: number) => (i / (N - 1)) * W;
-// En pantalla el eje Y crece hacia abajo: a mayor precio, menor y.
-const y = (p: number) => 40 + ((maximo - p) / (maximo - minimo)) * (H - 90);
-const camino = precios.map((p, i) => `${i === 0 ? 'M' : 'L'}${x(i).toFixed(1)} ${y(p).toFixed(1)}`).join(' ');
-const sombra = precios
-  .map((p, i) => `${i === 0 ? 'M' : 'L'}${x(i).toFixed(1)} ${(y(p) + 26 + Math.sin(i / 4) * 10).toFixed(1)}`)
-  .join(' ');
-const ex = x(ENTRADA);
-const ey = y(precios[ENTRADA]);
+import VelasFondo from './VelasFondo.astro';
 ---
 
 <section class="hero" aria-labelledby="hero-titulo">
+  <video
+    class="hero-video"
+    muted
+    loop
+    playsinline
+    preload="none"
+    poster="/media/clase-poster.webp"
+    aria-label="Clase presencial de Sniper Pro con Miguel Monsalve"
+    data-hero-video
+  >
+    <source data-src="/media/clase.webm" type="video/webm" />
+    <source data-src="/media/clase.mp4" type="video/mp4" />
+  </video>
+  <div class="hero-velo" aria-hidden="true"></div>
+  <VelasFondo />
+
   <div class="hero-copy">
-    <h1 id="hero-titulo">Trading en modo plastilina.</h1>
+    <h1 id="hero-titulo">
+      <span class="frase">Más que una academia,</span> <span class="frase">una familia.</span>
+    </h1>
     <p class="hero-sub">
-      Así le dicen nuestros estudiantes a las clases: índices sintéticos y Forex desde cero, explicados sobre el
-      gráfico.
+      Sniper Pro es la academia de trading de Miguel Monsalve "La Máquina" y su equipo de mentores. Índices sintéticos y
+      Forex, en vivo sobre el gráfico.
     </p>
     <a class="btn-blanco hero-cta" href={links.telegram} target="_blank" rel="noopener">
       Unirme gratis a la comunidad
     </a>
     <p class="hero-nota">Comunidad gratuita en Telegram. Sin tarjeta ni compromiso.</p>
-  </div>
-
-  <div class="cine">
-    <video
-      class="cine-video"
-      muted
-      loop
-      playsinline
-      preload="none"
-      poster="/media/clase-poster.webp"
-      aria-label="Clase presencial de Sniper Pro con Miguel Monsalve"
-      data-hero-video
-    >
-      <source data-src="/media/clase.webm" type="video/webm" />
-      <source data-src="/media/clase.mp4" type="video/mp4" />
-    </video>
-
-    <svg class="cine-linea" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-      <path d={sombra} class="l-sombra" pathLength="1" />
-      <path d={camino} class="l-precio" pathLength="1" />
-      <g class="niveles">
-        <line x1={ex} x2={W} y1={ey} y2={ey} class="n-entrada" />
-        <text x={W - 24} y={ey - 10} class="t-entrada">
-          Entrada
-        </text>
-      </g>
-      <g transform={`translate(${ex} ${ey})`}>
-        <g class="mira">
-          <circle r="22" class="m-aro" />
-          <circle r="3" class="m-punto" />
-          <path d="M-36 0H-12M12 0H36M0 -36V-12M0 12V36" class="m-cruz" />
-        </g>
-      </g>
-    </svg>
   </div>
 </section>
 
@@ -111,31 +61,63 @@ const ey = y(precios[ENTRADA]);
 </script>
 
 <style>
+  /* Una sola escena a pantalla completa, como TradingView: el video de la clase va de fondo con un velo
+     oscuro para leer el texto. Arriba queda una franja negra: el video no llega al encabezado. */
   .hero {
     position: relative;
+    isolation: isolate;
     overflow: hidden;
+    display: grid;
+    align-content: center;
+    min-height: calc(100svh - 64px);
+    padding: clamp(2rem, 6vh, 4rem) 0 clamp(4rem, 10vh, 7rem);
   }
+  .hero-video {
+    position: absolute;
+    inset: 0;
+    z-index: -3;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 30%;
+    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 16%);
+    mask-image: linear-gradient(180deg, transparent 0%, #000 16%);
+  }
+  .hero-velo {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background:
+      radial-gradient(ellipse 60% 55% at 50% 45%, rgb(5 6 13 / 0.68), transparent 75%),
+      linear-gradient(180deg, rgb(5 6 13 / 0.88) 0%, rgb(5 6 13 / 0.6) 40%, rgb(5 6 13 / 0.72) 72%, var(--noche) 100%);
+  }
+  .hero :global(.velas-fondo) {
+    z-index: -1;
+  }
+
   .hero-copy {
-    position: relative;
-    z-index: 2;
     display: grid;
     justify-items: center;
     text-align: center;
     gap: 1.4rem;
-    width: min(100% - 2 * var(--gutter), 920px);
+    width: min(100% - 2 * var(--gutter), 1180px);
     margin-inline: auto;
-    padding-top: clamp(3rem, 8vw, 6.5rem);
   }
   .hero-copy h1 {
-    font-size: clamp(2.6rem, 1.2rem + 6vw, 5.8rem);
+    font-size: clamp(2.4rem, 1rem + 5.2vw, 5.1rem);
     letter-spacing: -0.035em;
     max-width: none;
+    text-shadow: 0 2px 30px rgb(0 0 0 / 0.5);
+  }
+  /* Cada parte de la frase se mantiene junta: corta después de la coma */
+  .frase {
+    display: inline-block;
   }
   .hero-sub {
     margin: 0;
-    max-width: 36em;
+    max-width: 40em;
     font-size: clamp(1.05rem, 0.95rem + 0.5vw, 1.3rem);
-    color: #c9cfea;
+    color: #d6dbf2;
     line-height: 1.5;
   }
   .hero-cta {
@@ -146,125 +128,15 @@ const ey = y(precios[ENTRADA]);
   .hero-nota {
     margin: -0.6rem 0 0;
     font-size: 0.8rem;
-    color: #7d84a8;
-  }
-
-  /* Escena: la clase real a lo ancho, fundida con el negro arriba y abajo.
-     La línea y la mira van en la franja inferior, ya oscura: la mira apunta al precio, nunca a una persona. */
-  .cine {
-    position: relative;
-    margin-top: clamp(-1rem, -2vw, 0rem);
-    height: clamp(400px, 54vw, 720px);
-  }
-  .cine-video {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center 35%;
-    opacity: 0.55;
-    -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 22%, #000 48%, transparent 82%);
-    mask-image: linear-gradient(180deg, transparent 0%, #000 22%, #000 48%, transparent 82%);
-  }
-  .cine-linea {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    height: 40%;
-  }
-  .l-precio {
-    fill: none;
-    stroke: var(--cian);
-    stroke-width: 2.2;
-    stroke-linejoin: round;
-  }
-  .l-sombra {
-    fill: none;
-    stroke: #4b5dff;
-    stroke-width: 1.6;
-    opacity: 0.55;
-  }
-  .niveles line {
-    stroke-width: 1.2;
-    stroke-dasharray: 5 6;
-  }
-  .n-entrada {
-    stroke: var(--cian);
-  }
-  .niveles text {
-    font: 700 15px var(--font);
-    text-anchor: end;
-  }
-  .t-entrada {
-    fill: var(--cian);
-  }
-  .m-aro {
-    fill: none;
-    stroke: #fff;
-    stroke-width: 2;
-  }
-  .m-punto {
-    fill: #fff;
-  }
-  .m-cruz {
-    stroke: #fff;
-    stroke-width: 2;
-    stroke-linecap: round;
-  }
-
-  /* Un solo momento al cargar: se dibuja el precio y la mira fija la entrada */
-  @media (prefers-reduced-motion: no-preference) {
-    .l-precio,
-    .l-sombra {
-      stroke-dasharray: 1;
-      animation: trazar 2.4s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
-    }
-    .l-sombra {
-      animation-delay: 0.35s;
-    }
-    .mira {
-      animation: fijar 0.9s cubic-bezier(0.2, 0.9, 0.25, 1.15) 1.5s both;
-    }
-    .niveles {
-      animation: aparecer 0.6s ease-out 2.3s both;
-    }
-  }
-  @keyframes trazar {
-    from {
-      stroke-dashoffset: 1;
-    }
-    to {
-      stroke-dashoffset: 0;
-    }
-  }
-  @keyframes fijar {
-    0% {
-      opacity: 0;
-      transform: scale(2.2) rotate(-60deg);
-    }
-    100% {
-      opacity: 1;
-      transform: none;
-    }
-  }
-  @keyframes aparecer {
-    from {
-      opacity: 0;
-    }
+    color: #9aa1c4;
   }
 
   @media (max-width: 700px) {
-    .cine {
-      height: 420px;
+    .hero {
+      padding-bottom: 4rem;
     }
-    .cine-linea {
-      height: 42%;
-    }
-    .niveles text {
-      font-size: 26px;
+    .hero-video {
+      object-position: 40% 30%;
     }
   }
 </style>

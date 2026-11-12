@@ -1,6 +1,26 @@
 # Historial de versiones
 
-## 0.3.0 (Actual)
+## 0.4.1 (Actual)
+
+**Marca**
+
+- Favicon nuevo con la mira del logo (aro plateado con filo dorado, aro azul y sus cuatro marcas), en SVG, `.ico` (16, 32 y 48 px) e ícono para la pantalla de inicio del celular.
+
+**Inicio**
+
+- La primera pantalla es una sola escena a pantalla completa: el video de la clase de fondo, con un velo oscuro para leer el titular y las velas interactivas como capa sutil. Arriba queda una franja negra y el video empieza debajo del encabezado. Se retira la línea de precio con la mira. Las velas son más visibles y ocupan más alto a los lados; en el centro se apagan para no tapar el texto.
+
+## 0.4.0
+
+Hero más directo, con un fondo de velas interactivo.
+
+**Inicio**
+
+- Titular con la frase de la propia academia: "Más que una academia, una familia.", y un subtítulo que dice qué es Sniper Pro. La sección de la foto del equipo pasa a hablar de los presenciales.
+- Fondo de gráfico detrás del titular: cuadrícula y velas que se encienden y se apartan con resorte alrededor del cursor, y una cruz con etiqueta de precio que lo sigue. Canvas propio, sin librerías; en pantallas táctiles queda quieto y se detiene cuando sale de la pantalla.
+- El video de la clase sube y queda más cerca del botón.
+
+## 0.3.0
 
 Encabezado y hero con la sobriedad de los sitios de trading de referencia.
 
@@ -9,7 +29,7 @@ Encabezado y hero con la sobriedad de los sitios de trading de referencia.
 - Transparente sobre el hero y con fondo al bajar; enlaces de texto y un único botón blanco con el borde inclinado como el logo.
 - Cursos abre un panel flotante: curso para empezar, temas con su número de cursos y mentoría personalizada. Se abre con mouse, clic, toque o teclado y se cierra con Escape.
 - En celular, menú de pantalla completa con los botones de Telegram y WhatsApp abajo, al alcance del pulgar.
-- La barra de demo pasa a ser una línea discreta.
+- El aviso de demo sale del encabezado: ahora es una pastilla pequeña en la esquina inferior izquierda, que se puede ocultar durante la visita, y una línea en el pie de página.
 
 **Inicio**
 

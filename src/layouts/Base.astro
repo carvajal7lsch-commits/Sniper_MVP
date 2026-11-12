@@ -32,24 +32,43 @@ const cursos = await repositorios.cursos.listar();
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="es_CO" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preload" href="/media/logo.webp" as="image" type="image/webp" />
   </head>
   <body>
     <a class="skip" href="#contenido">
       Saltar al contenido
     </a>
-    <div class="demo-bar">
-      <p class="wrap">
-        Demo de rediseño<span class="demo-largo"> propuesta para Sniper Pro. No es el sitio oficial</span>.
-        <a href="/mejoras/">Ver qué mejoró</a>
-      </p>
-    </div>
     <Header categorias={categorias} cursos={cursos} />
     <main id="contenido">
       <slot />
     </main>
     <Footer />
+    <aside class="demo-pill" data-demo-pill aria-label="Aviso de demo">
+      <a href="/mejoras/">
+        Demo de rediseño <span>Ver qué mejoró</span>
+      </a>
+      <button type="button" aria-label="Ocultar aviso de demo" data-cerrar-demo>
+        ×
+      </button>
+    </aside>
+    <script>
+      // El aviso se puede ocultar mientras dure la visita; si el navegador no deja guardar, solo se oculta.
+      const aviso = document.querySelector<HTMLElement>('[data-demo-pill]');
+      try {
+        if (sessionStorage.getItem('demoOculta') === '1') {
+          aviso?.remove();
+        }
+      } catch {}
+      document.querySelector('[data-cerrar-demo]')?.addEventListener('click', () => {
+        aviso?.remove();
+        try {
+          sessionStorage.setItem('demoOculta', '1');
+        } catch {}
+      });
+    </script>
   </body>
 </html>
 
@@ -68,24 +87,47 @@ const cursos = await repositorios.cursos.listar();
     left: 1rem;
     top: 1rem;
   }
-  .demo-bar {
-    color: #7d84a8;
-    font-size: 0.75rem;
-    border-bottom: 1px solid rgb(255 255 255 / 0.05);
+  .demo-pill {
+    position: fixed;
+    left: 1rem;
+    bottom: 1rem;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    background: rgb(20 23 34 / 0.92);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgb(255 255 255 / 0.1);
+    border-radius: 999px;
+    font-size: 0.78rem;
+    box-shadow: 0 10px 30px -10px rgb(0 0 0 / 0.6);
   }
-  .demo-bar p {
-    margin: 0;
-    padding: 0.45rem 0;
-    text-align: center;
+  .demo-pill a {
+    padding: 0.45rem 0.4rem 0.45rem 0.9rem;
+    color: #9aa1c4;
+    text-decoration: none;
   }
-  @media (max-width: 600px) {
-    .demo-largo {
-      display: none;
-    }
-  }
-  .demo-bar a {
+  .demo-pill a span {
     color: var(--hueso);
     font-weight: 700;
-    text-underline-offset: 0.2em;
+    margin-left: 0.35rem;
+  }
+  .demo-pill a:hover span {
+    color: var(--cian);
+  }
+  .demo-pill button {
+    width: 30px;
+    height: 30px;
+    margin-right: 0.15rem;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    color: #9aa1c4;
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .demo-pill button:hover {
+    color: #fff;
+    background: rgb(255 255 255 / 0.08);
   }
 </style>

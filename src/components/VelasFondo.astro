@@ -1,0 +1,198 @@
+---
+// Fondo interactivo del hero: cuadrícula de gráfico con velas que se encienden y se apartan
+// alrededor del cursor (resorte + caída suave), y una cruz de precio estilo terminal de trading.
+// Canvas propio, sin librerías. Solo dibuja cuando algo cambia y se detiene fuera de pantalla.
+---
+
+<canvas class="velas-fondo" aria-hidden="true" data-velas></canvas>
+
+<script>
+  type Vela = { x: number; o: number; c: number; h: number; l: number; dx: number; vx: number; dy: number; vy: number };
+
+  const lienzo = document.querySelector<HTMLCanvasElement>('[data-velas]');
+  const contenedor = lienzo?.parentElement;
+  const ctx = lienzo?.getContext('2d');
+
+  if (lienzo && contenedor && ctx) {
+    const PASO = 20;
+    const CUADRICULA = 64;
+    const RADIO = 260;
+    const EMPUJE = 26;
+    const RESORTE = 0.06;
+    const FRENO = 0.82;
+    const reducir = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    let ancho = 0;
+    let alto = 0;
+    let velas: Vela[] = [];
+    let mouse: { x: number; y: number } | null = null;
+    let visible = true;
+    let pendiente = false;
+
+    // Serie determinista: el fondo es el mismo en cada visita.
+    let semilla = 7;
+    const azar = () => {
+      semilla = (semilla * 16807) % 2147483647;
+      return semilla / 2147483647;
+    };
+
+    const crearVelas = () => {
+      semilla = 7;
+      velas = [];
+      let precio = alto * 0.38;
+      for (let x = PASO / 2; x < ancho + PASO; x += PASO) {
+        const apertura = precio;
+        const cierre = apertura + (azar() - 0.5) * 46 + Math.sin(x / 220) * 9;
+        const maximo = Math.min(apertura, cierre) - azar() * 16;
+        const minimo = Math.max(apertura, cierre) + azar() * 16;
+        velas.push({ x, o: apertura, c: cierre, h: maximo, l: minimo, dx: 0, vx: 0, dy: 0, vy: 0 });
+        precio = Math.min(alto * 0.82, Math.max(alto * 0.14, cierre));
+      }
+    };
+
+    const ajustarTamano = () => {
+      const caja = contenedor.getBoundingClientRect();
+      const densidad = Math.min(window.devicePixelRatio || 1, 2);
+      ancho = caja.width;
+      alto = caja.height;
+      lienzo.width = Math.round(ancho * densidad);
+      lienzo.height = Math.round(alto * densidad);
+      ctx.setTransform(densidad, 0, 0, densidad, 0, 0);
+      crearVelas();
+      pedirCuadro();
+    };
+
+    const intensidad = (x: number, y: number) => {
+      if (!mouse) {
+        return 0;
+      }
+      const distancia = Math.hypot(x - mouse.x, y - mouse.y);
+      if (distancia > RADIO) {
+        return 0;
+      }
+      return Math.pow(1 - distancia / RADIO, 3);
+    };
+
+    const dibujar = () => {
+      pendiente = false;
+      ctx.clearRect(0, 0, ancho, alto);
+
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'rgba(255,255,255,0.045)';
+      ctx.beginPath();
+      for (let x = 0; x < ancho; x += CUADRICULA) {
+        ctx.moveTo(x + 0.5, 0);
+        ctx.lineTo(x + 0.5, alto);
+      }
+      for (let y = 0; y < alto; y += CUADRICULA) {
+        ctx.moveTo(0, y + 0.5);
+        ctx.lineTo(ancho, y + 0.5);
+      }
+      ctx.stroke();
+
+      let enMovimiento = false;
+      for (const vela of velas) {
+        const centroY = (vela.h + vela.l) / 2;
+        const brillo = intensidad(vela.x, centroY);
+        let objetivoX = 0;
+        let objetivoY = 0;
+        if (mouse && brillo > 0) {
+          const angulo = Math.atan2(centroY - mouse.y, vela.x - mouse.x);
+          objetivoX = Math.cos(angulo) * EMPUJE * brillo;
+          objetivoY = Math.sin(angulo) * EMPUJE * brillo;
+        }
+        vela.vx = (vela.vx + (objetivoX - vela.dx) * RESORTE) * FRENO;
+        vela.vy = (vela.vy + (objetivoY - vela.dy) * RESORTE) * FRENO;
+        vela.dx += vela.vx;
+        vela.dy += vela.vy;
+        if (Math.abs(vela.vx) + Math.abs(vela.vy) > 0.02) {
+          enMovimiento = true;
+        }
+
+        const sube = vela.c < vela.o;
+        const alfa = 0.42 + brillo * 0.58;
+        const color = sube ? `rgba(24,199,132,${alfa})` : `rgba(255,77,106,${alfa})`;
+        const x = vela.x + vela.dx;
+        const arriba = Math.min(vela.o, vela.c) + vela.dy;
+        const cuerpo = Math.max(2, Math.abs(vela.c - vela.o));
+        ctx.strokeStyle = color;
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.moveTo(x, vela.h + vela.dy);
+        ctx.lineTo(x, vela.l + vela.dy);
+        ctx.stroke();
+        ctx.fillRect(x - 4.5, arriba, 9, cuerpo);
+      }
+
+      // Cruz de precio que sigue al cursor, como en un terminal de trading
+      if (mouse) {
+        ctx.setLineDash([4, 5]);
+        ctx.strokeStyle = 'rgba(255,255,255,0.28)';
+        ctx.beginPath();
+        ctx.moveTo(0, mouse.y + 0.5);
+        ctx.lineTo(ancho, mouse.y + 0.5);
+        ctx.moveTo(mouse.x + 0.5, 0);
+        ctx.lineTo(mouse.x + 0.5, alto);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        const precio = (1000 + (1 - mouse.y / alto) * 250).toFixed(2);
+        ctx.font = '600 11px system-ui, sans-serif';
+        const etiqueta = ctx.measureText(precio).width + 14;
+        ctx.fillStyle = '#2348ff';
+        ctx.fillRect(ancho - etiqueta, mouse.y - 10, etiqueta, 20);
+        ctx.fillStyle = '#fff';
+        ctx.fillText(precio, ancho - etiqueta + 7, mouse.y + 4);
+      }
+
+      if (enMovimiento && !reducir) {
+        pedirCuadro();
+      }
+    };
+
+    const pedirCuadro = () => {
+      if (!pendiente && visible) {
+        pendiente = true;
+        requestAnimationFrame(dibujar);
+      }
+    };
+
+    // Solo con mouse: en pantallas táctiles el fondo queda quieto.
+    if (matchMedia('(hover: hover)').matches) {
+      window.addEventListener(
+        'pointermove',
+        (evento) => {
+          const caja = contenedor.getBoundingClientRect();
+          const x = evento.clientX - caja.left;
+          const y = evento.clientY - caja.top;
+          mouse = x >= 0 && y >= 0 && x <= ancho && y <= alto ? { x, y } : null;
+          pedirCuadro();
+        },
+        { passive: true },
+      );
+      contenedor.addEventListener('pointerleave', () => {
+        mouse = null;
+        pedirCuadro();
+      });
+    }
+
+    new ResizeObserver(ajustarTamano).observe(contenedor);
+    new IntersectionObserver(([entrada]) => {
+      visible = entrada.isIntersecting;
+      pedirCuadro();
+    }).observe(contenedor);
+  }
+</script>
+
+<style>
+  .velas-fondo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    /* Más presencia a los lados; en el centro se apaga para no competir con el titular */
+    -webkit-mask-image: radial-gradient(ellipse 36% 40% at 50% 47%, rgb(0 0 0 / 0.06) 55%, #000 100%);
+    mask-image: radial-gradient(ellipse 36% 40% at 50% 47%, rgb(0 0 0 / 0.06) 55%, #000 100%);
+  }
+</style>
