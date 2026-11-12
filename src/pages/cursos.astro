@@ -90,7 +90,7 @@ const wa = (t: string) =>
         </button>
       </div>
 
-      <aside class="personal">
+      <aside class="personal" id="mentoria">
         <div>
           <h2>{personalizado.titulo}</h2>
           <p class="lead">{personalizado.resumen}</p>
@@ -153,6 +153,17 @@ const wa = (t: string) =>
     chips.forEach((c, i) => c.setAttribute('aria-pressed', String(i === 0)));
     render();
   });
+
+  // Los enlaces del menú llegan con el tema en la URL (/cursos/#forex): se abre ya filtrado.
+  function filtrarDesdeUrl() {
+    const tema = decodeURIComponent(location.hash.slice(1));
+    const chip = chips.find((c) => c.dataset.value === tema);
+    if (chip) {
+      chip.click();
+    }
+  }
+  filtrarDesdeUrl();
+  window.addEventListener('hashchange', filtrarDesdeUrl);
 </script>
 
 <style>

@@ -1,21 +1,84 @@
 ---
-import { nav, links } from '../config/sitio';
+// Encabezado inspirado en la sobriedad de TradingView: transparente sobre el hero,
+// toma fondo al bajar, enlaces de texto y un único botón. Cursos abre un panel flotante.
+import { nav, links, mentoriaPersonalizada } from '../config/sitio';
+import type { Categoria, Curso } from '../dominio/curso';
 import Icon from './Icon.astro';
+
+interface Props {
+  categorias: Categoria[];
+  cursos: Curso[];
+}
+const { categorias, cursos } = Astro.props;
 const path = Astro.url.pathname;
-const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+const esActiva = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
+const destacado = cursos.find((c) => c.nivel === 'Desde cero');
+const conteo = (id: string) => cursos.filter((c) => c.categoria === id).length;
+const otros = nav.filter((n) => n.href !== '/' && n.href !== '/cursos/');
 ---
 
-<header class="hd">
-  <div class="wrap hd-in">
+<header class="hd" data-hd>
+  <div class="hd-in">
+    <button class="hd-burger" type="button" aria-label="Abrir menú" data-abrir-menu>
+      <Icon name="menu" />
+    </button>
+
     <a href="/" class="hd-logo" aria-label="Sniper Pro, inicio">
       <img src="/media/logo.webp" alt="Sniper Pro Trading" width="152" height="44" />
     </a>
 
     <nav class="hd-nav" aria-label="Principal">
       <ul>
-        {nav.map((n) => (
+        <li class="dd">
+          <a href="/cursos/" class="hd-link" aria-current={esActiva('/cursos/') ? 'page' : undefined}>
+            Cursos
+          </a>
+          <button
+            class="dd-btn"
+            type="button"
+            aria-expanded="false"
+            aria-controls="panel-cursos"
+            aria-label="Menú de cursos"
+          >
+            <Icon name="chevron" />
+          </button>
+          <div class="dd-panel" id="panel-cursos">
+            {destacado && (
+              <a class="dd-dest" href="/cursos/">
+                <span class="dd-ico" aria-hidden="true">
+                  <Icon name="mira" />
+                </span>
+                <span>
+                  <strong>{destacado.titulo}</strong>
+                  <small>Empieza aquí, desde cero</small>
+                </span>
+              </a>
+            )}
+            <p class="dd-lbl">Por tema</p>
+            <ul class="dd-list">
+              {categorias.map((c) => (
+                <li>
+                  <a href={`/cursos/#${c.id}`}>
+                    <span>{c.nombre}</span>
+                    <span class="dd-num">{conteo(c.id)}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+            <p class="dd-lbl">Acompañamiento</p>
+            <ul class="dd-list">
+              <li>
+                <a href="/cursos/#mentoria">{mentoriaPersonalizada.titulo}</a>
+              </li>
+              <li>
+                <a href="/cursos/">Ver todos los cursos</a>
+              </li>
+            </ul>
+          </div>
+        </li>
+        {otros.map((n) => (
           <li>
-            <a href={n.href} aria-current={isActive(n.href) ? 'page' : undefined}>
+            <a href={n.href} class="hd-link" aria-current={esActiva(n.href) ? 'page' : undefined}>
               {n.label}
             </a>
           </li>
@@ -24,44 +87,82 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
     </nav>
 
     <div class="hd-actions">
-      <a class="btn btn-ghost hd-login" href={links.login}>
+      <a class="hd-login" href={links.login}>
         Ingresar
       </a>
-      <a class="btn" href={links.telegram} target="_blank" rel="noopener">
-        <Icon name="telegram" />
-        <span>Únete gratis</span>
+      <a class="btn-blanco" href={links.telegram} target="_blank" rel="noopener">
+        Únete gratis
       </a>
-      <button class="hd-toggle" type="button" aria-expanded="false" aria-controls="menu-movil">
-        <Icon name="menu" class="i-open" />
-        <Icon name="close" class="i-close" />
-        <span class="sr-only">Menú</span>
-      </button>
     </div>
   </div>
+</header>
 
-  <div class="hd-mobile" id="menu-movil" hidden>
-    <ul class="wrap">
+<dialog class="mm" data-menu-movil aria-label="Menú">
+  <div class="mm-top">
+    <img src="/media/logo.webp" alt="Sniper Pro Trading" width="152" height="44" />
+    <button type="button" class="hd-burger" aria-label="Cerrar menú" data-cerrar-menu>
+      <Icon name="close" />
+    </button>
+  </div>
+  <nav aria-label="Principal en celular">
+    <ul class="mm-list">
       {nav.map((n) => (
         <li>
-          <a href={n.href} aria-current={isActive(n.href) ? 'page' : undefined}>
+          <a href={n.href} aria-current={esActiva(n.href) ? 'page' : undefined}>
             {n.label}
           </a>
         </li>
       ))}
-      <li>
-        <a href={links.login}>Ingresar a la plataforma</a>
-      </li>
     </ul>
+  </nav>
+  <div class="mm-pie">
+    <a class="btn-blanco" href={links.telegram} target="_blank" rel="noopener">
+      Unirme gratis a la comunidad
+    </a>
+    <a class="mm-sec" href={links.whatsapp} target="_blank" rel="noopener">
+      <Icon name="whatsapp" />
+      Escribir por WhatsApp
+    </a>
+    <a class="mm-sec" href={links.login}>
+      Ingresar a la plataforma
+    </a>
   </div>
-</header>
+</dialog>
 
 <script>
-  const btn = document.querySelector<HTMLButtonElement>('.hd-toggle');
-  const menu = document.getElementById('menu-movil');
-  btn?.addEventListener('click', () => {
-    const open = btn.getAttribute('aria-expanded') === 'true';
-    btn.setAttribute('aria-expanded', String(!open));
-    if (menu) menu.hidden = open;
+  const encabezado = document.querySelector<HTMLElement>('[data-hd]');
+  const marcarFondo = () => encabezado?.classList.toggle('con-fondo', window.scrollY > 8);
+  marcarFondo();
+  window.addEventListener('scroll', marcarFondo, { passive: true });
+
+  const menu = document.querySelector<HTMLDialogElement>('[data-menu-movil]');
+  document.querySelector('[data-abrir-menu]')?.addEventListener('click', () => menu?.showModal());
+  document.querySelector('[data-cerrar-menu]')?.addEventListener('click', () => menu?.close());
+  menu?.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => menu.close()));
+
+  // El panel abre con el mouse por CSS; este botón lo abre con clic, toque o teclado.
+  document.querySelectorAll<HTMLButtonElement>('.dd-btn').forEach((boton) => {
+    const item = boton.closest('.dd');
+    boton.addEventListener('click', () => {
+      const abierto = boton.getAttribute('aria-expanded') === 'true';
+      boton.setAttribute('aria-expanded', String(!abierto));
+      item?.classList.toggle('abierto', !abierto);
+    });
+    item?.addEventListener('keydown', (evento) => {
+      if ((evento as KeyboardEvent).key === 'Escape') {
+        boton.setAttribute('aria-expanded', 'false');
+        item.classList.remove('abierto');
+        boton.focus();
+      }
+    });
+  });
+  document.addEventListener('click', (evento) => {
+    document.querySelectorAll('.dd.abierto').forEach((item) => {
+      if (!item.contains(evento.target as Node)) {
+        item.classList.remove('abierto');
+        item.querySelector('.dd-btn')?.setAttribute('aria-expanded', 'false');
+      }
+    });
   });
 </script>
 
@@ -70,99 +171,284 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
     position: sticky;
     top: 0;
     z-index: 50;
-    background: rgb(6 10 31 / 0.86);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--linea);
+    transition:
+      background 0.25s,
+      box-shadow 0.25s;
+  }
+  .hd.con-fondo {
+    background: rgb(5 6 13 / 0.82);
+    backdrop-filter: blur(14px);
+    box-shadow: 0 1px 0 rgb(255 255 255 / 0.06);
   }
   .hd-in {
     display: flex;
     align-items: center;
-    gap: 1.5rem;
-    min-height: 68px;
+    gap: 2rem;
+    height: 64px;
+    padding-inline: clamp(1rem, 3vw, 2rem);
+    max-width: 1440px;
+    margin-inline: auto;
   }
   .hd-logo img {
-    height: 40px;
+    height: 34px;
     width: auto;
   }
+
   .hd-nav {
-    margin-left: auto;
+    flex: 1;
   }
-  .hd-nav ul {
+  .hd-nav > ul {
     display: flex;
-    gap: 0.25rem;
+    justify-content: center;
+    gap: 0.15rem;
     list-style: none;
     margin: 0;
     padding: 0;
   }
-  .hd-nav a {
+  .hd-link {
     display: block;
-    padding: 0.5rem 0.8rem;
-    border-radius: var(--r-sm);
+    padding: 0.5rem 0.95rem;
+    border-radius: 999px;
     text-decoration: none;
-    font-size: var(--t-sm);
+    font-size: 0.95rem;
     font-weight: 600;
+    color: #fff;
+    transition: background 0.15s;
+  }
+  .hd-link:hover,
+  .dd:hover > .hd-link,
+  .dd.abierto > .hd-link {
+    background: rgb(255 255 255 / 0.1);
+  }
+  .hd-link[aria-current='page'] {
+    color: var(--cian);
+  }
+
+  /* Panel flotante de cursos */
+  .dd {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .dd-btn {
+    width: 22px;
+    height: 22px;
+    margin-left: -0.55rem;
+    display: grid;
+    place-items: center;
+    border: 0;
+    background: none;
+    color: rgb(255 255 255 / 0.6);
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  .dd-btn :global(svg) {
+    width: 14px;
+    height: 14px;
+    transition: transform 0.2s;
+  }
+  .dd.abierto .dd-btn :global(svg) {
+    transform: rotate(180deg);
+  }
+  .dd-panel {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: -0.5rem;
+    width: 300px;
+    padding: 0.5rem;
+    background: #141722;
+    border: 1px solid rgb(255 255 255 / 0.08);
+    border-radius: 14px;
+    box-shadow: 0 24px 60px -12px rgb(0 0 0 / 0.7);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transition:
+      opacity 0.18s,
+      transform 0.18s,
+      visibility 0.18s;
+  }
+  .dd-panel::before {
+    content: '';
+    position: absolute;
+    inset: -12px 0 auto;
+    height: 12px;
+  }
+  @media (hover: hover) {
+    .dd:hover .dd-panel {
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+    }
+  }
+  .dd.abierto .dd-panel {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+  .dd-dest {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.7rem;
+    border-radius: 10px;
+    background: rgb(255 255 255 / 0.05);
+    text-decoration: none;
+  }
+  .dd-dest:hover {
+    background: rgb(255 255 255 / 0.09);
+  }
+  .dd-dest strong {
+    display: block;
+    font-size: 0.92rem;
+  }
+  .dd-dest small {
     color: var(--bruma);
+    font-size: 0.8rem;
   }
-  .hd-nav a:hover {
-    color: var(--hueso);
+  .dd-ico {
+    flex: none;
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border-radius: 8px;
+    background: var(--azul);
+    color: #fff;
   }
-  .hd-nav a[aria-current='page'] {
-    color: var(--hueso);
-    box-shadow: inset 0 -2px 0 var(--cian);
-    border-radius: 0;
+  .dd-ico :global(svg) {
+    width: 20px;
+    height: 20px;
   }
+  .dd-lbl {
+    margin: 0.85rem 0.7rem 0.3rem;
+    font-size: 0.75rem;
+    color: #6f7699;
+  }
+  .dd-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .dd-list a {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0.7rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.92rem;
+  }
+  .dd-list a:hover {
+    background: rgb(255 255 255 / 0.07);
+  }
+  .dd-num {
+    color: #6f7699;
+    font-size: 0.82rem;
+  }
+
   .hd-actions {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 1.25rem;
   }
-  .hd-actions .btn {
-    min-height: 42px;
-    padding: 0.5rem 1rem;
-  }
-  .hd-toggle {
-    display: none;
-    width: 44px;
-    height: 44px;
-    border: 1.5px solid var(--linea);
-    border-radius: var(--r-sm);
-    background: none;
-    color: var(--hueso);
-    cursor: pointer;
-    place-items: center;
-  }
-  .hd-toggle :global(svg) {
-    width: 22px;
-    height: 22px;
-  }
-  .hd-toggle :global(.i-close) {
-    display: none;
-  }
-  .hd-toggle[aria-expanded='true'] :global(.i-open) {
-    display: none;
-  }
-  .hd-toggle[aria-expanded='true'] :global(.i-close) {
-    display: block;
-  }
-  .hd-mobile {
-    border-top: 1px solid var(--linea);
-  }
-  .hd-mobile ul {
-    list-style: none;
-    padding-block: 0.5rem 1rem;
-    margin-block: 0;
-  }
-  .hd-mobile a {
-    display: block;
-    padding: 0.9rem 0;
-    border-bottom: 1px solid var(--linea);
+  .hd-login {
+    font-size: 0.95rem;
+    font-weight: 600;
     text-decoration: none;
-    font-weight: 700;
-    font-stretch: 112%;
-    font-size: var(--t-md);
   }
-  .hd-mobile a[aria-current='page'] {
+  .hd-login:hover {
     color: var(--cian);
+  }
+
+  .hd-burger {
+    display: none;
+    width: 40px;
+    height: 40px;
+    place-items: center;
+    border: 0;
+    background: none;
+    color: #fff;
+    cursor: pointer;
+    margin-left: -0.5rem;
+  }
+  .hd-burger :global(svg) {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* Menú en celular: pantalla completa */
+  .mm {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    max-height: none;
+    margin: 0;
+    padding: 0 1.25rem 1.5rem;
+    border: 0;
+    background: var(--noche);
+    color: var(--hueso);
+  }
+  .mm[open] {
+    display: flex;
+    flex-direction: column;
+  }
+  .mm::backdrop {
+    background: rgb(0 0 0 / 0.6);
+  }
+  .mm-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 64px;
+  }
+  .mm-top img {
+    height: 32px;
+    width: auto;
+  }
+  .mm-top .hd-burger {
+    display: grid;
+    margin: 0 -0.5rem 0 0;
+  }
+  .mm-list {
+    list-style: none;
+    margin: 1.5rem 0 0;
+    padding: 0;
+  }
+  .mm-list a {
+    display: block;
+    padding: 0.55rem 0;
+    font-size: 2rem;
+    font-weight: 800;
+    font-stretch: 125%;
+    letter-spacing: -0.02em;
+    text-decoration: none;
+  }
+  .mm-list a[aria-current='page'] {
+    color: var(--cian);
+  }
+  .mm-pie {
+    margin-top: auto;
+    display: grid;
+    gap: 0.6rem;
+  }
+  .mm-pie .btn-blanco {
+    justify-content: center;
+    min-height: 52px;
+  }
+  .mm-sec {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 48px;
+    border: 1px solid rgb(255 255 255 / 0.14);
+    border-radius: 999px;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .mm-sec :global(svg) {
+    width: 20px;
+    height: 20px;
   }
 
   @media (max-width: 960px) {
@@ -170,22 +456,19 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
     .hd-login {
       display: none;
     }
+    .hd-in {
+      gap: 0.5rem;
+    }
+    .hd-burger {
+      display: grid;
+    }
     .hd-actions {
       margin-left: auto;
     }
-    .hd-toggle {
-      display: grid;
-    }
-  }
-  @media (max-width: 420px) {
-    .hd-actions .btn span {
-      display: none;
-    }
-    .hd-actions .btn {
-      padding-inline: 0.8rem;
-    }
-    .hd-logo img {
-      height: 34px;
+    .hd-actions .btn-blanco {
+      min-height: 38px;
+      padding-inline: 1rem 1.3rem;
+      font-size: 0.85rem;
     }
   }
 </style>

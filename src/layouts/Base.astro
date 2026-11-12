@@ -4,6 +4,7 @@ import '@fontsource/allura/latin-400.css';
 import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import { repositorios } from '../infraestructura/contenedor';
 
 interface Props {
   title?: string;
@@ -13,6 +14,8 @@ const {
   title = 'Sniper Pro Academy | Academia de trading en Cúcuta',
   description = 'Aprende trading de índices sintéticos y Forex desde cero, con mentores que operan en vivo. Comunidad gratuita en Telegram, cursos y app de señales.',
 } = Astro.props;
+const categorias = await repositorios.cursos.listarCategorias();
+const cursos = await repositorios.cursos.listar();
 ---
 
 <!doctype html>
@@ -22,7 +25,7 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#060a1f" />
+    <meta name="theme-color" content="#05060d" />
     <!-- Demo de propuesta: no indexar para no competir con el sitio oficial -->
     <meta name="robots" content="noindex, nofollow" />
     <meta property="og:title" content={title} />
@@ -38,10 +41,11 @@ const {
     </a>
     <div class="demo-bar">
       <p class="wrap">
-        Demo de rediseño propuesta para Sniper Pro. No es el sitio oficial. <a href="/mejoras/">Ver qué mejoró</a>
+        Demo de rediseño<span class="demo-largo"> propuesta para Sniper Pro. No es el sitio oficial</span>.
+        <a href="/mejoras/">Ver qué mejoró</a>
       </p>
     </div>
-    <Header />
+    <Header categorias={categorias} cursos={cursos} />
     <main id="contenido">
       <slot />
     </main>
@@ -65,17 +69,22 @@ const {
     top: 1rem;
   }
   .demo-bar {
-    background: var(--azul);
-    color: #fff;
-    font-size: var(--t-xs);
+    color: #7d84a8;
+    font-size: 0.75rem;
+    border-bottom: 1px solid rgb(255 255 255 / 0.05);
   }
   .demo-bar p {
     margin: 0;
     padding: 0.45rem 0;
     text-align: center;
   }
+  @media (max-width: 600px) {
+    .demo-largo {
+      display: none;
+    }
+  }
   .demo-bar a {
-    color: #fff;
+    color: var(--hueso);
     font-weight: 700;
     text-underline-offset: 0.2em;
   }

@@ -1,6 +1,26 @@
 # Historial de versiones
 
-## 0.2.0 (Actual)
+## 0.3.0 (Actual)
+
+Encabezado y hero con la sobriedad de los sitios de trading de referencia.
+
+**Encabezado**
+
+- Transparente sobre el hero y con fondo al bajar; enlaces de texto y un único botón blanco con el borde inclinado como el logo.
+- Cursos abre un panel flotante: curso para empezar, temas con su número de cursos y mentoría personalizada. Se abre con mouse, clic, toque o teclado y se cierra con Escape.
+- En celular, menú de pantalla completa con los botones de Telegram y WhatsApp abajo, al alcance del pulgar.
+- La barra de demo pasa a ser una línea discreta.
+
+**Inicio**
+
+- Hero centrado de una sola idea y, debajo, la clase real a lo ancho con una línea de precio y la mira fijando la entrada. El video entra después de cargar la página y no se descarga con ahorro de datos.
+- Paleta más oscura (negro con un toque de azul).
+
+**Cursos**
+
+- Los enlaces del menú abren el catálogo ya filtrado por tema (`/cursos/#forex`).
+
+## 0.2.0
 
 Inicio rediseñado con la voz de la academia y base de arquitectura para conectar el backend real.
 

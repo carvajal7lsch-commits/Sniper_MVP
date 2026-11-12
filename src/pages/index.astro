@@ -1,9 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
-import HeroChart from '../components/HeroChart.astro';
+import HeroCine from '../components/HeroCine.astro';
 import MentorCard from '../components/MentorCard.astro';
 import Testimonios from '../components/Testimonios.astro';
-import LazyVideo from '../components/LazyVideo.astro';
 import Icon from '../components/Icon.astro';
 import { links } from '../config/sitio';
 import { repositorios } from '../infraestructura/contenedor';
@@ -15,34 +14,7 @@ const equipo = mentores.filter((m) => m !== fundador);
 ---
 
 <Base>
-  <!-- HERO -->
-  <section class="hero">
-    <div class="wrap hero-grid">
-      <div class="hero-copy">
-        <h1>Trading en modo plastilina.</h1>
-        <p class="lead">
-          Así describen nuestros estudiantes las clases: índices sintéticos y Forex desde cero, explicados sobre el
-          gráfico y tan simples que se moldean.
-        </p>
-        <div class="btn-row">
-          <a class="btn" href={links.telegram} target="_blank" rel="noopener">
-            <Icon name="telegram" />
-            Unirme gratis al Telegram
-          </a>
-          <a class="btn btn-ghost" href="/cursos/">
-            Ver cursos
-          </a>
-        </div>
-        <a class="con" href="#fundador">
-          <img src="/media/mentores/miguel-monsalve-400.webp" alt="" width="48" height="48" />
-          <span>
-            Con Miguel Monsalve <em>La Máquina</em> y su equipo de mentores
-          </span>
-        </a>
-      </div>
-      <HeroChart />
-    </div>
-  </section>
+  <HeroCine />
 
   <!-- FUNDADOR -->
   <section class="sec fundador" id="fundador">
@@ -101,20 +73,6 @@ const equipo = mentores.filter((m) => m !== fundador);
           </li>
         ))}
       </ul>
-    </div>
-  </section>
-
-  <!-- CLASE EN VIDEO -->
-  <section class="banda">
-    <LazyVideo
-      name="clase"
-      label="Clase presencial con Miguel Monsalve y estudiantes de Sniper Pro"
-      ratio="auto"
-      class="banda-video"
-    />
-    <div class="wrap banda-copy">
-      <h2>Así se ve una clase</h2>
-      <p>En vivo y presencial, sobre el gráfico en tiempo real, con el mentor operando frente a ti.</p>
     </div>
   </section>
 
@@ -195,60 +153,6 @@ const equipo = mentores.filter((m) => m !== fundador);
 </Base>
 
 <style>
-  /* Hero */
-  .hero {
-    padding-block: clamp(2.5rem, 6vw, 5rem) clamp(3rem, 6vw, 5rem);
-    overflow: hidden;
-  }
-  .hero-grid {
-    display: grid;
-    grid-template-columns: 1.05fr 1fr;
-    gap: clamp(2rem, 5vw, 4rem);
-    align-items: center;
-  }
-  .hero-copy {
-    display: grid;
-    gap: 1.6rem;
-    justify-items: start;
-  }
-  .hero-copy h1 {
-    max-width: 11ch;
-  }
-  .hero-copy .lead {
-    margin: 0;
-    max-width: 34em;
-  }
-  .con {
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-    text-decoration: none;
-    padding-top: 1.4rem;
-    border-top: 1px solid var(--linea);
-    width: 100%;
-    font-size: var(--t-sm);
-    color: var(--bruma);
-  }
-  .con img {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    object-fit: cover;
-    object-position: 50% 12%;
-    border: 2px solid var(--cian);
-    background: #000;
-  }
-  .con em {
-    font-family: 'Allura', cursive;
-    font-style: normal;
-    font-size: 1.55em;
-    color: var(--hueso);
-    line-height: 1;
-  }
-  .con:hover span {
-    color: var(--hueso);
-  }
-
   /* Fundador */
   .f-grid {
     display: grid;
@@ -339,34 +243,6 @@ const equipo = mentores.filter((m) => m !== fundador);
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
-  }
-
-  /* Banda de video */
-  .banda {
-    position: relative;
-  }
-  .banda :global(.banda-video) {
-    height: clamp(380px, 52vw, 640px);
-    border-radius: 0;
-  }
-  .banda::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(0deg, var(--noche) 4%, rgb(6 10 31 / 0.25) 50%, var(--noche) 100%);
-    pointer-events: none;
-  }
-  .banda-copy {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: clamp(1.5rem, 5vw, 3.5rem);
-    z-index: 1;
-  }
-  .banda-copy p {
-    max-width: 34em;
-    font-size: var(--t-md);
-    margin: 0.75rem 0 0;
   }
 
   /* Reseñas */
@@ -478,7 +354,6 @@ const equipo = mentores.filter((m) => m !== fundador);
   }
 
   @media (max-width: 960px) {
-    .hero-grid,
     .f-grid,
     .res {
       grid-template-columns: 1fr;
@@ -499,7 +374,6 @@ const equipo = mentores.filter((m) => m !== fundador);
     .app .btn-row {
       grid-column: 1 / -1;
     }
-    .banda-copy,
     .familia-copy {
       position: relative;
       bottom: auto;

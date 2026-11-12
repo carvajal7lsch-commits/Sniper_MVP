@@ -1,9 +1,9 @@
 /* ───────── Tokens ───────── */
 :root {
-  --noche: #060a1f; /* fondo */
-  --tinta: #0c1333; /* superficies */
-  --tinta-2: #111a44;
-  --linea: #1d2756; /* bordes */
+  --noche: #05060d; /* fondo */
+  --tinta: #0d1122; /* superficies */
+  --tinta-2: #141a36;
+  --linea: #1c2244; /* bordes */
   --azul: #2348ff; /* marca */
   --azul-hover: #3a5cff;
   --cian: #22e1ff; /* acento, retícula */
@@ -197,6 +197,32 @@ h3 {
   width: 1.15em;
   height: 1.15em;
   flex: none;
+}
+/* Botón principal: blanco, con el borde derecho inclinado como el logo itálico de la marca */
+.btn-blanco {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-height: 48px;
+  padding: 0.7rem 1.9rem 0.7rem 1.4rem;
+  background: #fff;
+  color: #05060d;
+  font: inherit;
+  font-weight: 700;
+  font-size: var(--t-sm);
+  font-stretch: 112%;
+  text-decoration: none;
+  white-space: nowrap;
+  border-radius: 10px 4px 4px 10px;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 12px) 100%, 0 100%);
+  transition: background 0.15s;
+}
+.btn-blanco:hover {
+  background: #dfe6ff;
+}
+.btn-blanco svg {
+  width: 1.15em;
+  height: 1.15em;
 }
 .btn-row {
   display: flex;
