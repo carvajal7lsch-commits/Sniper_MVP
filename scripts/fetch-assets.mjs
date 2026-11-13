@@ -67,6 +67,23 @@ if (need('familia-1600.webp') || need('familia-800.webp')) {
   log('familia-1600.webp, familia-800.webp');
 }
 
+// Imagen para compartir (WhatsApp, Facebook, Google): 1200 × 630, el equipo completo sobre fondo
+// oscuro y el logo arriba.
+if (need('og.jpg') && existsSync(join(OUT, 'familia-1600.webp')) && existsSync(join(OUT, 'logo.webp'))) {
+  const equipo = await sharp(join(OUT, 'familia-1600.webp')).resize({ width: 1200 }).toBuffer();
+  const { height: alto } = await sharp(equipo).metadata();
+  const logo = await sharp(join(OUT, 'logo.webp')).resize({ height: 96 }).toBuffer();
+  const { width: anchoLogo } = await sharp(logo).metadata();
+  await sharp({ create: { width: 1200, height: 630, channels: 3, background: '#05060d' } })
+    .composite([
+      { input: logo, top: Math.round((630 - alto - 96) / 2), left: Math.round((1200 - anchoLogo) / 2) },
+      { input: equipo, top: 630 - alto, left: 0 },
+    ])
+    .jpeg({ quality: 82, mozjpeg: true })
+    .toFile(join(OUT, 'og.jpg'));
+  log('og.jpg');
+}
+
 // Fondo de "Próximos eventos" (ciudad de noche)
 if (need('eventos-1600.webp') || need('eventos-800.webp')) {
   const buf = await download(`${SITE}/assets/images/material/FONDOPROXIMOSEVENTOS.png`);

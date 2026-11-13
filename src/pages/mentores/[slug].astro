@@ -20,6 +20,13 @@ interface Props {
 }
 const { mentor } = Astro.props;
 const nombre = nombreCompleto(mentor);
+const datos = {
+  '@type': 'Person',
+  name: nombre,
+  jobTitle: mentor.rol,
+  worksFor: { '@type': 'EducationalOrganization', name: 'Sniper Pro Academy' },
+  image: new URL(`/media/mentores/${mentor.slug}-800.webp`, Astro.site).href,
+};
 const todos = await repositorios.mentores.listar();
 const categorias = await repositorios.cursos.listarCategorias();
 const ordenTemas = categorias.map((c) => c.id);
@@ -40,6 +47,7 @@ const enPlataforma = mentor.idPlataforma
 ---
 
 <Base
+  datos={datos}
   title={`${nombre}${mentor.apodo ? ` "${mentor.apodo}"` : ''} | Mentores de Sniper Pro`}
   description={`${nombre}, ${mentor.rol.toLowerCase()} de Sniper Pro. ${mentor.enfoque}. ${resumen.cursos} cursos en la plataforma.`}
 >

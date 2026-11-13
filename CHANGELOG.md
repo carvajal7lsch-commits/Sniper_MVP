@@ -1,6 +1,18 @@
 # Historial de versiones
 
-## 0.12.1 (Actual)
+## 0.13.0 (Actual)
+
+**SEO listo para publicar**
+
+- Enlace canónico, imagen para compartir (`og.jpg`, 1200 × 630, con el equipo y el logo), datos estructurados para Google (la academia en todas las páginas, cada curso como `Course` y cada mentor como `Person`), `sitemap.xml` y `robots.txt`.
+- La demo sigue sin indexarse. Para publicarla en el dominio de la academia: `seo.indexar` en `true` (`src/config/sitio.ts`) y `site` en `astro.config.mjs`.
+- `site` corregido a `https://sniper.secarvajal.com`.
+
+**Qué mejoró**
+
+- `/mejoras` rehecha: barras a escala del peso del inicio, cifras grandes con el valor anterior tachado y una tabla de antes y ahora, sin viñetas. Datos al día (catálogo real, reseñas, ingreso, SEO).
+
+## 0.12.1
 
 - Ingreso y registro caben en la pantalla sin scroll, en computador y en celular (probado de 360 × 640 a 1920 × 918).
 - Títulos del formulario más pequeños, en una línea.

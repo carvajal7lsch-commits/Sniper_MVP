@@ -5,21 +5,33 @@ import '../styles/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { repositorios } from '../infraestructura/contenedor';
+import { seo, organizacion } from '../config/sitio';
 
 interface Props {
   title?: string;
   description?: string;
   /** Sin encabezado ni pie: para ingresar y registrarse. */
   sencillo?: boolean;
+  /** Datos estructurados (schema.org) propios de la página. */
+  datos?: Record<string, unknown>;
 }
 const {
   title = 'Sniper Pro Academy | Academia de trading en Cúcuta',
   sencillo = false,
+  datos,
   description = 'Aprende trading de índices sintéticos y Forex desde cero, con mentores que operan en vivo. Comunidad gratuita en Telegram, cursos y app de señales.',
 } = Astro.props;
 const categorias = await repositorios.cursos.listarCategorias();
 const cursos = await repositorios.cursos.listar();
 const mentores = await repositorios.mentores.listar();
+
+const canonica = new URL(Astro.url.pathname, Astro.site).href;
+const imagen = new URL(seo.imagen, Astro.site).href;
+const org = { ...organizacion, url: new URL('/', Astro.site).href, logo: new URL('/media/logo.webp', Astro.site).href };
+const jsonld = JSON.stringify({ '@context': 'https://schema.org', '@graph': [org, ...(datos ? [datos] : [])] }).replace(
+  /</g,
+  '\\u003c',
+);
 ---
 
 <!doctype html>
@@ -30,8 +42,15 @@ const mentores = await repositorios.mentores.listar();
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="theme-color" content="#05060d" />
-    <!-- Demo de propuesta: no indexar para no competir con el sitio oficial -->
-    <meta name="robots" content="noindex, nofollow" />
+    {!Astro.url.pathname.startsWith('/404') && <link rel="canonical" href={canonica} />}
+    <!-- Demo de propuesta: no se indexa para no competir con el sitio oficial (ver seo.indexar) -->
+    <meta name="robots" content={seo.indexar ? 'index, follow' : 'noindex, nofollow'} />
+    <meta property="og:site_name" content={seo.nombre} />
+    <meta property="og:url" content={canonica} />
+    <meta property="og:image" content={imagen} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
@@ -40,6 +59,7 @@ const mentores = await repositorios.mentores.listar();
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="preload" href="/media/logo.webp" as="image" type="image/webp" />
+    <script type="application/ld+json" set:html={jsonld} />
     <script is:inline>
       document.documentElement.classList.add('js');
     </script>

@@ -52,6 +52,18 @@ const etiqueta = [
 ]
   .filter(Boolean)
   .join(', ');
+// Ficha del curso para Google (schema.org/Course)
+const datos = {
+  '@type': 'Course',
+  name: curso.titulo,
+  description: curso.descripcion || `Curso de ${tema.toLowerCase()} con ${nombreMentor} en Sniper Pro.`,
+  url: new URL(`/cursos/${curso.slug}/`, Astro.site).href,
+  image: new URL(`/media/cursos/${curso.id}-960.webp`, Astro.site).href,
+  inLanguage: 'es',
+  provider: { '@type': 'EducationalOrganization', name: 'Sniper Pro Academy' },
+  instructor: { '@type': 'Person', name: nombreMentor },
+  ...(curso.nivel ? { educationalLevel: curso.nivel } : {}),
+};
 const resumenClases = [
   clases.length === 1 ? '1 clase' : `${clases.length} clases`,
   duracion ? `${duracion} en total` : '',
@@ -61,6 +73,7 @@ const resumenClases = [
 ---
 
 <Base
+  datos={datos}
   title={`${curso.titulo}${curso.edicion ? ` ${curso.edicion}` : ''}, con ${nombreMentor} | Sniper Pro`}
   description={
     curso.descripcion || `${curso.titulo}: curso de ${tema.toLowerCase()} con ${nombreMentor} en Sniper Pro.`

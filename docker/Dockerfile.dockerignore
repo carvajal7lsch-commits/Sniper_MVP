@@ -3,3 +3,9 @@ dist
 .astro
 .git
 *.zip
+
+# Material privado del cliente: nunca entra a la imagen
+privado
+agentes
+AGENTS.md
+CLAUDE.md

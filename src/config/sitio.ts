@@ -32,3 +32,28 @@ export const nav = [
   { href: '/nosotros/', label: 'Nosotros' },
   { href: '/contacto/', label: 'Contacto' },
 ];
+
+// SEO. La demo no se indexa para no competir con el sitio oficial; al publicarla en el dominio
+// de la academia basta con cambiar `indexar` a true (y `site` en astro.config.mjs).
+export const seo = {
+  indexar: false,
+  nombre: 'Sniper Pro Academy',
+  imagen: '/media/og.jpg',
+};
+
+// Datos de la academia para Google (schema.org), solo con datos que ya publica.
+export const organizacion = {
+  '@type': 'EducationalOrganization',
+  name: 'Sniper Pro Academy',
+  alternateName: 'Sniper Pro Trading',
+  description: 'Academia de trading de índices sintéticos y Forex, desde cero hasta nivel profesional.',
+  telephone: contacto.telefono,
+  email: contacto.email,
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Cúcuta',
+    addressRegion: 'Norte de Santander',
+    addressCountry: 'CO',
+  },
+  sameAs: [links.instagram, links.facebook, links.youtube, links.telegram],
+};
