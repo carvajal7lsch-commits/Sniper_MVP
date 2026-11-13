@@ -16,6 +16,8 @@ export const esquemaMentor = z.object({
   enfoque: z.string().min(1),
   bio: z.string().min(1),
   esFundador: z.boolean().default(false),
+  // Número del instructor en la plataforma del cliente (/filtros-de-cursos/filtroprofesor/{id})
+  idPlataforma: z.number().int().positive().optional(),
   redes: esquemaRedes.default({}),
 });
 

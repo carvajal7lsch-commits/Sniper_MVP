@@ -4,14 +4,15 @@ Propuesta de rediseño de sniperproacademy.com. Sitio estático con Astro y Type
 
 ## Páginas
 
-| Ruta         | Contenido                                                                                |
-| ------------ | ---------------------------------------------------------------------------------------- |
-| `/`          | Inicio: hero con la mira, ruta de 3 pasos, clases, mentores, testimonios, app, comunidad |
-| `/cursos/`   | Catálogo con filtros por tema y nivel, búsqueda y contacto por WhatsApp                  |
-| `/mentores/` | Equipo completo con nombre y rol como texto real                                         |
-| `/nosotros/` | Qué es Sniper Pro, pilares y presenciales                                                |
-| `/contacto/` | Canales + formulario que abre WhatsApp con el mensaje listo                              |
-| `/mejoras/`  | Antes vs. después, para mostrarle al cliente                                             |
+| Ruta                | Contenido                                                                                         |
+| ------------------- | ------------------------------------------------------------------------------------------------- |
+| `/`                 | Inicio: hero, La Máquina y su equipo, reseñas, comunidad, app de señales y próximos eventos       |
+| `/cursos/`          | Catálogo real por mentor (fila de caras), tema y nivel, con las ediciones de cada curso agrupadas |
+| `/mentores/`        | El equipo: un retrato por mentor que lleva a su perfil                                            |
+| `/mentores/{slug}/` | Perfil de cada mentor con su ruta de cursos                                                       |
+| `/nosotros/`        | Quiénes somos, misión, visión, cómo enseñamos y presenciales                                      |
+| `/contacto/`        | Canales + formulario que abre WhatsApp con el mensaje listo (tema y mentor)                       |
+| `/mejoras/`         | Antes vs. después, para mostrarle al cliente                                                      |
 
 ## Correr en local
 
@@ -48,5 +49,5 @@ Si prefieres no depender del sitio original al compilar, corre `npm run assets` 
 
 ## Qué es contenido real y qué es de ejemplo
 
-- **Real** (tomado del sitio actual): textos de "Qué es Sniper Pro", mentores y roles, reseñas de estudiantes (seleccionadas), cifras, teléfono, correo, redes, enlaces de la app y del broker.
-- **De ejemplo**: el catálogo de cursos (`src/infraestructura/demo/datos-cursos.ts`). El sitio actual no muestra cursos, así que se armó con los nombres que mencionan los estudiantes en sus reseñas. Se reemplaza conectando el backend real (`FUENTE_DATOS=api`).
+- **Real** (tomado del sitio actual): textos de "Quiénes somos", misión y visión, mentores y roles, reseñas de estudiantes (seleccionadas), cifras, teléfono, correo, redes, enlaces de la app y del broker.
+- **Catálogo**: los 73 cursos publicados en las páginas de cada instructor del sitio actual (título, lecciones y estudiantes), tomados el 12 de noviembre de 2026 (`src/infraestructura/demo/datos-cursos.ts`). En la versión final se lee del backend real (`FUENTE_DATOS=api`).

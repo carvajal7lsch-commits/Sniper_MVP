@@ -1,6 +1,23 @@
 # Historial de versiones
 
-## 0.9.3 (Actual)
+## 0.10.0 (Actual)
+
+**Cursos y mentores**
+
+- Catálogo real: los 73 cursos que publica la plataforma, con su mentor, lecciones y estudiantes. Reemplaza el catálogo de ejemplo.
+- `/cursos/` filtra primero por mentor (fila de caras) y luego por tema, nivel y búsqueda. Cada curso muestra su edición vigente; las anteriores van plegadas dentro de la tarjeta. El botón lleva al curso en la plataforma. El mentor elegido queda en la URL (`/cursos/?mentor=luis-algarin`).
+- Perfil por mentor (`/mentores/{slug}/`): foto, rol, enfoque, redes y sus cursos ordenados por tema y nivel.
+- `/mentores/` pasa a ser el equipo con un retrato por mentor que lleva a su perfil.
+- "Mentores" sale del menú. El panel de "Cursos" muestra a los mentores con su número de cursos y, al lado, los temas.
+- En el inicio, el mentor abierto en la fila del equipo tiene "Ver sus cursos".
+- El buscador lleva a los mentores a su perfil y a los cursos al catálogo ya filtrado por su mentor.
+
+**Nosotros y Contacto**
+
+- Nosotros usa el texto real de "Quiénes somos", misión y visión (en el sitio actual están dentro de imágenes), más "Cómo enseñamos" y los presenciales.
+- Contacto en una pantalla: canales con íconos de app y formulario que también pregunta con qué mentor.
+
+## 0.9.3
 
 **Inicio**
 

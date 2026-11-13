@@ -3,6 +3,7 @@
 import type { Categoria, Curso } from './curso';
 import type { Mentor } from './mentor';
 import { nombreCompleto } from './mentor';
+import { agruparEdiciones } from './catalogo';
 
 export type TipoResultado = 'Curso' | 'Mentor' | 'Página';
 
@@ -32,15 +33,19 @@ export function crearIndiceBusqueda(
   paginas: Pagina[],
 ): ItemBusqueda[] {
   const nombreCategoria = new Map(categorias.map((c) => [c.id, c.nombre]));
+  const nombreMentor = new Map(mentores.map((m) => [m.slug, nombreCompleto(m)]));
   const items: ItemBusqueda[] = [];
-  for (const curso of cursos) {
+  // Solo la edición vigente de cada curso, para no llenar los resultados de repetidos.
+  for (const { actual: curso } of agruparEdiciones(cursos)) {
     const categoria = nombreCategoria.get(curso.categoria) ?? '';
+    const mentor = nombreMentor.get(curso.mentor) ?? '';
+    const consulta = new URLSearchParams({ mentor: curso.mentor, q: curso.titulo });
     items.push({
       tipo: 'Curso',
       titulo: curso.titulo,
-      detalle: `${categoria}, ${curso.nivel.toLowerCase()}`,
-      href: `/cursos/?q=${encodeURIComponent(curso.titulo)}`,
-      claves: normalizar(`${curso.titulo} ${categoria} ${curso.nivel} ${curso.formato} ${curso.resumen}`),
+      detalle: `${mentor}, ${categoria.toLowerCase()}`,
+      href: `/cursos/?${consulta.toString()}`,
+      claves: normalizar(`${curso.titulo} ${categoria} ${curso.nivel ?? ''} ${curso.formato} ${mentor}`),
     });
   }
   for (const mentor of mentores) {
@@ -49,7 +54,7 @@ export function crearIndiceBusqueda(
       tipo: 'Mentor',
       titulo: nombre,
       detalle: `${mentor.rol}, ${mentor.enfoque.toLowerCase()}`,
-      href: `/mentores/#${mentor.slug}`,
+      href: `/mentores/${mentor.slug}/`,
       claves: normalizar(`${nombre} ${mentor.apodo ?? ''} ${mentor.rol} ${mentor.enfoque}`),
     });
   }

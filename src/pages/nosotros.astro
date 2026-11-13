@@ -1,33 +1,49 @@
 ---
+// Nosotros: el contenido real de /somos del sitio actual (hoy está dentro de tres imágenes:
+// QUIENESSOMOS.jpg, MISION.jpg y VISION.jpg), pasado a texto. Se omite la cifra de efectividad
+// del 80 % hasta que el cliente la respalde. Cierra con los presenciales, igual que el inicio.
 import Base from '../layouts/Base.astro';
-import LazyVideo from '../components/LazyVideo.astro';
 import Icon from '../components/Icon.astro';
-import { links, cifras } from '../config/sitio';
-const pilares = [
-  { t: 'Educación', d: 'Cursos desde cero hasta nivel profesional en índices sintéticos y Forex.' },
-  { t: 'Mentalidad', d: 'Disciplina y manejo de emociones: sin mente sana no hay trade rentable.' },
-  { t: 'Señales', d: 'Operaciones de los mentores con entrada, stop y objetivo, para aprender viendo.' },
-  { t: 'App', d: 'Todo lo anterior en el celular, con la app Sniper Pro.' },
+import Eventos from '../components/Eventos.astro';
+import { cifras } from '../config/sitio';
+
+const comoEnsenamos = [
+  {
+    t: 'Desde cero',
+    d: 'Métodos sencillos para que cualquier persona empiece, aunque no tenga ningún conocimiento de trading.',
+  },
+  {
+    t: 'Sobre el gráfico',
+    d: 'Técnicas y estrategias para leer los gráficos e identificar posibles entradas y salidas del mercado.',
+  },
+  {
+    t: 'De la mano',
+    d: 'Un equipo de traders y analistas que acompaña a cada estudiante en el proceso, desde cero hasta operar con un plan.',
+  },
+  {
+    t: 'Mentalidad primero',
+    d: 'Formarte primero como persona y luego como trader: la mentalidad es el énfasis de la academia.',
+  },
 ];
 ---
 
 <Base
   title="Nosotros | Sniper Pro Academy"
-  description="Sniper Pro es una academia de trading de Cúcuta que lleva a sus estudiantes desde cero hasta operar con un plan."
+  description="Sniper Pro es una academia de trading de Cúcuta que lleva a sus estudiantes desde cero en Forex e índices sintéticos."
 >
-  <section class="sec page-top">
-    <div class="wrap nos">
-      <div class="nos-copy">
-        <h1 class="h-page">Qué es Sniper Pro</h1>
-        <p class="lead">
-          Una academia de trading que lleva a sus estudiantes desde cero hasta profesional en los mercados financieros,
-          con foco en Forex e índices sintéticos.
+  <section class="qs">
+    <div class="wrap qs-in">
+      <div class="qs-texto" data-revelar>
+        <h1>Quiénes somos</h1>
+        <p class="qs-lead">
+          Sniper Pro es una academia de trading que enseña desde cero hasta nivel profesional en los mercados
+          financieros, con foco en Forex e índices sintéticos.
         </p>
         <p>
-          Nació en Cúcuta y hoy reúne estudiantes de toda Latinoamérica. El nombre lo dice: entrar al mercado con
-          precisión, con un plan y con el riesgo medido, no por impulso.
+          Estamos en Cúcuta, Norte de Santander, y hoy reunimos estudiantes de toda Latinoamérica. Estamos adecuando
+          instalaciones físicas para quienes prefieren aprender en persona.
         </p>
-        <dl class="cifras">
+        <dl class="qs-cifras">
           {cifras.map((c) => (
             <div>
               <dt>{c.texto}</dt>
@@ -36,116 +52,230 @@ const pilares = [
           ))}
         </dl>
       </div>
-      <LazyVideo name="clase" label="Clase presencial de Sniper Pro" ratio="4 / 3" />
+      <figure class="qs-foto" data-revelar="lado">
+        <picture>
+          <source media="(max-width: 700px)" srcset="/media/familia-800.webp" />
+          <img
+            src="/media/familia-1600.webp"
+            width="1600"
+            height="578"
+            alt="El equipo de mentores de Sniper Pro"
+            loading="eager"
+          />
+        </picture>
+      </figure>
     </div>
   </section>
 
-  <section class="sec">
+  <section class="mv" aria-label="Misión y visión">
+    <div class="wrap mv-in">
+      <article class="mv-bloque" data-revelar>
+        <h2>Misión</h2>
+        <p>
+          Ofrecer la mejor experiencia de aprendizaje a nuestros estudiantes, con principios éticos y plena
+          transparencia, para lograr confianza, credibilidad y formar traders rentables en los mercados financieros.
+        </p>
+      </article>
+      <article class="mv-bloque" data-revelar>
+        <h2>Visión</h2>
+        <p>
+          En una trayectoria de 5 años, ser el movimiento más grande a nivel mundial en formación de traders, con más de
+          cinco mil traders rentables.
+        </p>
+      </article>
+    </div>
+  </section>
+
+  <section class="ce" aria-labelledby="ce-titulo">
     <div class="wrap">
-      <div class="sec-head">
-        <h2>En qué nos apoyamos</h2>
-      </div>
-      <dl class="pilares">
-        {pilares.map((p) => (
-          <div>
-            <dt>{p.t}</dt>
-            <dd class="muted">{p.d}</dd>
-          </div>
+      <h2 id="ce-titulo" data-revelar>
+        <span>Cómo enseñamos</span>
+      </h2>
+      <ul class="ce-lista" data-revelar>
+        {comoEnsenamos.map((p) => (
+          <li>
+            <Icon name="mira" />
+            <h3>{p.t}</h3>
+            <p>{p.d}</p>
+          </li>
         ))}
-      </dl>
+      </ul>
     </div>
   </section>
 
-  <section class="sec">
-    <div class="wrap pres">
-      <h2>Encuentros presenciales</h2>
-      <p class="lead">
-        Llevamos la academia a distintas ciudades para estar más cerca de la comunidad. Las fechas se anuncian primero
-        en el Telegram.
-      </p>
-      <a class="btn" href={links.telegram} target="_blank" rel="noopener">
-        <Icon name="telegram" />
-        Unirme al Telegram
-      </a>
-    </div>
-  </section>
+  <Eventos />
 </Base>
 
 <style>
-  .page-top {
-    padding-top: clamp(2.5rem, 6vw, 4.5rem);
+  /* Primera pantalla: texto e imagen del equipo */
+  .qs {
+    padding-block: clamp(2rem, 5vh, 3.5rem) clamp(2.5rem, 6vh, 4rem);
   }
-  .h-page {
-    font-size: var(--t-xl);
-    margin-bottom: 1.25rem;
-  }
-  .nos {
+  .qs-in {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: clamp(2rem, 5vw, 4rem);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    gap: clamp(1.5rem, 5vw, 4rem);
     align-items: center;
   }
-  .nos-copy p {
-    max-width: 36em;
+  .qs-texto {
+    display: grid;
+    gap: 1rem;
   }
-  .cifras {
+  .qs-texto h1 {
+    font-size: var(--t-xl);
+  }
+  .qs-texto p {
+    margin: 0;
+    max-width: 36em;
+    color: var(--bruma);
+  }
+  .qs-texto .qs-lead {
+    font-size: var(--t-md);
+    color: var(--hueso);
+    line-height: 1.5;
+  }
+  .qs-cifras {
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem 2.5rem;
-    margin: 1.5rem 0 0;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--linea);
+    gap: 0.5rem 2.25rem;
+    margin: 0.75rem 0 0;
   }
-  .cifras div {
+  .qs-cifras div {
     display: flex;
     flex-direction: column-reverse;
   }
-  .cifras dd {
+  .qs-cifras dd {
     margin: 0;
-    font-size: var(--t-lg);
-    font-weight: 800;
-    font-stretch: 125%;
-    line-height: 1.1;
+    font-size: clamp(1.6rem, 1.2rem + 1.2vw, 2.3rem);
+    font-weight: 900;
+    font-stretch: 112%;
+    color: var(--cian);
   }
-  .cifras dt {
-    font-size: var(--t-sm);
+  .qs-cifras dt {
+    font-size: 0.85rem;
     color: var(--bruma);
   }
-  .pilares {
+  .qs-foto {
+    margin: 0;
+  }
+  .qs-foto img {
+    width: 100%;
+    height: clamp(320px, calc(100svh - 64px - 9rem), 560px);
+    object-fit: cover;
+    object-position: center 25%;
+    border-radius: var(--r-md);
+    background: #000;
+    box-shadow:
+      0 24px 50px -18px rgb(35 72 255 / 0.75),
+      0 0 0 1.5px rgb(34 225 255 / 0.4);
+  }
+
+  /* Misión y visión: el mismo azul a morado de sus piezas, con el titular en cian */
+  .mv {
+    padding-block: clamp(1rem, 3vh, 2rem);
+  }
+  .mv-in {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  .mv-bloque {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    padding: clamp(1.75rem, 4vw, 2.75rem);
+    border-radius: var(--r-md);
+    background:
+      linear-gradient(180deg, transparent 35%, #05060d 100%),
+      linear-gradient(100deg, #1a2cd6 0%, #3a1aa8 55%, #6a1ab8 100%);
+  }
+  /* Velas tenues de fondo, como en las piezas originales */
+  .mv-bloque::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    opacity: 0.18;
+    background-image:
+      linear-gradient(90deg, transparent 46%, #9fb4ff 46%, #9fb4ff 54%, transparent 54%),
+      linear-gradient(90deg, transparent 49%, #9fb4ff 49%, #9fb4ff 51%, transparent 51%);
+    background-size:
+      26px 46px,
+      26px 80px;
+    background-position:
+      0 30%,
+      0 25%;
+    background-repeat: repeat-x;
+    -webkit-mask-image: linear-gradient(180deg, #000 10%, transparent 60%);
+    mask-image: linear-gradient(180deg, #000 10%, transparent 60%);
+  }
+  .mv-bloque h2 {
+    font-size: clamp(2.2rem, 1.4rem + 2.4vw, 3.6rem);
+    color: #22f1ff;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+  .mv-bloque p {
+    margin: 0;
+    max-width: 34em;
+    font-size: var(--t-md);
+    line-height: 1.5;
+    color: #fff;
+  }
+
+  /* Cómo enseñamos */
+  .ce {
+    padding-block: clamp(3rem, 8vh, 5rem) clamp(2rem, 5vh, 3rem);
+  }
+  .ce h2 {
+    font-size: var(--t-lg);
+    margin-bottom: 1.5rem;
+  }
+  .ce h2 span {
+    display: inline-block;
+  }
+  .ce-lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 0;
-    margin: 0;
-    border-top: 2px solid var(--azul);
+    gap: 1.5rem 2rem;
   }
-  .pilares div {
-    padding: 1.5rem 1.5rem 0 0;
-  }
-  .pilares dt {
-    font-size: var(--t-md);
-    font-weight: 800;
-    font-stretch: 125%;
-    margin-bottom: 0.5rem;
-  }
-  .pilares dd {
-    margin: 0;
-    font-size: var(--t-sm);
-  }
-  .pres {
+  .ce-lista li {
     display: grid;
-    gap: 1.2rem;
-    justify-items: start;
+    align-content: start;
+    gap: 0.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--linea);
   }
-  .pres .lead {
+  .ce-lista :global(svg) {
+    width: 22px;
+    height: 22px;
+    color: var(--cian);
+  }
+  .ce-lista h3 {
+    font-size: 1.1rem;
+  }
+  .ce-lista p {
     margin: 0;
+    color: var(--bruma);
+    font-size: 0.95rem;
+    line-height: 1.5;
   }
-  @media (max-width: 860px) {
-    .nos {
+
+  @media (max-width: 960px) {
+    .qs-in,
+    .mv-in {
       grid-template-columns: 1fr;
     }
-    .pilares {
+    .ce-lista {
       grid-template-columns: 1fr 1fr;
-      row-gap: 1rem;
+    }
+  }
+  @media (max-width: 520px) {
+    .ce-lista {
+      grid-template-columns: 1fr;
     }
   }
 </style>

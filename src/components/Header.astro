@@ -5,6 +5,7 @@ import { nav, links, mentoriaPersonalizada } from '../config/sitio';
 import type { Categoria, Curso } from '../dominio/curso';
 import type { Mentor } from '../dominio/mentor';
 import { crearIndiceBusqueda } from '../dominio/busqueda';
+import { agruparEdiciones, resumirMentor } from '../dominio/catalogo';
 import Buscador from './Buscador.astro';
 import Icon from './Icon.astro';
 
@@ -16,13 +17,14 @@ interface Props {
 const { categorias, cursos, mentores } = Astro.props;
 const path = Astro.url.pathname;
 const esActiva = (href: string) => (href === '/' ? path === '/' : path.startsWith(href));
-const destacado = cursos.find((c) => c.nivel === 'Desde cero');
-const conteo = (id: string) => cursos.filter((c) => c.categoria === id).length;
+const vigentes = agruparEdiciones(cursos).map((p) => p.actual);
+const conteo = (id: string) => vigentes.filter((c) => c.categoria === id).length;
+const deMentor = (slug: string) => resumirMentor(cursos.filter((c) => c.mentor === slug)).cursos;
 const inicio = nav.find((n) => n.href === '/');
 const otros = nav.filter((n) => n.href !== '/' && n.href !== '/cursos/');
 const paginas = [
   { titulo: 'Inicio', detalle: 'Sniper Pro Academy', href: '/' },
-  { titulo: 'Cursos', detalle: 'Catálogo por tema y nivel', href: '/cursos/' },
+  { titulo: 'Cursos', detalle: 'Catálogo por mentor, tema y nivel', href: '/cursos/' },
   { titulo: 'Mentoría personalizada', detalle: 'Sesiones uno a uno con un mentor', href: '/cursos/#mentoria' },
   { titulo: 'Mentores', detalle: 'El equipo de la academia', href: '/mentores/' },
   { titulo: 'Nosotros', detalle: 'Qué es Sniper Pro y los presenciales', href: '/nosotros/' },
@@ -65,37 +67,44 @@ const indice = crearIndiceBusqueda(cursos, categorias, mentores, paginas);
             <Icon name="chevron" />
           </button>
           <div class="dd-panel" id="panel-cursos">
-            {destacado && (
-              <a class="dd-dest" href="/cursos/">
-                <span class="dd-ico" aria-hidden="true">
-                  <Icon name="mira" />
-                </span>
-                <span>
-                  <strong>{destacado.titulo}</strong>
-                  <small>Empieza aquí, desde cero</small>
-                </span>
-              </a>
-            )}
-            <p class="dd-lbl">Por tema</p>
-            <ul class="dd-list">
-              {categorias.map((c) => (
+            <div class="dd-col">
+              <p class="dd-lbl">Por mentor</p>
+              <ul class="dd-mentores">
+                {mentores.map((m) => (
+                  <li>
+                    <a href={`/cursos/?mentor=${m.slug}`}>
+                      <img src={`/media/mentores/${m.slug}-cara.webp`} alt="" width="32" height="32" loading="lazy" />
+                      <span>
+                        {m.nombre} {m.apellido}
+                      </span>
+                      <span class="dd-num">{deMentor(m.slug)}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div class="dd-col">
+              <p class="dd-lbl">Por tema</p>
+              <ul class="dd-list">
+                {categorias.map((c) => (
+                  <li>
+                    <a href={`/cursos/#${c.id}`}>
+                      <span>{c.nombre}</span>
+                      <span class="dd-num">{conteo(c.id)}</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+              <p class="dd-lbl">Acompañamiento</p>
+              <ul class="dd-list">
                 <li>
-                  <a href={`/cursos/#${c.id}`}>
-                    <span>{c.nombre}</span>
-                    <span class="dd-num">{conteo(c.id)}</span>
-                  </a>
+                  <a href="/cursos/#mentoria">{mentoriaPersonalizada.titulo}</a>
                 </li>
-              ))}
-            </ul>
-            <p class="dd-lbl">Acompañamiento</p>
-            <ul class="dd-list">
-              <li>
-                <a href="/cursos/#mentoria">{mentoriaPersonalizada.titulo}</a>
-              </li>
-              <li>
-                <a href="/cursos/">Ver todos los cursos</a>
-              </li>
-            </ul>
+                <li>
+                  <a href="/cursos/">Ver todos los cursos</a>
+                </li>
+              </ul>
+            </div>
           </div>
         </li>
         {otros.map((n) => (
@@ -277,7 +286,10 @@ const indice = crearIndiceBusqueda(cursos, categorias, mentores, paginas);
     position: absolute;
     top: calc(100% + 10px);
     left: -0.5rem;
-    width: 300px;
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 0.25rem;
+    width: 560px;
     padding: 0.5rem;
     background: #141722;
     border: 1px solid rgb(255 255 255 / 0.08);
@@ -309,39 +321,33 @@ const indice = crearIndiceBusqueda(cursos, categorias, mentores, paginas);
     visibility: visible;
     transform: none;
   }
-  .dd-dest {
-    display: flex;
-    gap: 0.75rem;
-    align-items: center;
-    padding: 0.7rem;
-    border-radius: 10px;
-    background: rgb(255 255 255 / 0.05);
-    text-decoration: none;
+
+  .dd-mentores {
+    list-style: none;
+    margin: 0;
+    padding: 0;
   }
-  .dd-dest:hover {
-    background: rgb(255 255 255 / 0.09);
-  }
-  .dd-dest strong {
-    display: block;
-    font-size: 0.92rem;
-  }
-  .dd-dest small {
-    color: var(--bruma);
-    font-size: 0.8rem;
-  }
-  .dd-ico {
-    flex: none;
-    width: 34px;
-    height: 34px;
+  .dd-mentores a {
     display: grid;
-    place-items: center;
+    grid-template-columns: 32px 1fr auto;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.4rem 0.6rem;
     border-radius: 8px;
-    background: var(--azul);
-    color: #fff;
+    color: var(--hueso);
+    text-decoration: none;
+    font-size: 0.9rem;
   }
-  .dd-ico :global(svg) {
-    width: 20px;
-    height: 20px;
+  .dd-mentores a:hover {
+    background: rgb(255 255 255 / 0.06);
+  }
+  .dd-mentores img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center 15%;
+    background: #000;
   }
   .dd-lbl {
     margin: 0.85rem 0.7rem 0.3rem;

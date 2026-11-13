@@ -29,7 +29,6 @@ export const cifras = [
 export const nav = [
   { href: '/', label: 'Inicio' },
   { href: '/cursos/', label: 'Cursos' },
-  { href: '/mentores/', label: 'Mentores' },
   { href: '/nosotros/', label: 'Nosotros' },
   { href: '/contacto/', label: 'Contacto' },
 ];

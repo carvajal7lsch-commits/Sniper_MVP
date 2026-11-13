@@ -2,25 +2,31 @@
 import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
 import { links, contacto } from '../config/sitio';
+import { nombreCompleto } from '../dominio/mentor';
+import { repositorios } from '../infraestructura/contenedor';
+
+const categorias = await repositorios.cursos.listarCategorias();
+const mentores = await repositorios.mentores.listar();
 ---
 
 <Base
   title="Contacto | Sniper Pro Academy"
   description="Escríbenos por WhatsApp, Telegram o correo. Sniper Pro, Cúcuta, Colombia."
 >
-  <section class="sec page-top">
-    <div class="wrap ct">
-      <div>
-        <h1 class="h-page">Hablemos</h1>
-        <p class="lead">
-          La forma más rápida de resolver tus dudas es WhatsApp. Cuéntanos qué quieres aprender y te recomendamos por
-          dónde empezar.
+  <section class="cto">
+    <div class="wrap cto-in">
+      <div class="cto-texto" data-revelar>
+        <h1>Hablemos</h1>
+        <p class="cto-lead">
+          La forma más rápida es WhatsApp. Cuéntanos qué quieres aprender y te decimos por dónde empezar y con qué
+          mentor.
         </p>
-
         <ul class="canales">
           <li>
             <a href={links.whatsapp} target="_blank" rel="noopener">
-              <Icon name="whatsapp" />
+              <span class="ico wa">
+                <Icon name="whatsapp" />
+              </span>
               <span>
                 <strong>WhatsApp</strong>Respuesta directa del equipo
               </span>
@@ -28,15 +34,19 @@ import { links, contacto } from '../config/sitio';
           </li>
           <li>
             <a href={links.telegram} target="_blank" rel="noopener">
-              <Icon name="telegram" />
+              <span class="ico tg">
+                <Icon name="telegram" />
+              </span>
               <span>
-                <strong>Telegram gratuito</strong>Comunidad, análisis y avisos
+                <strong>Comunidad en Telegram</strong>Gratis: análisis y avisos de clases
               </span>
             </a>
           </li>
           <li>
             <a href={contacto.telefonoHref}>
-              <Icon name="phone" />
+              <span class="ico tel">
+                <Icon name="phone" />
+              </span>
               <span>
                 <strong>{contacto.telefono}</strong>Llamadas
               </span>
@@ -44,53 +54,62 @@ import { links, contacto } from '../config/sitio';
           </li>
           <li>
             <a href={`mailto:${contacto.email}`}>
-              <Icon name="mail" />
+              <span class="ico mail">
+                <Icon name="mail" />
+              </span>
               <span>
                 <strong>Correo</strong>
                 {contacto.email}
               </span>
             </a>
           </li>
-          <li>
-            <div>
-              <Icon name="pin" />
-              <span>
-                <strong>{contacto.ciudad}</strong>Encuentros presenciales en varias ciudades
-              </span>
-            </div>
-          </li>
         </ul>
+        <p class="cto-lugar">
+          <Icon name="pin" />
+          {contacto.ciudad}. Presenciales en varias ciudades.
+        </p>
       </div>
 
-      <form class="form" id="form-wa" data-wa={contacto.whatsappNumero} novalidate>
-        <h2>Escríbenos</h2>
-        <p class="muted">Al enviar se abre WhatsApp con tu mensaje listo.</p>
-        <div class="field">
-          <label for="f-nombre">Tu nombre</label>
-          <input class="input" id="f-nombre" name="nombre" autocomplete="given-name" required />
-          <p class="err" id="e-nombre" hidden>
-            Escribe tu nombre para saber cómo llamarte.
-          </p>
+      <form class="form" id="form-wa" data-wa={contacto.whatsappNumero} novalidate data-revelar="lado">
+        <div class="form-in">
+          <h2>Escríbenos</h2>
+          <p class="form-nota">Al enviar se abre WhatsApp con tu mensaje listo.</p>
+          <div class="field">
+            <label for="f-nombre">Tu nombre</label>
+            <input class="input" id="f-nombre" name="nombre" autocomplete="given-name" required />
+            <p class="err" id="e-nombre" hidden>
+              Escribe tu nombre para saber cómo llamarte.
+            </p>
+          </div>
+          <div class="field">
+            <label for="f-interes">¿Qué te interesa?</label>
+            <select class="input" id="f-interes" name="interes">
+              <option>Empezar desde cero</option>
+              {categorias.map((c) => (
+                <option>{c.nombre}</option>
+              ))}
+              <option>App de señales</option>
+              <option>Mentoría personalizada</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-mentor">¿Con algún mentor en especial? (opcional)</label>
+            <select class="input" id="f-mentor" name="mentor">
+              <option value="">Me da igual</option>
+              {mentores.map((m) => (
+                <option>{nombreCompleto(m)}</option>
+              ))}
+            </select>
+          </div>
+          <div class="field">
+            <label for="f-msg">Mensaje (opcional)</label>
+            <textarea class="input" id="f-msg" name="mensaje" rows="3"></textarea>
+          </div>
+          <button class="btn-blanco" type="submit">
+            <Icon name="whatsapp" />
+            Abrir WhatsApp
+          </button>
         </div>
-        <div class="field">
-          <label for="f-interes">¿Qué te interesa?</label>
-          <select class="input" id="f-interes" name="interes">
-            <option>Empezar desde cero</option>
-            <option>Índices sintéticos</option>
-            <option>Forex</option>
-            <option>Mentalidad</option>
-            <option>App de señales</option>
-            <option>Mentoría personalizada</option>
-          </select>
-        </div>
-        <div class="field">
-          <label for="f-msg">Mensaje (opcional)</label>
-          <textarea class="input" id="f-msg" name="mensaje" rows="4"></textarea>
-        </div>
-        <button class="btn" type="submit">
-          <Icon name="whatsapp" />
-          Abrir WhatsApp
-        </button>
       </form>
     </div>
   </section>
@@ -101,6 +120,7 @@ import { links, contacto } from '../config/sitio';
   const campoNombre = document.getElementById('f-nombre') as HTMLInputElement;
   const campoInteres = document.getElementById('f-interes') as HTMLSelectElement;
   const campoMensaje = document.getElementById('f-msg') as HTMLTextAreaElement;
+  const campoMentor = document.getElementById('f-mentor') as HTMLSelectElement;
   const errorNombre = document.getElementById('e-nombre') as HTMLParagraphElement;
   const numero = formulario.dataset.wa;
 
@@ -117,49 +137,85 @@ import { links, contacto } from '../config/sitio';
     campoNombre.removeAttribute('aria-invalid');
     const mensaje = campoMensaje.value.trim();
     const extra = mensaje ? ` ${mensaje}` : '';
-    const texto = `Hola, soy ${nombre}. Me interesa: ${campoInteres.value}.${extra}`;
+    const mentor = campoMentor.value ? ` Me gustaría aprender con ${campoMentor.value}.` : '';
+    const texto = `Hola, soy ${nombre}. Me interesa: ${campoInteres.value}.${mentor}${extra}`;
     window.open(`https://wa.me/${numero}?text=${encodeURIComponent(texto)}`, '_blank', 'noopener');
   });
 </script>
 
 <style>
-  .page-top {
-    padding-top: clamp(2.5rem, 6vw, 4.5rem);
+  .cto {
+    padding-block: clamp(2rem, 5vh, 3.5rem) var(--sec);
   }
-  .h-page {
-    font-size: var(--t-xl);
-    margin-bottom: 1.25rem;
-  }
-  .ct {
+  .cto-in {
     display: grid;
-    grid-template-columns: 1.1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.95fr);
     gap: clamp(2rem, 6vw, 5rem);
-    align-items: start;
+    align-items: center;
+  }
+  .cto-texto {
+    display: grid;
+    gap: 1rem;
+  }
+  .cto-texto h1 {
+    font-size: var(--t-xl);
+  }
+  .cto-lead {
+    margin: 0;
+    max-width: 32em;
+    font-size: var(--t-md);
+    line-height: 1.5;
   }
   .canales {
     list-style: none;
     padding: 0;
-    margin: 2rem 0 0;
-    border-top: 1px solid var(--linea);
+    margin: 0.5rem 0 0;
+    display: grid;
+    gap: 0.5rem;
   }
-  .canales li > * {
+  .canales a {
     display: flex;
-    gap: 1rem;
+    gap: 0.9rem;
     align-items: center;
-    padding: 1rem 0;
-    border-bottom: 1px solid var(--linea);
+    padding: 0.55rem 0.6rem;
+    margin-inline: -0.6rem;
+    border-radius: var(--r-sm);
     text-decoration: none;
+  }
+  .canales a:hover {
+    background: rgb(255 255 255 / 0.04);
   }
   .canales a:hover strong {
     color: var(--cian);
   }
-  .canales :global(svg) {
+  /* Íconos tipo app, como los de "Próximos eventos" */
+  .ico {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 48px;
+    height: 48px;
+    border-radius: 24%;
+    color: #fff;
+    box-shadow: 0 10px 22px -12px rgb(0 0 0 / 0.8);
+  }
+  .ico :global(svg) {
     width: 24px;
     height: 24px;
-    color: var(--cian);
-    flex: none;
   }
-  .canales span {
+  .wa {
+    background: linear-gradient(180deg, #5df875, #1ebe3f);
+  }
+  .tg {
+    background: linear-gradient(180deg, #37bbfe, #007dbb);
+  }
+  .tel {
+    background: linear-gradient(180deg, #3a55f2, #2338b8);
+  }
+  .mail {
+    background: linear-gradient(180deg, #4b5470, #2a3048);
+  }
+  .canales a > span:last-child {
     display: grid;
     font-size: var(--t-sm);
     color: var(--bruma);
@@ -168,20 +224,42 @@ import { links, contacto } from '../config/sitio';
     color: var(--hueso);
     font-size: var(--t-base);
   }
-  .form {
+  .cto-lugar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.25rem 0 0;
+    font-size: 0.9rem;
+    color: var(--bruma);
+  }
+  .cto-lugar :global(svg) {
+    width: 18px;
+    height: 18px;
+    color: var(--cian);
+  }
+
+  /* Formulario con el oscuro de Telegram y el brillo azul de las tarjetas del inicio */
+  .form-in {
     display: grid;
-    gap: 1.2rem;
+    gap: 1rem;
     padding: clamp(1.5rem, 4vw, 2.25rem);
-    background: var(--tinta);
-    border: 1px solid var(--linea);
     border-radius: var(--r-md);
+    background: radial-gradient(90% 60% at 100% 0%, rgb(35 72 255 / 0.25), transparent 70%), #10162c;
+    box-shadow:
+      0 24px 50px -18px rgb(35 72 255 / 0.6),
+      0 0 0 1px rgb(34 225 255 / 0.25);
   }
   .form h2 {
     font-size: var(--t-lg);
   }
-  .form > p {
-    margin: -0.6rem 0 0;
+  .form-nota {
+    margin: -0.5rem 0 0;
     font-size: var(--t-sm);
+    color: var(--bruma);
+  }
+  .form .btn-blanco {
+    justify-self: start;
+    margin-top: 0.25rem;
   }
   .err {
     margin: 0;
@@ -195,7 +273,7 @@ import { links, contacto } from '../config/sitio';
     resize: vertical;
   }
   @media (max-width: 860px) {
-    .ct {
+    .cto-in {
       grid-template-columns: 1fr;
     }
   }

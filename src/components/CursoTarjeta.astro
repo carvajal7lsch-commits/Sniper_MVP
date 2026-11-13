@@ -1,0 +1,206 @@
+---
+// Tarjeta de un curso con su edición vigente. Si el curso tuvo ediciones anteriores, se listan
+// plegadas debajo. La compra y las clases siguen en la plataforma del cliente: el botón lleva allá.
+import Icon from './Icon.astro';
+import { normalizar } from '../dominio/busqueda';
+import type { Programa } from '../dominio/catalogo';
+import type { Mentor } from '../dominio/mentor';
+import { nombreCompleto } from '../dominio/mentor';
+
+interface Props {
+  programa: Programa;
+  mentor: Mentor;
+  categoria: string;
+  // En el perfil del mentor no hace falta repetir quién lo dicta
+  conMentor?: boolean;
+}
+const { programa, mentor, categoria, conMentor = true } = Astro.props;
+const { actual, anteriores } = programa;
+const miles = (n: number) => n.toLocaleString('es-CO');
+const lecciones = (n: number) => (n === 1 ? '1 lección' : `${n} lecciones`);
+---
+
+<li
+  class="ct"
+  data-mentor={mentor.slug}
+  data-cat={actual.categoria}
+  data-nivel={actual.nivel ?? ''}
+  data-text={normalizar(`${actual.titulo} ${categoria} ${nombreCompleto(mentor)} ${actual.formato}`)}
+>
+  <div class="ct-arriba">
+    {conMentor ? (
+      <a class="ct-mentor" href={`/mentores/${mentor.slug}/`}>
+        <img src={`/media/mentores/${mentor.slug}-cara.webp`} alt="" width="28" height="28" loading="lazy" />
+        {nombreCompleto(mentor)}
+      </a>
+    ) : (
+      <span class="ct-tema">{categoria}</span>
+    )}
+    {actual.edicion && <span class="ct-edicion">Edición {actual.edicion}</span>}
+  </div>
+
+  <h3 class="ct-titulo">{actual.titulo}</h3>
+
+  <p class="ct-datos">
+    {conMentor && <span>{categoria}</span>}
+    {actual.nivel && <span>{actual.nivel}</span>}
+    {actual.formato === 'Seminario' && <span>Seminario</span>}
+  </p>
+
+  <p class="ct-cifras">
+    {lecciones(actual.lecciones)}, {miles(actual.estudiantes)} estudiantes
+  </p>
+
+  {anteriores.length > 0 && (
+    <details class="ct-antes">
+      <summary>{anteriores.length === 1 ? 'Edición anterior' : `${anteriores.length} ediciones anteriores`}</summary>
+      <ul>
+        {anteriores.map((c) => (
+          <li>
+            <a href={c.enlace} target="_blank" rel="noopener">
+              {c.titulo}
+              {c.edicion ? ` ${c.edicion}` : ''}
+            </a>
+            <span>{lecciones(c.lecciones)}</span>
+          </li>
+        ))}
+      </ul>
+    </details>
+  )}
+
+  <a class="ct-ver" href={actual.enlace} target="_blank" rel="noopener">
+    Ver en la plataforma
+    <Icon name="chevron" />
+  </a>
+</li>
+
+<style>
+  .ct {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    padding: 1.25rem 1.3rem 1.15rem;
+    border-right: 1px solid var(--linea);
+    border-bottom: 1px solid var(--linea);
+    transition: background 0.2s;
+  }
+  .ct:hover {
+    background: rgb(255 255 255 / 0.02);
+  }
+  .ct[hidden] {
+    display: none;
+  }
+  .ct-arriba {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 28px;
+  }
+  .ct-mentor {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--bruma);
+    text-decoration: none;
+  }
+  .ct-mentor:hover {
+    color: var(--hueso);
+  }
+  .ct-mentor img {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center 15%;
+    background: #000;
+  }
+  .ct-tema {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--bruma);
+  }
+  .ct-edicion {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--cian);
+    white-space: nowrap;
+  }
+  .ct-titulo {
+    font-size: 1.12rem;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+  .ct-datos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin: 0;
+  }
+  .ct-datos span {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--bruma);
+    border: 1px solid var(--linea);
+    border-radius: 4px;
+    padding: 0.05rem 0.45rem;
+  }
+  .ct-cifras {
+    margin: 0;
+    font-size: 0.82rem;
+    color: #8d95bd;
+    flex: 1;
+  }
+  .ct-antes {
+    font-size: 0.8rem;
+  }
+  .ct-antes summary {
+    cursor: pointer;
+    color: var(--bruma);
+    width: fit-content;
+  }
+  .ct-antes summary:hover {
+    color: var(--hueso);
+  }
+  .ct-antes ul {
+    list-style: none;
+    margin: 0.4rem 0 0;
+    padding: 0;
+    display: grid;
+    gap: 0.25rem;
+  }
+  .ct-antes li {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+  .ct-antes li a {
+    color: var(--hueso);
+  }
+  .ct-antes li span {
+    color: #8d95bd;
+    white-space: nowrap;
+  }
+  .ct-ver {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    width: fit-content;
+    margin-top: 0.3rem;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--cian);
+    text-decoration: none;
+  }
+  .ct-ver :global(svg) {
+    width: 16px;
+    height: 16px;
+    transform: rotate(-90deg);
+    transition: translate 0.2s;
+  }
+  .ct-ver:hover :global(svg) {
+    translate: 3px 0;
+  }
+</style>

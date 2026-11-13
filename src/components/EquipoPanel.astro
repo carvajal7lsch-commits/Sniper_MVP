@@ -63,15 +63,20 @@ const enlaces = (m: Mentor): Enlace[] => {
             <strong>{m.rol}</strong>
             <span>{m.enfoque}</span>
           </p>
-          <ul class="eq-redes">
-            {enlaces(m).map((r, n) => (
-              <li style={`--d:${0.15 + n * 0.07}s`}>
-                <a href={r.href} target="_blank" rel="noopener" aria-label={r.label}>
-                  <Icon name={r.name} />
-                </a>
-              </li>
-            ))}
-          </ul>
+          <div class="eq-acciones">
+            <a class="eq-ver" href={`/mentores/${m.slug}/`}>
+              Ver sus cursos
+            </a>
+            <ul class="eq-redes">
+              {enlaces(m).map((r, n) => (
+                <li style={`--d:${0.15 + n * 0.07}s`}>
+                  <a href={r.href} target="_blank" rel="noopener" aria-label={r.label}>
+                    <Icon name={r.name} />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
     </li>
@@ -214,6 +219,27 @@ const enlaces = (m: Mentor): Enlace[] => {
   }
   .eq-rol span {
     color: var(--bruma);
+  }
+  .eq-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem 0.9rem;
+  }
+  .eq-ver {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 1rem;
+    border-radius: 999px;
+    background: #fff;
+    color: #05060d;
+    font-weight: 700;
+    font-size: 0.86rem;
+    text-decoration: none;
+  }
+  .eq-ver:hover {
+    background: var(--cian);
   }
   .eq-redes {
     display: flex;

@@ -5,6 +5,7 @@
 export const mentores = [
   {
     slug: 'miguel-monsalve',
+    idPlataforma: 42,
     nombre: 'Miguel',
     apellido: 'Monsalve',
     apodo: 'La Máquina',
@@ -19,6 +20,7 @@ export const mentores = [
   },
   {
     slug: 'luis-algarin',
+    idPlataforma: 24,
     nombre: 'Luis',
     apellido: 'Algarín',
     rol: 'Cofundador',
@@ -28,24 +30,27 @@ export const mentores = [
   },
   {
     slug: 'jose-rangel',
+    idPlataforma: 110,
     nombre: 'Jose',
     apellido: 'Rangel',
     rol: 'Educador',
-    enfoque: 'Índices sintéticos',
+    enfoque: 'Índices sintéticos y Forex',
     bio: 'Educador y trader de índices sintéticos.',
     redes: {},
   },
   {
     slug: 'miguel-ibarra',
+    idPlataforma: 942,
     nombre: 'Miguel',
     apellido: 'Ibarra',
     rol: 'Educador',
-    enfoque: 'Forex',
+    enfoque: 'Forex e índices sintéticos',
     bio: 'Educador y trader. Sus estudiantes destacan su paso a paso desde cero.',
     redes: {},
   },
   {
     slug: 'sergio-cristancho',
+    idPlataforma: 2149,
     nombre: 'Sergio',
     apellido: 'Cristancho',
     rol: 'Educador',
@@ -55,6 +60,7 @@ export const mentores = [
   },
   {
     slug: 'elkyn-avendano',
+    idPlataforma: 2435,
     nombre: 'Elkyn',
     apellido: 'Avendaño',
     rol: 'Educador',
@@ -64,6 +70,7 @@ export const mentores = [
   },
   {
     slug: 'anderson',
+    idPlataforma: 3602,
     nombre: 'Anderson',
     apellido: 'Arango',
     rol: 'Trader',

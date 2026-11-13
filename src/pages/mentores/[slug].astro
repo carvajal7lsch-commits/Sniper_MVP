@@ -1,0 +1,362 @@
+---
+// Perfil de un mentor: quién es y su ruta de cursos (lo que en la plataforma es "filtroprofesor").
+// Una página por mentor, generada en el build.
+import Base from '../../layouts/Base.astro';
+import Icon from '../../components/Icon.astro';
+import CursoTarjeta from '../../components/CursoTarjeta.astro';
+import { contacto } from '../../config/sitio';
+import { agruparEdiciones, ordenarRuta, resumirMentor } from '../../dominio/catalogo';
+import type { Mentor } from '../../dominio/mentor';
+import { nombreCompleto } from '../../dominio/mentor';
+import { repositorios } from '../../infraestructura/contenedor';
+
+export async function getStaticPaths() {
+  const mentores = await repositorios.mentores.listar();
+  return mentores.map((mentor) => ({ params: { slug: mentor.slug }, props: { mentor } }));
+}
+
+interface Props {
+  mentor: Mentor;
+}
+const { mentor } = Astro.props;
+const nombre = nombreCompleto(mentor);
+const todos = await repositorios.mentores.listar();
+const categorias = await repositorios.cursos.listarCategorias();
+const ordenTemas = categorias.map((c) => c.id);
+const suyos = ordenarRuta(
+  (await repositorios.cursos.listar()).filter((c) => c.mentor === mentor.slug),
+  ordenTemas,
+);
+const resumen = resumirMentor(suyos);
+// La ruta se muestra por tema, en el orden de las categorías.
+const temas = categorias
+  .map((cat) => ({ cat, programas: agruparEdiciones(suyos.filter((c) => c.categoria === cat.id)) }))
+  .filter((t) => t.programas.length > 0);
+const otros = todos.filter((m) => m.slug !== mentor.slug);
+const wa = `https://wa.me/${contacto.whatsappNumero}?text=${encodeURIComponent(`Hola, quiero información de las clases de ${nombre} en Sniper Pro.`)}`;
+const enPlataforma = mentor.idPlataforma
+  ? `https://www.sniperproacademy.com/filtros-de-cursos/filtroprofesor/${mentor.idPlataforma}`
+  : undefined;
+---
+
+<Base
+  title={`${nombre}${mentor.apodo ? ` "${mentor.apodo}"` : ''} | Mentores de Sniper Pro`}
+  description={`${nombre}, ${mentor.rol.toLowerCase()} de Sniper Pro. ${mentor.enfoque}. ${resumen.cursos} cursos en la plataforma.`}
+>
+  <section class="pf">
+    <div class="wrap pf-in">
+      <figure class="pf-foto" data-revelar="lado">
+        <img
+          src={`/media/mentores/${mentor.slug}-800.webp`}
+          srcset={`/media/mentores/${mentor.slug}-400.webp 400w, /media/mentores/${mentor.slug}-800.webp 800w`}
+          sizes="(max-width: 860px) 80vw, 440px"
+          width="400"
+          height="500"
+          alt={`Retrato de ${nombre}`}
+          loading="eager"
+        />
+      </figure>
+
+      <div class="pf-texto" data-revelar>
+        <a class="pf-volver" href="/mentores/">
+          <Icon name="chevron" />
+          El equipo
+        </a>
+        <h1 class="pf-nombre">
+          <span class="first">{mentor.nombre}</span>
+          {mentor.apellido && <span class="last">{mentor.apellido}</span>}
+        </h1>
+        <p class="pf-rol">
+          <strong>{mentor.apodo ? `"${mentor.apodo}", ${mentor.rol.toLowerCase()}` : mentor.rol}</strong>
+          <span>{mentor.enfoque}</span>
+        </p>
+        <p class="pf-bio">{mentor.bio}</p>
+        <p class="pf-cifras">
+          {resumen.cursos === 1 ? '1 curso' : `${resumen.cursos} cursos`} y {resumen.lecciones.toLocaleString('es-CO')}{' '}
+          lecciones en la plataforma.
+        </p>
+        <div class="pf-acciones">
+          {resumen.cursos > 0 && (
+            <a class="btn-blanco" href="#ruta">
+              Ver sus cursos
+            </a>
+          )}
+          <a
+            class="pf-redes"
+            href={wa}
+            target="_blank"
+            rel="noopener"
+            aria-label={`Preguntar por las clases de ${nombre}`}
+          >
+            <Icon name="whatsapp" />
+          </a>
+          {mentor.redes.instagram && (
+            <a
+              class="pf-redes"
+              href={mentor.redes.instagram}
+              target="_blank"
+              rel="noopener"
+              aria-label={`Instagram de ${nombre}`}
+            >
+              <Icon name="instagram" />
+            </a>
+          )}
+          {mentor.redes.youtube && (
+            <a
+              class="pf-redes"
+              href={mentor.redes.youtube}
+              target="_blank"
+              rel="noopener"
+              aria-label={`YouTube de ${nombre}`}
+            >
+              <Icon name="youtube" />
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {temas.length > 0 && (
+    <section class="ruta" id="ruta" aria-labelledby="ruta-titulo">
+      <div class="wrap">
+        <div class="ruta-cabeza" data-revelar>
+          <h2 id="ruta-titulo">Sus cursos</h2>
+          {enPlataforma && (
+            <a class="link" href={enPlataforma} target="_blank" rel="noopener">
+              Verlos en la plataforma
+            </a>
+          )}
+        </div>
+        {temas.map(({ cat, programas }) => (
+          <div class="tema">
+            <h3 class="tema-t">{cat.nombre}</h3>
+            <ul class="grid-cursos">
+              {programas.map((programa) => (
+                <CursoTarjeta programa={programa} mentor={mentor} categoria={cat.nombre} conMentor={false} />
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <section class="otros" aria-labelledby="otros-titulo">
+    <div class="wrap">
+      <h2 id="otros-titulo">El resto del equipo</h2>
+      <ul class="otros-lista">
+        {otros.map((m) => (
+          <li>
+            <a href={`/mentores/${m.slug}/`}>
+              <img src={`/media/mentores/${m.slug}-cara.webp`} alt="" width="64" height="64" loading="lazy" />
+              <span>{nombreCompleto(m)}</span>
+              <small>{m.rol}</small>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .pf {
+    padding-block: clamp(1.5rem, 4vh, 3rem) clamp(2.5rem, 6vh, 4rem);
+  }
+  .pf-in {
+    display: grid;
+    grid-template-columns: minmax(0, 440px) minmax(0, 1fr);
+    gap: clamp(1.5rem, 5vw, 4.5rem);
+    align-items: center;
+  }
+  .pf-foto {
+    margin: 0;
+  }
+  .pf-foto img {
+    width: 100%;
+    height: min(620px, calc(100svh - 64px - 5rem));
+    object-fit: cover;
+    object-position: center 15%;
+    border-radius: var(--r-md);
+    background: #000;
+    box-shadow:
+      0 24px 50px -18px rgb(35 72 255 / 0.75),
+      0 0 0 1.5px rgb(34 225 255 / 0.55);
+  }
+  .pf-texto {
+    display: grid;
+    gap: 1rem;
+    justify-items: start;
+  }
+  .pf-volver {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.88rem;
+    color: var(--bruma);
+    text-decoration: none;
+  }
+  .pf-volver :global(svg) {
+    width: 16px;
+    height: 16px;
+    transform: rotate(90deg);
+  }
+  .pf-volver:hover {
+    color: var(--hueso);
+  }
+  .pf-nombre {
+    display: grid;
+    line-height: 0.9;
+  }
+  .first {
+    font-size: clamp(2.6rem, 1.4rem + 4vw, 5rem);
+    font-weight: 900;
+    font-stretch: 125%;
+    text-transform: uppercase;
+    color: var(--cian);
+  }
+  .last {
+    font-family: 'Allura', cursive;
+    font-weight: 400;
+    font-stretch: 100%;
+    font-size: clamp(2.4rem, 1.4rem + 3.4vw, 4.4rem);
+    color: #fff;
+    margin: -0.15em 0 0 1.2em;
+  }
+  .pf-rol {
+    display: grid;
+    gap: 0.15rem;
+    margin: 0;
+  }
+  .pf-rol span {
+    color: var(--bruma);
+  }
+  .pf-bio {
+    margin: 0;
+    max-width: 38em;
+    font-size: var(--t-md);
+    line-height: 1.55;
+  }
+  .pf-cifras {
+    margin: 0;
+    color: var(--bruma);
+    font-size: 0.92rem;
+  }
+  .pf-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.4rem;
+  }
+  .pf-redes {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: 1px solid var(--linea);
+    color: var(--hueso);
+  }
+  .pf-redes:hover {
+    border-color: var(--cian);
+    color: var(--cian);
+  }
+  .pf-redes :global(svg) {
+    width: 20px;
+    height: 20px;
+  }
+
+  .ruta {
+    scroll-margin-top: 64px;
+    padding-bottom: var(--sec);
+  }
+  .ruta-cabeza {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.5rem 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .ruta-cabeza h2 {
+    font-size: var(--t-lg);
+  }
+  .tema + .tema {
+    margin-top: 2.25rem;
+  }
+  .tema-t {
+    font-size: 1rem;
+    color: var(--bruma);
+    margin-bottom: 0.75rem;
+  }
+  .grid-cursos {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    border-top: 1px solid var(--linea);
+    border-left: 1px solid var(--linea);
+  }
+
+  .otros {
+    padding-bottom: var(--sec);
+  }
+  .otros h2 {
+    font-size: var(--t-md);
+    margin-bottom: 1rem;
+  }
+  .otros-lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.5rem;
+  }
+  .otros-lista a {
+    display: grid;
+    grid-template-columns: 48px auto;
+    grid-template-rows: auto auto;
+    column-gap: 0.7rem;
+    align-items: center;
+    text-decoration: none;
+    color: var(--hueso);
+    padding: 0.35rem 0;
+  }
+  .otros-lista img {
+    grid-row: span 2;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center 15%;
+    background: #000;
+    outline: 2px solid var(--linea);
+    outline-offset: 2px;
+  }
+  .otros-lista a:hover img {
+    outline-color: var(--cian);
+  }
+  .otros-lista span {
+    font-weight: 700;
+    font-size: 0.92rem;
+  }
+  .otros-lista small {
+    color: var(--bruma);
+    font-size: 0.78rem;
+  }
+
+  @media (max-width: 860px) {
+    .pf-in {
+      grid-template-columns: 1fr;
+    }
+    .pf-foto img {
+      height: auto;
+      aspect-ratio: 4 / 5;
+      max-height: 70svh;
+    }
+  }
+</style>

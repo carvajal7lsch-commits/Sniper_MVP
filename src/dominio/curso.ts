@@ -2,8 +2,10 @@
 // Cualquier fuente (datos de demo o la API del cliente) se valida contra estos esquemas.
 import { z } from 'astro/zod';
 
-export const NIVELES = ['Desde cero', 'Intermedio', 'Avanzado'] as const;
-export const FORMATOS = ['Grabado', 'En vivo', 'Seminario'] as const;
+const slug = z.string().regex(/^[a-z0-9-]+$/, 'El slug solo admite minúsculas, números y guiones');
+
+export const NIVELES = ['Básico', 'Intermedio', 'Avanzado'] as const;
+export const FORMATOS = ['Curso', 'Seminario'] as const;
 
 export const esquemaCategoria = z.object({
   id: z.string().min(1),
@@ -11,12 +13,23 @@ export const esquemaCategoria = z.object({
 });
 
 export const esquemaCurso = z.object({
-  slug: z.string().regex(/^[a-z0-9-]+$/, 'El slug solo admite minúsculas, números y guiones'),
+  // Identificador del curso en la plataforma del cliente
+  id: z.number().int().positive(),
+  slug,
   titulo: z.string().min(1),
+  // Slug del mentor que lo dicta
+  mentor: slug,
   categoria: z.string().min(1),
-  nivel: z.enum(NIVELES),
+  nivel: z.enum(NIVELES).optional(),
   formato: z.enum(FORMATOS),
-  resumen: z.string().min(1),
+  // Año de la edición cuando el curso se renueva ("Mentalidad 2026")
+  edicion: z.number().int().min(2020).max(2100).optional(),
+  // Agrupa las ediciones de un mismo curso del mismo mentor
+  programa: slug,
+  lecciones: z.number().int().nonnegative(),
+  estudiantes: z.number().int().nonnegative(),
+  // Página del curso en la plataforma, donde se compra y se ve
+  enlace: z.url(),
 });
 
 export type Categoria = z.infer<typeof esquemaCategoria>;

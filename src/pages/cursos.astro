@@ -1,33 +1,67 @@
 ---
+// Catálogo completo. En la academia cada mentor tiene sus propios cursos, así que el filtro
+// principal es el mentor (fila de caras). Debajo, tema, nivel y búsqueda. Cada curso muestra
+// su edición vigente; las anteriores van plegadas dentro de la tarjeta.
 import Base from '../layouts/Base.astro';
 import Icon from '../components/Icon.astro';
+import CursoTarjeta from '../components/CursoTarjeta.astro';
 import { contacto, mentoriaPersonalizada as personalizado } from '../config/sitio';
 import { NIVELES as niveles } from '../dominio/curso';
+import { agruparEdiciones, ordenarRuta } from '../dominio/catalogo';
+import { nombreCompleto } from '../dominio/mentor';
 import { repositorios } from '../infraestructura/contenedor';
-import { normalizar } from '../dominio/busqueda';
 
 const cursos = await repositorios.cursos.listar();
 const categorias = await repositorios.cursos.listarCategorias();
+const mentores = await repositorios.mentores.listar();
 const catNombre = Object.fromEntries(categorias.map((c) => [c.id, c.nombre]));
-const wa = (t: string) =>
-  `https://wa.me/${contacto.whatsappNumero}?text=${encodeURIComponent(`Hola, quiero información del curso "${t}" de Sniper Pro.`)}`;
+const ordenTemas = categorias.map((c) => c.id);
+
+// Por mentor (en el orden del equipo) y, dentro de cada uno, su ruta: tema y nivel.
+const programas = mentores.flatMap((m) =>
+  agruparEdiciones(
+    ordenarRuta(
+      cursos.filter((c) => c.mentor === m.slug),
+      ordenTemas,
+    ),
+  ).map((programa) => ({ programa, mentor: m })),
+);
+const waPersonal = `https://wa.me/${contacto.whatsappNumero}?text=${encodeURIComponent(`Hola, quiero información de la ${personalizado.titulo.toLowerCase()} de Sniper Pro.`)}`;
 ---
 
 <Base
   title="Cursos de trading | Sniper Pro Academy"
-  description="Cursos de índices sintéticos, Forex, mentalidad y educación financiera, desde cero hasta tu propio plan de trading."
+  description="Todos los cursos de Sniper Pro por mentor: índices sintéticos, Forex, mentalidad, práctica y finanzas."
 >
-  <section class="sec page-top">
+  <section class="cat">
     <div class="wrap">
-      <div class="sec-head">
-        <h1 class="h-page">Cursos</h1>
-        <p class="lead">Desde la primera vela hasta tu propio plan de trading. Filtra por tema o nivel.</p>
+      <div class="cat-cabeza" data-revelar>
+        <h1>Cursos</h1>
+        <p>
+          {programas.length} cursos de {mentores.length} mentores. Elige con quién quieres aprender.
+        </p>
       </div>
 
-      <div class="filtros" role="group" aria-label="Filtrar cursos">
+      <div class="mentores" role="group" aria-label="Filtrar por mentor" data-revelar>
+        <button class="mf" type="button" aria-pressed="true" data-value="">
+          <span class="mf-todos" aria-hidden="true">
+            {mentores.length}
+          </span>
+          <span class="mf-nombre">Todos</span>
+        </button>
+        {mentores.map((m) => (
+          <button class="mf" type="button" aria-pressed="false" data-value={m.slug} data-nombre={nombreCompleto(m)}>
+            <img src={`/media/mentores/${m.slug}-cara.webp`} alt="" width="56" height="56" />
+            <span class="mf-nombre">{m.nombre}</span>
+            <span class="sr-only">{m.apellido}</span>
+          </button>
+        ))}
+      </div>
+
+      <div class="filtros" role="group" aria-label="Filtrar por tema y nivel">
         <div class="chips" data-group="cat">
           <button class="chip" type="button" aria-pressed="true" data-value="">
-            Todos
+            Todos los temas
           </button>
           {categorias.map((c) => (
             <button class="chip" type="button" aria-pressed="false" data-value={c.id}>
@@ -52,32 +86,16 @@ const wa = (t: string) =>
         </div>
       </div>
 
-      <p class="conteo muted" aria-live="polite" id="conteo">
-        {cursos.length} cursos
+      <p class="conteo" aria-live="polite">
+        <span id="conteo">{programas.length} cursos</span>
+        <a class="link" id="perfil" href="/mentores/" hidden>
+          Ver su perfil
+        </a>
       </p>
 
       <ul class="grid-cursos" id="lista">
-        {cursos.map((c) => (
-          <li
-            class="curso"
-            data-cat={c.categoria}
-            data-nivel={c.nivel}
-            data-text={normalizar(`${c.titulo} ${c.resumen}`)}
-          >
-            <div class="curso-meta">
-              <span class="tag">{catNombre[c.categoria]}</span>
-              <span class="tag">{c.nivel}</span>
-            </div>
-            <h2 class="curso-t">{c.titulo}</h2>
-            <p class="muted">{c.resumen}</p>
-            <div class="curso-pie">
-              <span class="formato">{c.formato}</span>
-              <a class="btn btn-ghost" href={wa(c.titulo)} target="_blank" rel="noopener">
-                <Icon name="whatsapp" />
-                Pedir información
-              </a>
-            </div>
-          </li>
+        {programas.map(({ programa, mentor }) => (
+          <CursoTarjeta programa={programa} mentor={mentor} categoria={catNombre[programa.actual.categoria]} />
         ))}
       </ul>
 
@@ -96,15 +114,15 @@ const wa = (t: string) =>
           <h2>{personalizado.titulo}</h2>
           <p class="lead">{personalizado.resumen}</p>
         </div>
-        <a class="btn" href={wa(personalizado.titulo)} target="_blank" rel="noopener">
+        <a class="btn" href={waPersonal} target="_blank" rel="noopener">
           <Icon name="whatsapp" />
           Agendar por WhatsApp
         </a>
       </aside>
 
       <p class="nota muted">
-        Catálogo de ejemplo para la demo, armado con los cursos que mencionan los estudiantes. En la versión final se
-        conecta al catálogo real de la plataforma.
+        Catálogo tomado de la plataforma de la academia el 12 de noviembre de 2026. La compra y las clases siguen en la
+        plataforma.
       </p>
     </div>
   </section>
@@ -113,81 +131,174 @@ const wa = (t: string) =>
 <script>
   import { normalizar } from '../dominio/busqueda';
 
-  const state = { cat: '', nivel: '', q: '' };
-  const items = [...document.querySelectorAll<HTMLLIElement>('.curso')];
+  const estado = { mentor: '', cat: '', nivel: '', q: '' };
+  const items = [...document.querySelectorAll<HTMLLIElement>('#lista > .ct')];
   const conteo = document.getElementById('conteo')!;
+  const perfil = document.getElementById('perfil') as HTMLAnchorElement;
   const vacio = document.getElementById('vacio')!;
   const nivel = document.getElementById('nivel') as HTMLSelectElement;
   const q = document.getElementById('q') as HTMLInputElement;
   const chips = [...document.querySelectorAll<HTMLButtonElement>('[data-group="cat"] .chip')];
+  const caras = [...document.querySelectorAll<HTMLButtonElement>('.mf')];
 
-  function render() {
+  function pintar() {
     let n = 0;
     for (const li of items) {
       const ok =
-        (!state.cat || li.dataset.cat === state.cat) &&
-        (!state.nivel || li.dataset.nivel === state.nivel) &&
-        (!state.q || li.dataset.text!.includes(state.q));
+        (!estado.mentor || li.dataset.mentor === estado.mentor) &&
+        (!estado.cat || li.dataset.cat === estado.cat) &&
+        (!estado.nivel || li.dataset.nivel === estado.nivel) &&
+        (!estado.q || li.dataset.text!.includes(estado.q));
       li.hidden = !ok;
       if (ok) n++;
     }
-    conteo.textContent = n === 1 ? '1 curso' : `${n} cursos`;
+    const cara = caras.find((c) => c.dataset.value === estado.mentor);
+    const de = estado.mentor && cara ? ` de ${cara.dataset.nombre}` : '';
+    conteo.textContent = (n === 1 ? '1 curso' : `${n} cursos`) + de;
+    perfil.hidden = !estado.mentor;
+    perfil.href = `/mentores/${estado.mentor}/`;
     vacio.hidden = n !== 0;
   }
+
+  // El mentor elegido queda en la URL para poder compartir el enlace (/cursos/?mentor=luis-algarin).
+  function elegirMentor(slug: string, guardar = true) {
+    estado.mentor = slug;
+    caras.forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.value === slug)));
+    if (guardar) {
+      const url = new URL(location.href);
+      if (slug) {
+        url.searchParams.set('mentor', slug);
+      } else {
+        url.searchParams.delete('mentor');
+      }
+      history.replaceState(null, '', url);
+    }
+    pintar();
+  }
+
+  caras.forEach((c) => c.addEventListener('click', () => elegirMentor(c.dataset.value || '')));
   chips.forEach((b) =>
     b.addEventListener('click', () => {
       chips.forEach((c) => c.setAttribute('aria-pressed', String(c === b)));
-      state.cat = b.dataset.value || '';
-      render();
+      estado.cat = b.dataset.value || '';
+      pintar();
     }),
   );
   nivel.addEventListener('change', () => {
-    state.nivel = nivel.value;
-    render();
+    estado.nivel = nivel.value;
+    pintar();
   });
   q.addEventListener('input', () => {
-    state.q = normalizar(q.value);
-    render();
+    estado.q = normalizar(q.value);
+    pintar();
   });
   document.getElementById('limpiar')!.addEventListener('click', () => {
-    state.cat = state.nivel = state.q = '';
+    estado.cat = estado.nivel = estado.q = '';
     nivel.value = '';
     q.value = '';
     chips.forEach((c, i) => c.setAttribute('aria-pressed', String(i === 0)));
-    render();
+    elegirMentor('');
   });
 
-  // Los enlaces del menú llegan con el tema en la URL (/cursos/#forex): se abre ya filtrado.
-  function filtrarDesdeUrl() {
-    const tema = decodeURIComponent(location.hash.slice(1));
-    const chip = chips.find((c) => c.dataset.value === tema);
-    if (chip) {
-      chip.click();
-    }
-  }
-  filtrarDesdeUrl();
-  window.addEventListener('hashchange', filtrarDesdeUrl);
-
-  // El buscador del encabezado llega con la consulta en la URL (/cursos/?q=forex).
-  const consulta = new URLSearchParams(location.search).get('q');
+  // Llegadas desde el menú, los perfiles o el buscador: ?mentor=…, ?q=… o #tema.
+  const params = new URLSearchParams(location.search);
+  const consulta = params.get('q');
   if (consulta) {
     q.value = consulta;
-    state.q = normalizar(consulta);
-    render();
+    estado.q = normalizar(consulta);
   }
+  const tema = decodeURIComponent(location.hash.slice(1));
+  const chip = chips.find((c) => c.dataset.value === tema);
+  if (chip) {
+    chip.click();
+  }
+  elegirMentor(params.get('mentor') ?? '', false);
 </script>
 
 <style>
-  .page-top {
-    padding-top: clamp(2.5rem, 6vw, 4.5rem);
+  .cat {
+    padding-block: clamp(2rem, 5vw, 3.5rem) var(--sec);
   }
-  .h-page {
+  .cat-cabeza {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  .cat-cabeza h1 {
     font-size: var(--t-xl);
   }
+  .cat-cabeza p {
+    margin: 0;
+    color: var(--bruma);
+  }
+
+  /* Fila de mentores: la cara es el filtro */
+  .mentores {
+    display: flex;
+    gap: 0.4rem;
+    overflow-x: auto;
+    padding: 0.25rem 0.1rem 0.75rem;
+    margin-bottom: 0.75rem;
+    scrollbar-width: thin;
+  }
+  .mf {
+    flex: none;
+    display: grid;
+    justify-items: center;
+    gap: 0.45rem;
+    width: 84px;
+    padding: 0.4rem 0.2rem;
+    border: 0;
+    border-radius: var(--r-sm);
+    background: none;
+    color: var(--bruma);
+    font: inherit;
+    cursor: pointer;
+  }
+  .mf img,
+  .mf-todos {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center 15%;
+    background: #000;
+    outline: 2px solid var(--linea);
+    outline-offset: 2px;
+    transition:
+      outline-color 0.2s,
+      transform 0.2s;
+  }
+  .mf-todos {
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    color: var(--hueso);
+    background: var(--tinta);
+  }
+  .mf-nombre {
+    font-size: 0.82rem;
+    font-weight: 600;
+  }
+  .mf:hover img,
+  .mf:hover .mf-todos {
+    transform: translateY(-2px);
+    outline-color: #2c3a7a;
+  }
+  .mf[aria-pressed='true'] {
+    color: var(--hueso);
+  }
+  .mf[aria-pressed='true'] img,
+  .mf[aria-pressed='true'] .mf-todos {
+    outline-color: var(--cian);
+  }
+
   .filtros {
     display: grid;
-    gap: 1rem;
-    margin-bottom: 1.25rem;
+    gap: 0.9rem;
+    margin-bottom: 1.1rem;
   }
   .chips {
     display: flex;
@@ -200,59 +311,21 @@ const wa = (t: string) =>
     gap: 0.75rem;
   }
   .conteo {
+    display: flex;
+    gap: 1rem;
+    align-items: baseline;
     font-size: var(--t-sm);
-    margin: 0 0 1.25rem;
+    color: var(--bruma);
+    margin: 0 0 1rem;
   }
   .grid-cursos {
     list-style: none;
     padding: 0;
     margin: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
     border-top: 1px solid var(--linea);
     border-left: 1px solid var(--linea);
-  }
-  .curso {
-    display: flex;
-    flex-direction: column;
-    gap: 0.8rem;
-    padding: 1.6rem;
-    border-right: 1px solid var(--linea);
-    border-bottom: 1px solid var(--linea);
-  }
-  .curso[hidden] {
-    display: none;
-  }
-  .curso-meta {
-    display: flex;
-    gap: 0.4rem;
-    flex-wrap: wrap;
-  }
-  .curso-t {
-    font-size: var(--t-md);
-    line-height: 1.2;
-    letter-spacing: -0.01em;
-  }
-  .curso p {
-    margin: 0;
-    flex: 1;
-    font-size: var(--t-sm);
-  }
-  .curso-pie {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
-    margin-top: 0.4rem;
-  }
-  .formato {
-    font-size: var(--t-sm);
-    color: var(--cian);
-    font-weight: 600;
-  }
-  .curso-pie .btn {
-    min-height: 42px;
-    padding: 0.45rem 0.9rem;
   }
   .vacio {
     padding: 2.5rem 0;

@@ -22,15 +22,25 @@ describe('Búsqueda', () => {
     expect(resultados.every((r) => r.claves.includes('forex') && r.claves.includes('cero'))).toBe(true);
   });
 
-  it('encuentra a un mentor por su apodo y enlaza a su tarjeta', () => {
+  it('encuentra a un mentor por su apodo y enlaza a su perfil', () => {
     const [primero] = buscar(indice, 'maquina');
     expect(primero.tipo).toBe('Mentor');
-    expect(primero.href).toBe('/mentores/#miguel-monsalve');
+    expect(primero.href).toBe('/mentores/miguel-monsalve/');
   });
 
-  it('enlaza los cursos al catálogo con la búsqueda aplicada', () => {
-    const [curso] = buscar(indice, 'velas de alta');
-    expect(curso.href).toBe('/cursos/?q=Velas%20de%20alta%20tensi%C3%B3n');
+  it('enlaza los cursos al catálogo filtrado por su mentor', () => {
+    const [curso] = buscar(indice, 'flipx');
+    expect(curso.href).toContain('/cursos/?mentor=miguel-monsalve');
+  });
+
+  it('encuentra cursos por el nombre del mentor', () => {
+    const resultados = buscar(indice, 'mentalidad sergio');
+    expect(resultados.some((r) => r.tipo === 'Curso')).toBe(true);
+  });
+
+  it('muestra una sola edición de cada curso', () => {
+    const titulos = buscar(indice, 'mentalidad luis', 20).map((r) => r.titulo);
+    expect(titulos.filter((t) => t === 'Mentalidad')).toHaveLength(1);
   });
 
   it('no devuelve nada con la consulta vacía', () => {

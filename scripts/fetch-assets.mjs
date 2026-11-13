@@ -137,6 +137,26 @@ for (const [slug, url] of Object.entries(mentores)) {
   log(`mentores/${slug}`);
 }
 
+// Caras para los avatares redondos (menú, catálogo, perfiles): recorte cuadrado de la cara
+// a partir de la foto de 800 px que ya se generó arriba. No descarga nada.
+for (const slug of Object.keys(mentores)) {
+  if (!need(`mentores/${slug}-cara.webp`)) continue;
+  const foto = join(OUT, 'mentores', `${slug}-800.webp`);
+  const { width, height } = await sharp(foto).metadata();
+  const lado = Math.round(width * 0.42);
+  await sharp(foto)
+    .extract({
+      left: Math.round(width * 0.49 - lado / 2),
+      top: Math.max(0, Math.round(height * 0.26 - lado / 2)),
+      width: lado,
+      height: lado,
+    })
+    .resize(128, 128)
+    .webp({ quality: 80 })
+    .toFile(join(OUT, 'mentores', `${slug}-cara.webp`));
+  log(`mentores/${slug}-cara.webp`);
+}
+
 // Video de la clase: el original es un GIF animado. Se convierte a MP4 (H.264) y WebM (VP9) sin audio.
 if (need('clase.mp4') || need('clase.webm') || need('clase-poster.webp')) {
   const gif = join(tmpdir(), 'sniper-banner.gif');

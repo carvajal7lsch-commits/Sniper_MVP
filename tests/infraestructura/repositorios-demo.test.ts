@@ -20,6 +20,16 @@ describe('Repositorios de demo', () => {
     expect(new Set(mentores.map((m) => m.slug)).size).toBe(mentores.length);
   });
 
+  it('cada curso pertenece a un mentor existente', async () => {
+    const slugs = new Set((await repos.mentores.listar()).map((m) => m.slug));
+    const cursos = await repos.cursos.listar();
+    expect(cursos.filter((c) => !slugs.has(c.mentor))).toEqual([]);
+  });
+
+  it('el catálogo tiene los 73 cursos publicados', async () => {
+    expect(await repos.cursos.listar()).toHaveLength(73);
+  });
+
   it('hay exactamente un fundador', async () => {
     const mentores = await repos.mentores.listar();
     expect(mentores.filter((m) => m.esFundador)).toHaveLength(1);
