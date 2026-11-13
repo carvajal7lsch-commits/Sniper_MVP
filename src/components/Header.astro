@@ -1,7 +1,7 @@
 ---
 // Encabezado inspirado en la sobriedad de TradingView: transparente sobre el hero,
 // toma fondo al bajar, enlaces de texto y un único botón. Cursos abre un panel flotante.
-import { nav, links, mentoriaPersonalizada } from '../config/sitio';
+import { nav, links } from '../config/sitio';
 import type { Categoria, Curso } from '../dominio/curso';
 import type { Mentor } from '../dominio/mentor';
 import { crearIndiceBusqueda } from '../dominio/busqueda';
@@ -25,7 +25,6 @@ const otros = nav.filter((n) => n.href !== '/' && n.href !== '/cursos/');
 const paginas = [
   { titulo: 'Inicio', detalle: 'Sniper Pro Academy', href: '/' },
   { titulo: 'Cursos', detalle: 'Catálogo por mentor, tema y nivel', href: '/cursos/' },
-  { titulo: 'Mentoría personalizada', detalle: 'Sesiones uno a uno con un mentor', href: '/cursos/#mentoria' },
   { titulo: 'Mentores', detalle: 'El equipo de la academia', href: '/mentores/' },
   { titulo: 'Nosotros', detalle: 'Qué es Sniper Pro y los presenciales', href: '/nosotros/' },
   { titulo: 'Contacto', detalle: 'WhatsApp, Telegram y correo', href: '/contacto/' },
@@ -95,15 +94,9 @@ const indice = crearIndiceBusqueda(cursos, categorias, mentores, paginas);
                   </li>
                 ))}
               </ul>
-              <p class="dd-lbl">Acompañamiento</p>
-              <ul class="dd-list">
-                <li>
-                  <a href="/cursos/#mentoria">{mentoriaPersonalizada.titulo}</a>
-                </li>
-                <li>
-                  <a href="/cursos/">Ver todos los cursos</a>
-                </li>
-              </ul>
+              <a class="dd-todos" href="/cursos/">
+                Ver todos los cursos
+              </a>
             </div>
           </div>
         </li>
@@ -322,6 +315,17 @@ const indice = crearIndiceBusqueda(cursos, categorias, mentores, paginas);
     transform: none;
   }
 
+  .dd-todos {
+    display: block;
+    margin: 0.5rem 0.6rem 0.4rem;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--cian);
+    text-decoration: none;
+  }
+  .dd-todos:hover {
+    text-decoration: underline;
+  }
   .dd-mentores {
     list-style: none;
     margin: 0;

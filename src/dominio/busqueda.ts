@@ -39,13 +39,14 @@ export function crearIndiceBusqueda(
   for (const { actual: curso } of agruparEdiciones(cursos)) {
     const categoria = nombreCategoria.get(curso.categoria) ?? '';
     const mentor = nombreMentor.get(curso.mentor) ?? '';
-    const consulta = new URLSearchParams({ mentor: curso.mentor, q: curso.titulo });
     items.push({
       tipo: 'Curso',
       titulo: curso.titulo,
       detalle: `${mentor}, ${categoria.toLowerCase()}`,
-      href: `/cursos/?${consulta.toString()}`,
-      claves: normalizar(`${curso.titulo} ${categoria} ${curso.nivel ?? ''} ${curso.formato} ${mentor}`),
+      href: `/cursos/${curso.slug}/`,
+      claves: normalizar(
+        `${curso.titulo} ${categoria} ${curso.nivel ?? ''} ${curso.formato} ${mentor} ${curso.descripcion}`,
+      ),
     });
   }
   for (const mentor of mentores) {

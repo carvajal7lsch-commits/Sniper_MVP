@@ -3,9 +3,7 @@
 // principal es el mentor (fila de caras). Debajo, tema, nivel y búsqueda. Cada curso muestra
 // su edición vigente; las anteriores van plegadas dentro de la tarjeta.
 import Base from '../layouts/Base.astro';
-import Icon from '../components/Icon.astro';
 import CursoTarjeta from '../components/CursoTarjeta.astro';
-import { contacto, mentoriaPersonalizada as personalizado } from '../config/sitio';
 import { NIVELES as niveles } from '../dominio/curso';
 import { agruparEdiciones, ordenarRuta } from '../dominio/catalogo';
 import { nombreCompleto } from '../dominio/mentor';
@@ -26,7 +24,6 @@ const programas = mentores.flatMap((m) =>
     ),
   ).map((programa) => ({ programa, mentor: m })),
 );
-const waPersonal = `https://wa.me/${contacto.whatsappNumero}?text=${encodeURIComponent(`Hola, quiero información de la ${personalizado.titulo.toLowerCase()} de Sniper Pro.`)}`;
 ---
 
 <Base
@@ -109,20 +106,9 @@ const waPersonal = `https://wa.me/${contacto.whatsappNumero}?text=${encodeURICom
         </button>
       </div>
 
-      <aside class="personal" id="mentoria">
-        <div>
-          <h2>{personalizado.titulo}</h2>
-          <p class="lead">{personalizado.resumen}</p>
-        </div>
-        <a class="btn" href={waPersonal} target="_blank" rel="noopener">
-          <Icon name="whatsapp" />
-          Agendar por WhatsApp
-        </a>
-      </aside>
-
       <p class="nota muted">
-        Catálogo tomado de la plataforma de la academia el 12 de noviembre de 2026. La compra y las clases siguen en la
-        plataforma.
+        Catálogo tomado de la plataforma de la academia el 12 de noviembre de 2026. La inscripción y las clases siguen
+        en la plataforma.
       </p>
     </div>
   </section>
@@ -323,33 +309,14 @@ const waPersonal = `https://wa.me/${contacto.whatsappNumero}?text=${encodeURICom
     padding: 0;
     margin: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-    border-top: 1px solid var(--linea);
-    border-left: 1px solid var(--linea);
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
   }
   .vacio {
     padding: 2.5rem 0;
   }
   .vacio p {
     margin: 0 0 0.5rem;
-  }
-  .personal {
-    margin-top: 3rem;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1.5rem;
-    padding: clamp(1.5rem, 4vw, 2.5rem);
-    border-radius: var(--r-md);
-    background: radial-gradient(80% 140% at 100% 0%, rgb(35 72 255 / 0.35), transparent 60%), var(--tinta);
-    border: 1px solid var(--linea);
-  }
-  .personal h2 {
-    font-size: var(--t-lg);
-  }
-  .personal .lead {
-    margin: 0.5rem 0 0;
   }
   .nota {
     font-size: var(--t-xs);

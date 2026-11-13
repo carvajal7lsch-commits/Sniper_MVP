@@ -1,6 +1,12 @@
 // Reglas del catálogo: ediciones agrupadas, orden de la ruta y totales del perfil.
 import { describe, expect, it } from 'vitest';
-import { agruparEdiciones, ordenarRuta, resumirMentor } from '../../src/dominio/catalogo';
+import {
+  agruparEdiciones,
+  duracionTotal,
+  formatoDuracion,
+  ordenarRuta,
+  resumirMentor,
+} from '../../src/dominio/catalogo';
 import type { Curso } from '../../src/dominio/curso';
 
 const curso = (parcial: Partial<Curso>): Curso => ({
@@ -14,6 +20,9 @@ const curso = (parcial: Partial<Curso>): Curso => ({
   lecciones: 10,
   estudiantes: 100,
   enlace: 'https://example.com/1',
+  descripcion: '',
+  clases: [],
+  resenas: [],
   ...parcial,
 });
 
@@ -47,5 +56,17 @@ describe('Catálogo', () => {
   it('cuenta una sola vez un curso con varias ediciones', () => {
     const resumen = resumirMentor([curso({ lecciones: 10 }), curso({ lecciones: 27, edicion: 2026 })]);
     expect(resumen).toEqual({ cursos: 1, lecciones: 27 });
+  });
+
+  it('suma la duración de las clases que la tienen', () => {
+    const c = curso({ clases: [{ titulo: 'A', minutos: 50 }, { titulo: 'B' }, { titulo: 'C', minutos: 25 }] });
+    expect(duracionTotal(c)).toBe(75);
+  });
+
+  it('escribe la duración en horas y minutos', () => {
+    expect(formatoDuracion(0)).toBe('');
+    expect(formatoDuracion(45)).toBe('45 min');
+    expect(formatoDuracion(120)).toBe('2 h');
+    expect(formatoDuracion(285)).toBe('4 h 45 min');
   });
 });

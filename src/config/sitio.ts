@@ -32,9 +32,3 @@ export const nav = [
   { href: '/nosotros/', label: 'Nosotros' },
   { href: '/contacto/', label: 'Contacto' },
 ];
-
-// Oferta fija que no depende del catálogo (ítem "Personalizado" del menú actual).
-export const mentoriaPersonalizada = {
-  titulo: 'Mentoría personalizada',
-  resumen: 'Sesiones uno a uno con un mentor para revisar tu operativa y tu plan.',
-};

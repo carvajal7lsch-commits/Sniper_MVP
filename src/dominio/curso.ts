@@ -12,6 +12,16 @@ export const esquemaCategoria = z.object({
   nombre: z.string().min(1),
 });
 
+export const esquemaClase = z.object({
+  titulo: z.string().min(1),
+  minutos: z.number().int().positive().optional(),
+});
+
+export const esquemaResenaCurso = z.object({
+  nombre: z.string().min(1),
+  texto: z.string().min(1),
+});
+
 export const esquemaCurso = z.object({
   // Identificador del curso en la plataforma del cliente
   id: z.number().int().positive(),
@@ -30,8 +40,13 @@ export const esquemaCurso = z.object({
   estudiantes: z.number().int().nonnegative(),
   // Página del curso en la plataforma, donde se compra y se ve
   enlace: z.url(),
+  descripcion: z.string().default(''),
+  // Clases en orden, con su duración cuando la plataforma la publica
+  clases: z.array(esquemaClase).default([]),
+  resenas: z.array(esquemaResenaCurso).default([]),
 });
 
 export type Categoria = z.infer<typeof esquemaCategoria>;
+export type Clase = z.infer<typeof esquemaClase>;
 export type Curso = z.infer<typeof esquemaCurso>;
 export type Nivel = (typeof NIVELES)[number];

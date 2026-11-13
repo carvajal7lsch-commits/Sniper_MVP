@@ -9,6 +9,7 @@ Propuesta de rediseño de sniperproacademy.com. Sitio estático con Astro y Type
 | `/`                 | Inicio: hero, La Máquina y su equipo, reseñas, comunidad, app de señales y próximos eventos       |
 | `/cursos/`          | Catálogo real por mentor (fila de caras), tema y nivel, con las ediciones de cada curso agrupadas |
 | `/mentores/`        | El equipo: un retrato por mentor que lleva a su perfil                                            |
+| `/cursos/{slug}/`   | Página de cada curso: portada, descripción, clases con duración, reseñas e inscripción            |
 | `/mentores/{slug}/` | Perfil de cada mentor con su ruta de cursos                                                       |
 | `/nosotros/`        | Quiénes somos, misión, visión, cómo enseñamos y presenciales                                      |
 | `/contacto/`        | Canales + formulario que abre WhatsApp con el mensaje listo (tema y mentor)                       |
@@ -50,4 +51,4 @@ Si prefieres no depender del sitio original al compilar, corre `npm run assets` 
 ## Qué es contenido real y qué es de ejemplo
 
 - **Real** (tomado del sitio actual): textos de "Quiénes somos", misión y visión, mentores y roles, reseñas de estudiantes (seleccionadas), cifras, teléfono, correo, redes, enlaces de la app y del broker.
-- **Catálogo**: los 73 cursos publicados en las páginas de cada instructor del sitio actual (título, lecciones y estudiantes), tomados el 12 de noviembre de 2026 (`src/infraestructura/demo/datos-cursos.ts`). En la versión final se lee del backend real (`FUENTE_DATOS=api`).
+- **Catálogo**: los 73 cursos publicados en el sitio actual (título, lecciones, estudiantes, descripción, clases con su duración, portada y reseñas), tomados el 12 de noviembre de 2026 (`src/infraestructura/demo/datos-cursos.ts`). En la versión final se lee del backend real (`FUENTE_DATOS=api`).

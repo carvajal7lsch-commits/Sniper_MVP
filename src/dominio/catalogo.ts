@@ -51,3 +51,21 @@ export function resumirMentor(cursos: Curso[]): ResumenMentor {
     lecciones: vigentes.reduce((total, c) => total + c.lecciones, 0),
   };
 }
+
+// Duración total de las clases que tienen duración publicada, en minutos.
+export function duracionTotal(curso: Curso): number {
+  return curso.clases.reduce((total, c) => total + (c.minutos ?? 0), 0);
+}
+
+// "4 h 45 min", "45 min" o "" si no hay duraciones.
+export function formatoDuracion(minutos: number): string {
+  if (minutos <= 0) {
+    return '';
+  }
+  const h = Math.floor(minutos / 60);
+  const m = minutos % 60;
+  if (h === 0) {
+    return `${m} min`;
+  }
+  return m === 0 ? `${h} h` : `${h} h ${m} min`;
+}

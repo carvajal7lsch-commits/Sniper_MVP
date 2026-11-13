@@ -4,7 +4,7 @@
 //
 //   npm run assets            → descarga lo que falte
 //   npm run assets -- --force → regenera todo
-import { mkdir, writeFile, stat, readdir } from 'node:fs/promises';
+import { mkdir, writeFile, stat, readdir, readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { join, dirname } from 'node:path';
@@ -135,6 +135,28 @@ for (const [slug, url] of Object.entries(mentores)) {
       .toFile(join(OUT, 'mentores', `${slug}-${w}.webp`));
   }
   log(`mentores/${slug}`);
+}
+
+// Portadas de los cursos (la misma imagen que usa la plataforma). 480 px para las tarjetas y 960 px
+// para la página del curso. La lista sale de scripts/portadas-cursos.json (id → ruta en Firebase).
+await mkdir(join(OUT, 'cursos'), { recursive: true });
+const portadas = JSON.parse(await readFile(join(ROOT, 'scripts', 'portadas-cursos.json'), 'utf8'));
+for (const [id, ruta] of Object.entries(portadas)) {
+  if (!need(`cursos/${id}-480.webp`) && !need(`cursos/${id}-960.webp`)) continue;
+  try {
+    const buf = await download(FB + ruta);
+    await sharp(buf)
+      .resize({ width: 960, height: 656, fit: 'cover' })
+      .webp({ quality: 74 })
+      .toFile(join(OUT, 'cursos', `${id}-960.webp`));
+    await sharp(buf)
+      .resize({ width: 480, height: 328, fit: 'cover' })
+      .webp({ quality: 72 })
+      .toFile(join(OUT, 'cursos', `${id}-480.webp`));
+    log(`cursos/${id}`);
+  } catch (error) {
+    log(`cursos/${id}: no se pudo descargar (${error.message})`);
+  }
 }
 
 // Caras para los avatares redondos (menú, catálogo, perfiles): recorte cuadrado de la cara

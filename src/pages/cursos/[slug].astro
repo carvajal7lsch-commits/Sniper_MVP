@@ -1,0 +1,573 @@
+---
+// Página de un curso: portada, descripción, clases con su duración, reseñas y el botón para
+// inscribirse en la plataforma (la compra y las clases siguen allá). Una página por curso.
+import Base from '../../layouts/Base.astro';
+import Icon from '../../components/Icon.astro';
+import CursoTarjeta from '../../components/CursoTarjeta.astro';
+import { contacto } from '../../config/sitio';
+import type { Curso } from '../../dominio/curso';
+import { agruparEdiciones, duracionTotal, formatoDuracion, ordenarRuta } from '../../dominio/catalogo';
+import { nombreCompleto } from '../../dominio/mentor';
+import { repositorios } from '../../infraestructura/contenedor';
+
+export async function getStaticPaths() {
+  const cursos = await repositorios.cursos.listar();
+  return cursos.map((curso) => ({ params: { slug: curso.slug }, props: { curso } }));
+}
+
+interface Props {
+  curso: Curso;
+}
+const { curso } = Astro.props;
+const todos = await repositorios.cursos.listar();
+const categorias = await repositorios.cursos.listarCategorias();
+const mentores = await repositorios.mentores.listar();
+const mentor = mentores.find((m) => m.slug === curso.mentor)!;
+const nombreMentor = nombreCompleto(mentor);
+const catNombre = Object.fromEntries(categorias.map((c) => [c.id, c.nombre]));
+const tema = catNombre[curso.categoria];
+
+const clases = curso.clases;
+const visibles = clases.slice(0, 12);
+const resto = clases.slice(12);
+const duracion = formatoDuracion(duracionTotal(curso));
+const nClases = clases.length || curso.lecciones;
+
+const otrasEdiciones = todos
+  .filter((c) => c.programa === curso.programa && c.id !== curso.id)
+  .sort((a, b) => (b.edicion ?? 0) - (a.edicion ?? 0));
+const masDelMentor = agruparEdiciones(
+  ordenarRuta(
+    todos.filter((c) => c.mentor === curso.mentor && c.programa !== curso.programa),
+    categorias.map((c) => c.id),
+  ),
+).slice(0, 4);
+
+const wa = `https://wa.me/${contacto.whatsappNumero}?text=${encodeURIComponent(`Hola, quiero información del curso "${curso.titulo}" de ${nombreMentor} en Sniper Pro.`)}`;
+const miles = (n: number) => n.toLocaleString('es-CO');
+const etiqueta = [
+  tema,
+  curso.formato === 'Seminario' ? 'seminario' : '',
+  curso.edicion ? `edición ${curso.edicion}` : '',
+]
+  .filter(Boolean)
+  .join(', ');
+const resumenClases = [
+  clases.length === 1 ? '1 clase' : `${clases.length} clases`,
+  duracion ? `${duracion} en total` : '',
+]
+  .filter(Boolean)
+  .join(', ');
+---
+
+<Base
+  title={`${curso.titulo}${curso.edicion ? ` ${curso.edicion}` : ''}, con ${nombreMentor} | Sniper Pro`}
+  description={
+    curso.descripcion || `${curso.titulo}: curso de ${tema.toLowerCase()} con ${nombreMentor} en Sniper Pro.`
+  }
+>
+  <section class="cu">
+    <div class="wrap">
+      <nav class="miga" aria-label="Ruta">
+        <a href="/cursos/">Cursos</a>
+        <Icon name="chevron" />
+        <a href={`/cursos/?mentor=${mentor.slug}`}>{nombreMentor}</a>
+      </nav>
+
+      <div class="cu-in">
+        <figure class="cu-portada" data-revelar="lado">
+          <img
+            src={`/media/cursos/${curso.id}-960.webp`}
+            srcset={`/media/cursos/${curso.id}-480.webp 480w, /media/cursos/${curso.id}-960.webp 960w`}
+            sizes="(max-width: 900px) 92vw, 560px"
+            width="960"
+            height="656"
+            alt={`Portada del curso ${curso.titulo}`}
+            loading="eager"
+          />
+        </figure>
+
+        <div class="cu-texto" data-revelar>
+          <p class="cu-tema">{etiqueta}</p>
+          <h1>{curso.titulo}</h1>
+          <a class="cu-mentor" href={`/mentores/${mentor.slug}/`}>
+            <img src={`/media/mentores/${mentor.slug}-cara.webp`} alt="" width="36" height="36" />
+            <span>
+              <strong>{nombreMentor}</strong>
+              <small>{mentor.rol}</small>
+            </span>
+          </a>
+          {curso.descripcion && <p class="cu-desc">{curso.descripcion}</p>}
+          <dl class="cu-datos">
+            {curso.nivel && (
+              <div>
+                <dt>Nivel</dt>
+                <dd>{curso.nivel}</dd>
+              </div>
+            )}
+            <div>
+              <dt>Clases</dt>
+              <dd>{nClases}</dd>
+            </div>
+            {duracion && (
+              <div>
+                <dt>Duración</dt>
+                <dd>{duracion}</dd>
+              </div>
+            )}
+            <div>
+              <dt>Estudiantes</dt>
+              <dd>{miles(curso.estudiantes)}</dd>
+            </div>
+          </dl>
+          <div class="cu-acciones">
+            <a class="btn-blanco" href={curso.enlace} target="_blank" rel="noopener">
+              Inscribirme en la plataforma
+            </a>
+            <a class="cu-wa" href={wa} target="_blank" rel="noopener">
+              <Icon name="whatsapp" />
+              Preguntar por este curso
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {clases.length > 0 && (
+    <section class="temario" aria-labelledby="temario-t">
+      <div class="wrap">
+        <div class="temario-in">
+          <div class="temario-cabeza" data-revelar>
+            <h2 id="temario-t">Contenido del curso</h2>
+            <p>{resumenClases}</p>
+          </div>
+          <ol class="clases">
+            {visibles.map((c) => (
+              <li>
+                <span class="clase-t">{c.titulo}</span>
+                {c.minutos && <span class="clase-min">{c.minutos} min</span>}
+              </li>
+            ))}
+          </ol>
+          {resto.length > 0 && (
+            <details class="mas-clases">
+              <summary>Ver las otras {resto.length} clases</summary>
+              <ol class="clases desde-13" start={13}>
+                {resto.map((c) => (
+                  <li>
+                    <span class="clase-t">{c.titulo}</span>
+                    {c.minutos && <span class="clase-min">{c.minutos} min</span>}
+                  </li>
+                ))}
+              </ol>
+            </details>
+          )}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {curso.resenas.length > 0 && (
+    <section class="opiniones" aria-labelledby="opiniones-t">
+      <div class="wrap">
+        <h2 id="opiniones-t">Lo que dicen los estudiantes</h2>
+        <ul class="op-lista">
+          {curso.resenas.slice(0, 6).map((r) => (
+            <li class="nt">
+              <span class="nt-ico" aria-hidden="true">
+                <Icon name="telegram" />
+              </span>
+              <div>
+                <p class="nt-cabeza">
+                  <strong>Sniper Pro</strong>
+                  <span>reseña</span>
+                </p>
+                <p class="nt-msg">
+                  <strong>{r.nombre}:</strong> {r.texto}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  {otrasEdiciones.length > 0 && (
+    <section class="ediciones" aria-labelledby="ediciones-t">
+      <div class="wrap">
+        <h2 id="ediciones-t">Otras ediciones de este curso</h2>
+        <ul class="ed-lista">
+          {otrasEdiciones.map((c) => (
+            <li>
+              <a href={`/cursos/${c.slug}/`}>
+                <img src={`/media/cursos/${c.id}-480.webp`} alt="" width="96" height="66" loading="lazy" />
+                <span>
+                  <strong>
+                    {c.titulo}
+                    {c.edicion ? ` ${c.edicion}` : ''}
+                  </strong>
+                  <small>{c.clases.length || c.lecciones} clases</small>
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+
+  {masDelMentor.length > 0 && (
+    <section class="mas" aria-labelledby="mas-t">
+      <div class="wrap">
+        <div class="mas-cabeza">
+          <h2 id="mas-t">Más cursos de {mentor.nombre}</h2>
+          <a class="link" href={`/mentores/${mentor.slug}/`}>
+            Ver todos
+          </a>
+        </div>
+        <ul class="grid-cursos">
+          {masDelMentor.map((programa) => (
+            <CursoTarjeta
+              programa={programa}
+              mentor={mentor}
+              categoria={catNombre[programa.actual.categoria]}
+              conMentor={false}
+            />
+          ))}
+        </ul>
+      </div>
+    </section>
+  )}
+</Base>
+
+<style>
+  .cu {
+    padding-block: clamp(1.25rem, 3vh, 2rem) clamp(2.5rem, 6vh, 4rem);
+  }
+  .miga {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-bottom: 1.25rem;
+    font-size: 0.88rem;
+  }
+  .miga a {
+    color: var(--bruma);
+    text-decoration: none;
+  }
+  .miga a:hover {
+    color: var(--hueso);
+  }
+  .miga :global(svg) {
+    width: 14px;
+    height: 14px;
+    color: #5f6894;
+    transform: rotate(-90deg);
+  }
+  .cu-in {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    gap: clamp(1.5rem, 4vw, 3.5rem);
+    align-items: center;
+  }
+  .cu-portada {
+    margin: 0;
+  }
+  .cu-portada img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 960 / 656;
+    object-fit: cover;
+    border-radius: var(--r-md);
+    background: #05060d;
+    box-shadow:
+      0 24px 50px -18px rgb(35 72 255 / 0.75),
+      0 0 0 1.5px rgb(34 225 255 / 0.4);
+  }
+  .cu-texto {
+    display: grid;
+    gap: 0.9rem;
+    justify-items: start;
+  }
+  .cu-tema {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--cian);
+  }
+  .cu-texto h1 {
+    font-size: clamp(1.9rem, 1.1rem + 2.4vw, 3rem);
+    line-height: 1.05;
+  }
+  .cu-mentor {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.3rem 0.9rem 0.3rem 0.3rem;
+    border-radius: 999px;
+    border: 1px solid var(--linea);
+    color: var(--hueso);
+    text-decoration: none;
+  }
+  .cu-mentor:hover {
+    border-color: var(--cian);
+  }
+  .cu-mentor img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #000;
+  }
+  .cu-mentor span {
+    display: grid;
+    line-height: 1.2;
+  }
+  .cu-mentor strong {
+    font-size: 0.9rem;
+  }
+  .cu-mentor small {
+    font-size: 0.75rem;
+    color: var(--bruma);
+  }
+  .cu-desc {
+    margin: 0;
+    max-width: 38em;
+    color: #c9cfea;
+    line-height: 1.55;
+  }
+  .cu-datos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 2rem;
+    margin: 0.25rem 0 0;
+  }
+  .cu-datos div {
+    display: flex;
+    flex-direction: column-reverse;
+  }
+  .cu-datos dt {
+    font-size: 0.78rem;
+    color: var(--bruma);
+  }
+  .cu-datos dd {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 800;
+    font-stretch: 112%;
+  }
+  .cu-acciones {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1.25rem;
+    margin-top: 0.4rem;
+  }
+  .cu-wa {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--hueso);
+    text-decoration: none;
+  }
+  .cu-wa :global(svg) {
+    width: 20px;
+    height: 20px;
+    color: #25d366;
+  }
+  .cu-wa:hover {
+    color: var(--cian);
+  }
+
+  /* Contenido: lista numerada de clases, porque sí es una secuencia */
+  .temario {
+    padding-block: clamp(1.5rem, 4vh, 2.5rem);
+  }
+  .temario-in {
+    max-width: 860px;
+  }
+  .temario-cabeza {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.4rem 1rem;
+    margin-bottom: 1rem;
+  }
+  .temario-cabeza h2 {
+    font-size: var(--t-lg);
+  }
+  .temario-cabeza p {
+    margin: 0;
+    color: var(--bruma);
+  }
+  .clases {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: clase;
+    border-top: 1px solid var(--linea);
+  }
+  .clases.desde-13 {
+    counter-reset: clase 12;
+  }
+  .clases li {
+    counter-increment: clase;
+    display: grid;
+    grid-template-columns: 2.5rem 1fr auto;
+    gap: 0.75rem;
+    align-items: baseline;
+    padding: 0.7rem 0.25rem;
+    border-bottom: 1px solid var(--linea);
+  }
+  .clases li::before {
+    content: counter(clase, decimal-leading-zero);
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #5f6894;
+    font-variant-numeric: tabular-nums;
+  }
+  .clase-t {
+    font-size: 0.95rem;
+  }
+  .clase-min {
+    font-size: 0.8rem;
+    color: var(--bruma);
+    white-space: nowrap;
+  }
+  .mas-clases summary {
+    cursor: pointer;
+    width: fit-content;
+    margin: 0.9rem 0;
+    font-weight: 700;
+    color: var(--cian);
+  }
+  .mas-clases[open] summary {
+    margin-bottom: 0;
+  }
+
+  /* Reseñas con el estilo de notificación de Telegram de la home */
+  .opiniones {
+    padding-block: clamp(1.5rem, 4vh, 2.5rem);
+  }
+  .opiniones h2,
+  .ediciones h2 {
+    font-size: var(--t-lg);
+    margin-bottom: 1rem;
+  }
+  .op-lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 0.75rem;
+  }
+  .nt {
+    display: grid;
+    grid-template-columns: 38px 1fr;
+    gap: 0.65rem;
+    padding: 0.7rem 0.85rem;
+    border-radius: 16px;
+    background: rgb(23 33 43 / 0.94);
+    border: 1px solid rgb(255 255 255 / 0.08);
+  }
+  .nt-ico {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #37bbfe, #007dbb);
+    color: #fff;
+  }
+  .nt-ico :global(svg) {
+    width: 20px;
+    height: 20px;
+  }
+  .nt-cabeza {
+    display: flex;
+    justify-content: space-between;
+    margin: 0 0 0.15rem;
+    font-size: 0.82rem;
+  }
+  .nt-cabeza span {
+    color: #7f91a4;
+    font-size: 0.74rem;
+  }
+  .nt-msg {
+    margin: 0;
+    font-size: 0.86rem;
+    line-height: 1.45;
+    color: #dbe4ee;
+  }
+  .nt-msg strong {
+    color: #6ec9ff;
+  }
+
+  .ediciones {
+    padding-block: clamp(1.5rem, 4vh, 2.5rem);
+  }
+  .ed-lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .ed-lista a {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.4rem 1rem 0.4rem 0.4rem;
+    border: 1px solid var(--linea);
+    border-radius: var(--r-sm);
+    color: var(--hueso);
+    text-decoration: none;
+  }
+  .ed-lista a:hover {
+    border-color: var(--cian);
+  }
+  .ed-lista img {
+    width: 96px;
+    height: 66px;
+    object-fit: cover;
+    border-radius: 4px;
+  }
+  .ed-lista span {
+    display: grid;
+  }
+  .ed-lista small {
+    color: var(--bruma);
+  }
+
+  .mas {
+    padding-block: clamp(1.5rem, 4vh, 2.5rem) var(--sec);
+  }
+  .mas-cabeza {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 1rem;
+  }
+  .mas-cabeza h2 {
+    font-size: var(--t-lg);
+  }
+  .grid-cursos {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 1rem;
+  }
+
+  @media (max-width: 900px) {
+    .cu-in {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

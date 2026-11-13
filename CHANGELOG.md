@@ -1,6 +1,15 @@
 # Historial de versiones
 
-## 0.10.0 (Actual)
+## 0.11.0 (Actual)
+
+**Cursos**
+
+- Las tarjetas muestran la portada de cada curso (la misma imagen que usa la plataforma) y toda la tarjeta se puede tocar.
+- Página por curso (`/cursos/{slug}/`): portada, descripción, mentor, nivel, número de clases, duración total, estudiantes, el contenido clase por clase con su duración, reseñas de estudiantes, otras ediciones y más cursos del mismo mentor. El botón "Inscribirme en la plataforma" lleva a la página del curso en la plataforma, donde se compra.
+- El buscador lleva a la página del curso y también busca en su descripción.
+- Se quita la mentoría personalizada (menú, catálogo, buscador y contacto): cada mentor tiene sus propios cursos, incluido el "Personalizado" de Miguel.
+
+## 0.10.0
 
 **Cursos y mentores**
 

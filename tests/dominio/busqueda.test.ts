@@ -28,9 +28,9 @@ describe('Búsqueda', () => {
     expect(primero.href).toBe('/mentores/miguel-monsalve/');
   });
 
-  it('enlaza los cursos al catálogo filtrado por su mentor', () => {
+  it('enlaza los cursos a su página', () => {
     const [curso] = buscar(indice, 'flipx');
-    expect(curso.href).toContain('/cursos/?mentor=miguel-monsalve');
+    expect(curso.href).toMatch(/^\/cursos\/[a-z0-9-]+\/$/);
   });
 
   it('encuentra cursos por el nombre del mentor', () => {
