@@ -36,6 +36,7 @@
   box-sizing: border-box;
 }
 html {
+  overflow-x: clip;
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
 }
@@ -53,6 +54,7 @@ html {
 }
 body {
   margin: 0;
+  overflow-x: clip;
   background: var(--noche);
   color: var(--hueso);
   font-family: var(--font);

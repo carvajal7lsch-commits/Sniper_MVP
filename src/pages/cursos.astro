@@ -146,27 +146,43 @@ const programas = mentores.flatMap((m) =>
     vacio.hidden = n !== 0;
   }
 
-  // El mentor elegido queda en la URL para poder compartir el enlace (/cursos/?mentor=luis-algarin).
-  function elegirMentor(slug: string, guardar = true) {
-    estado.mentor = slug;
-    caras.forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.value === slug)));
-    if (guardar) {
-      const url = new URL(location.href);
-      if (slug) {
-        url.searchParams.set('mentor', slug);
+  // Los filtros quedan en la URL para poder compartir el enlace (/cursos/?mentor=luis-algarin&tema=forex).
+  function guardarUrl() {
+    const url = new URL(location.href);
+    url.hash = '';
+    for (const [clave, valor] of [
+      ['mentor', estado.mentor],
+      ['tema', estado.cat],
+    ]) {
+      if (valor) {
+        url.searchParams.set(clave, valor);
       } else {
-        url.searchParams.delete('mentor');
+        url.searchParams.delete(clave);
       }
-      history.replaceState(null, '', url);
     }
-    pintar();
+    history.replaceState(null, '', url);
   }
 
-  caras.forEach((c) => c.addEventListener('click', () => elegirMentor(c.dataset.value || '')));
+  function marcarMentor(slug: string) {
+    estado.mentor = caras.some((c) => c.dataset.value === slug) ? slug : '';
+    caras.forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.value === estado.mentor)));
+  }
+  function marcarTema(tema: string) {
+    estado.cat = chips.some((c) => c.dataset.value === tema) ? tema : '';
+    chips.forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.value === estado.cat)));
+  }
+
+  caras.forEach((c) =>
+    c.addEventListener('click', () => {
+      marcarMentor(c.dataset.value || '');
+      guardarUrl();
+      pintar();
+    }),
+  );
   chips.forEach((b) =>
     b.addEventListener('click', () => {
-      chips.forEach((c) => c.setAttribute('aria-pressed', String(c === b)));
-      estado.cat = b.dataset.value || '';
+      marcarTema(b.dataset.value || '');
+      guardarUrl();
       pintar();
     }),
   );
@@ -179,26 +195,41 @@ const programas = mentores.flatMap((m) =>
     pintar();
   });
   document.getElementById('limpiar')!.addEventListener('click', () => {
-    estado.cat = estado.nivel = estado.q = '';
+    estado.nivel = estado.q = '';
     nivel.value = '';
     q.value = '';
-    chips.forEach((c, i) => c.setAttribute('aria-pressed', String(i === 0)));
-    elegirMentor('');
+    marcarMentor('');
+    marcarTema('');
+    guardarUrl();
+    pintar();
   });
 
-  // Llegadas desde el menú, los perfiles o el buscador: ?mentor=…, ?q=… o #tema.
-  const params = new URLSearchParams(location.search);
-  const consulta = params.get('q');
-  if (consulta) {
+  // Llegadas desde el menú, los perfiles o el buscador: ?mentor=…, ?tema=…, ?q=… (y #tema de enlaces viejos).
+  function aplicarUrl() {
+    const params = new URLSearchParams(location.search);
+    const consulta = params.get('q') ?? '';
     q.value = consulta;
     estado.q = normalizar(consulta);
+    estado.nivel = nivel.value = '';
+    marcarMentor(params.get('mentor') ?? '');
+    marcarTema(params.get('tema') ?? decodeURIComponent(location.hash.slice(1)));
+    pintar();
   }
-  const tema = decodeURIComponent(location.hash.slice(1));
-  const chip = chips.find((c) => c.dataset.value === tema);
-  if (chip) {
-    chip.click();
-  }
-  elegirMentor(params.get('mentor') ?? '', false);
+  aplicarUrl();
+
+  // Estando ya en el catálogo, los enlaces del menú filtran sin recargar la página.
+  document.addEventListener('click', (evento) => {
+    const enlace = (evento.target as Element).closest<HTMLAnchorElement>('a[href]');
+    if (!enlace || evento.defaultPrevented || evento.metaKey || evento.ctrlKey || evento.shiftKey) return;
+    const destino = new URL(enlace.href);
+    if (destino.origin !== location.origin || destino.pathname !== location.pathname) return;
+    evento.preventDefault();
+    history.pushState(null, '', destino);
+    aplicarUrl();
+    document.querySelector('.cat')?.scrollIntoView({ behavior: 'smooth' });
+  });
+  window.addEventListener('popstate', aplicarUrl);
+  window.addEventListener('hashchange', aplicarUrl);
 </script>
 
 <style>

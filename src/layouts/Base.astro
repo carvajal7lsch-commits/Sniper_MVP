@@ -9,9 +9,12 @@ import { repositorios } from '../infraestructura/contenedor';
 interface Props {
   title?: string;
   description?: string;
+  /** Sin encabezado ni pie: para ingresar y registrarse. */
+  sencillo?: boolean;
 }
 const {
   title = 'Sniper Pro Academy | Academia de trading en Cúcuta',
+  sencillo = false,
   description = 'Aprende trading de índices sintéticos y Forex desde cero, con mentores que operan en vivo. Comunidad gratuita en Telegram, cursos y app de señales.',
 } = Astro.props;
 const categorias = await repositorios.cursos.listarCategorias();
@@ -20,7 +23,7 @@ const mentores = await repositorios.mentores.listar();
 ---
 
 <!doctype html>
-<html lang="es">
+<html lang="es" class={sencillo ? 'sin-scroll' : undefined}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -45,19 +48,21 @@ const mentores = await repositorios.mentores.listar();
     <a class="skip" href="#contenido">
       Saltar al contenido
     </a>
-    <Header categorias={categorias} cursos={cursos} mentores={mentores} />
+    {!sencillo && <Header categorias={categorias} cursos={cursos} mentores={mentores} />}
     <main id="contenido">
       <slot />
     </main>
-    <Footer />
-    <aside class="demo-pill" data-demo-pill aria-label="Aviso de demo">
-      <a href="/mejoras/">
-        Demo de rediseño <span>Ver qué mejoró</span>
-      </a>
-      <button type="button" aria-label="Ocultar aviso de demo" data-cerrar-demo>
-        ×
-      </button>
-    </aside>
+    {!sencillo && <Footer />}
+    {!sencillo && (
+      <aside class="demo-pill" data-demo-pill aria-label="Aviso de demo">
+        <a href="/mejoras/">
+          Demo de rediseño <span>Ver qué mejoró</span>
+        </a>
+        <button type="button" aria-label="Ocultar aviso de demo" data-cerrar-demo>
+          ×
+        </button>
+      </aside>
+    )}
     <script>
       // El aviso se puede ocultar mientras dure la visita; si el navegador no deja guardar, solo se oculta.
       const aviso = document.querySelector<HTMLElement>('[data-demo-pill]');

@@ -35,8 +35,16 @@ const indice = crearIndiceBusqueda(cursos, categorias, mentores, paginas);
 
 <header class="hd" data-hd>
   <div class="hd-in">
-    <button class="hd-burger" type="button" aria-label="Abrir menú" data-abrir-menu>
+    <button
+      class="hd-burger"
+      type="button"
+      aria-label="Menú"
+      aria-expanded="false"
+      aria-controls="menu-movil"
+      data-abrir-menu
+    >
       <Icon name="menu" />
+      <Icon name="close" />
     </button>
 
     <a href="/" class="hd-logo" aria-label="Sniper Pro, inicio">
@@ -87,7 +95,7 @@ const indice = crearIndiceBusqueda(cursos, categorias, mentores, paginas);
               <ul class="dd-list">
                 {categorias.map((c) => (
                   <li>
-                    <a href={`/cursos/#${c.id}`}>
+                    <a href={`/cursos/?tema=${c.id}`}>
                       <span>{c.nombre}</span>
                       <span class="dd-num">{conteo(c.id)}</span>
                     </a>
@@ -112,7 +120,7 @@ const indice = crearIndiceBusqueda(cursos, categorias, mentores, paginas);
 
     <div class="hd-actions">
       <Buscador indice={indice} />
-      <a class="hd-login" href={links.login}>
+      <a class="hd-login" href="/ingresar/">
         Ingresar
       </a>
       <a class="btn-blanco" href={links.telegram} target="_blank" rel="noopener">
@@ -122,13 +130,7 @@ const indice = crearIndiceBusqueda(cursos, categorias, mentores, paginas);
   </div>
 </header>
 
-<dialog class="mm" data-menu-movil aria-label="Menú">
-  <div class="mm-top">
-    <img src="/media/logo.webp" alt="Sniper Pro Trading" width="152" height="44" />
-    <button type="button" class="hd-burger" aria-label="Cerrar menú" data-cerrar-menu>
-      <Icon name="close" />
-    </button>
-  </div>
+<dialog class="mm" id="menu-movil" data-menu-movil aria-label="Menú">
   <nav aria-label="Principal en celular">
     <ul class="mm-list">
       {nav.map((n) => (
@@ -141,15 +143,13 @@ const indice = crearIndiceBusqueda(cursos, categorias, mentores, paginas);
     </ul>
   </nav>
   <div class="mm-pie">
-    <a class="btn-blanco" href={links.telegram} target="_blank" rel="noopener">
-      Unirme gratis a la comunidad
+    <a class="mm-sec" href="/ingresar/">
+      <Icon name="usuario" />
+      Ingresar
     </a>
     <a class="mm-sec" href={links.whatsapp} target="_blank" rel="noopener">
       <Icon name="whatsapp" />
-      Escribir por WhatsApp
-    </a>
-    <a class="mm-sec" href={links.login}>
-      Ingresar a la plataforma
+      WhatsApp
     </a>
   </div>
 </dialog>
@@ -160,10 +160,33 @@ const indice = crearIndiceBusqueda(cursos, categorias, mentores, paginas);
   marcarFondo();
   window.addEventListener('scroll', marcarFondo, { passive: true });
 
+  // Menú de celular: una tarjeta pequeña bajo el botón, no una pantalla completa.
   const menu = document.querySelector<HTMLDialogElement>('[data-menu-movil]');
-  document.querySelector('[data-abrir-menu]')?.addEventListener('click', () => menu?.showModal());
-  document.querySelector('[data-cerrar-menu]')?.addEventListener('click', () => menu?.close());
-  menu?.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => menu.close()));
+  const burger = document.querySelector<HTMLButtonElement>('[data-abrir-menu]');
+  const cerrarMenu = () => {
+    menu?.close();
+    burger?.setAttribute('aria-expanded', 'false');
+  };
+  burger?.addEventListener('click', (evento) => {
+    evento.stopPropagation();
+    if (menu?.open) {
+      cerrarMenu();
+    } else {
+      menu?.show();
+      burger.setAttribute('aria-expanded', 'true');
+    }
+  });
+  menu?.querySelectorAll('a').forEach((a) => a.addEventListener('click', cerrarMenu));
+  document.addEventListener('click', (evento) => {
+    if (menu?.open && !menu.contains(evento.target as Node)) cerrarMenu();
+  });
+  document.addEventListener('keydown', (evento) => {
+    if (evento.key === 'Escape' && menu?.open) {
+      cerrarMenu();
+      burger?.focus();
+    }
+  });
+  window.addEventListener('scroll', () => menu?.open && cerrarMenu(), { passive: true });
 
   // El panel abre con el mouse por CSS; este botón lo abre con clic, toque o teclado.
   document.querySelectorAll<HTMLButtonElement>('.dd-btn').forEach((boton) => {
@@ -180,6 +203,18 @@ const indice = crearIndiceBusqueda(cursos, categorias, mentores, paginas);
         boton.focus();
       }
     });
+  });
+  // Tras elegir una opción el panel se cierra aunque el mouse siga encima.
+  document.querySelectorAll<HTMLElement>('.dd').forEach((item) => {
+    item.querySelectorAll('.dd-panel a').forEach((a) =>
+      a.addEventListener('click', () => {
+        item.classList.add('pausa');
+        item.classList.remove('abierto');
+        item.querySelector('.dd-btn')?.setAttribute('aria-expanded', 'false');
+        (document.activeElement as HTMLElement | null)?.blur();
+      }),
+    );
+    item.addEventListener('mouseleave', () => item.classList.remove('pausa'));
   });
   document.addEventListener('click', (evento) => {
     document.querySelectorAll('.dd.abierto').forEach((item) => {
@@ -314,6 +349,11 @@ const indice = crearIndiceBusqueda(cursos, categorias, mentores, paginas);
     visibility: visible;
     transform: none;
   }
+  .dd.pausa .dd-panel {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+  }
 
   .dd-todos {
     display: block;
@@ -409,79 +449,82 @@ const indice = crearIndiceBusqueda(cursos, categorias, mentores, paginas);
     height: 24px;
   }
 
-  /* Menú en celular: pantalla completa */
+  .hd-burger :global(svg:last-child),
+  .hd-burger[aria-expanded='true'] :global(svg:first-child) {
+    display: none;
+  }
+  .hd-burger[aria-expanded='true'] :global(svg:last-child) {
+    display: block;
+  }
+
+  /* Menú en celular: tarjeta compacta bajo el botón */
   .mm {
-    width: 100%;
-    max-width: none;
-    height: 100%;
-    max-height: none;
+    position: fixed;
+    inset: 60px auto auto 0.75rem;
+    z-index: 60;
+    width: min(232px, calc(100vw - 1.5rem));
     margin: 0;
-    padding: 0 1.25rem 1.5rem;
-    border: 0;
-    background: var(--noche);
+    padding: 0.4rem;
+    border: 1px solid rgb(255 255 255 / 0.08);
+    border-radius: 14px;
+    background: #141722;
     color: var(--hueso);
+    box-shadow: 0 24px 60px -12px rgb(0 0 0 / 0.75);
   }
   .mm[open] {
-    display: flex;
-    flex-direction: column;
+    animation: mm-abrir 0.16s ease-out;
   }
-  .mm::backdrop {
-    background: rgb(0 0 0 / 0.6);
-  }
-  .mm-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 64px;
-  }
-  .mm-top img {
-    height: 32px;
-    width: auto;
-  }
-  .mm-top .hd-burger {
-    display: grid;
-    margin: 0 -0.5rem 0 0;
+  @keyframes mm-abrir {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
   }
   .mm-list {
     list-style: none;
-    margin: 1.5rem 0 0;
+    margin: 0;
     padding: 0;
   }
   .mm-list a {
     display: block;
-    padding: 0.55rem 0;
-    font-size: 2rem;
-    font-weight: 800;
-    font-stretch: 125%;
-    letter-spacing: -0.02em;
+    padding: 0.62rem 0.75rem;
+    border-radius: 9px;
+    font-size: 0.98rem;
+    font-weight: 600;
     text-decoration: none;
+  }
+  .mm-list a:hover,
+  .mm-list a:focus-visible {
+    background: rgb(255 255 255 / 0.06);
   }
   .mm-list a[aria-current='page'] {
     color: var(--cian);
   }
   .mm-pie {
-    margin-top: auto;
     display: grid;
-    gap: 0.6rem;
-  }
-  .mm-pie .btn-blanco {
-    justify-content: center;
-    min-height: 52px;
+    gap: 0.15rem;
+    margin-top: 0.3rem;
+    padding-top: 0.3rem;
+    border-top: 1px solid rgb(255 255 255 / 0.08);
   }
   .mm-sec {
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    min-height: 48px;
-    border: 1px solid rgb(255 255 255 / 0.14);
-    border-radius: 999px;
-    text-decoration: none;
+    gap: 0.6rem;
+    padding: 0.6rem 0.75rem;
+    border-radius: 9px;
+    font-size: 0.92rem;
     font-weight: 600;
+    color: var(--bruma);
+    text-decoration: none;
+  }
+  .mm-sec:hover {
+    background: rgb(255 255 255 / 0.06);
+    color: var(--hueso);
   }
   .mm-sec :global(svg) {
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
   }
 
   @media (max-width: 960px) {

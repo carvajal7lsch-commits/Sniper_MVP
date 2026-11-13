@@ -1,0 +1,462 @@
+---
+// Ingreso y registro rediseñados. Los campos son los mismos de la plataforma actual
+// (/auth/login): usuario o correo y contraseña; para registrarse, correo, nombre, apellido,
+// contraseña y su confirmación. En la demo el formulario no envía nada: muestra un aviso y
+// enlaza a la plataforma real.
+import Base from '../layouts/Base.astro';
+import Icon from './Icon.astro';
+import { links } from '../config/sitio';
+
+interface Props {
+  modo: 'ingresar' | 'registro';
+}
+const { modo } = Astro.props;
+const esIngreso = modo === 'ingresar';
+---
+
+<Base
+  sencillo
+  title={esIngreso ? 'Ingresar | Sniper Pro Academy' : 'Crear cuenta | Sniper Pro Academy'}
+  description="Ingresa a tus cursos de Sniper Pro Academy o crea tu cuenta."
+>
+  <div class="au">
+    <aside class="au-lado" aria-hidden="true">
+      <svg class="au-velas" viewBox="0 0 600 220" preserveAspectRatio="none">
+        <polyline points="0,170 40,150 70,160 110,120 150,132 190,96 230,110 270,70 310,84 350,58 390,74 430,40 470,52 510,28 550,36 600,14"></polyline>
+      </svg>
+      <img
+        class="au-foto"
+        src="/media/mentores/miguel-monsalve-800.webp"
+        alt=""
+        width="800"
+        height="1000"
+        loading="eager"
+      />
+      <div class="au-lado-in">
+        <p class="au-frase">
+          Más que una academia, <span>una familia.</span>
+        </p>
+      </div>
+    </aside>
+
+    <section class="au-form" aria-labelledby="au-titulo">
+      <div class="au-barra">
+        <a class="au-logo" href="/" aria-label="Sniper Pro, inicio">
+          <img src="/media/logo.webp" alt="Sniper Pro Trading" width="152" height="44" />
+        </a>
+        <a class="au-volver" href="/">
+          <Icon name="volver" />
+          Volver al inicio
+        </a>
+      </div>
+
+      <div class="au-caja">
+        <nav class="au-tabs" aria-label="Ingresar o crear cuenta">
+          <a href="/ingresar/" aria-current={esIngreso ? 'page' : undefined}>
+            Ingresar
+          </a>
+          <a href="/registro/" aria-current={esIngreso ? undefined : 'page'}>
+            Crear cuenta
+          </a>
+        </nav>
+
+        <h1 id="au-titulo">{esIngreso ? 'Bienvenido de nuevo' : 'Crea tu cuenta'}</h1>
+        <p class="au-sub">
+          {esIngreso ? 'Entra para seguir con tus cursos.' : 'Con tu cuenta compras los cursos y ves tus clases.'}
+        </p>
+
+        <form class="au-campos" data-auth novalidate>
+          {esIngreso ? (
+            <label class="campo">
+              <span>Usuario o correo</span>
+              <input class="input" type="text" name="usuario" autocomplete="username" required />
+            </label>
+          ) : (
+            <>
+              <div class="au-par">
+                <label class="campo">
+                  <span>Nombre</span>
+                  <input class="input" type="text" name="nombre" autocomplete="given-name" required />
+                </label>
+                <label class="campo">
+                  <span>Apellido</span>
+                  <input class="input" type="text" name="apellido" autocomplete="family-name" required />
+                </label>
+              </div>
+              <label class="campo">
+                <span>Correo</span>
+                <input class="input" type="email" name="correo" autocomplete="email" required />
+              </label>
+            </>
+          )}
+          <label class="campo">
+            <span>Contraseña</span>
+            <span class="au-clave">
+              <input
+                class="input"
+                type="password"
+                name="clave"
+                autocomplete={esIngreso ? 'current-password' : 'new-password'}
+                required
+              />
+              <button type="button" class="au-ver" aria-label="Mostrar contraseña" aria-pressed="false" data-ver>
+                <Icon name="ojo" />
+              </button>
+            </span>
+          </label>
+          {!esIngreso && (
+            <label class="campo">
+              <span>Confirmar contraseña</span>
+              <input class="input" type="password" name="clave2" autocomplete="new-password" required />
+            </label>
+          )}
+
+          {esIngreso && (
+            <div class="au-fila">
+              <label class="au-check">
+                <input type="checkbox" name="recordar" />
+                Recordarme
+              </label>
+              <a href={links.login}>¿Olvidaste tu contraseña?</a>
+            </div>
+          )}
+
+          <button class="btn au-enviar" type="submit">
+            {esIngreso ? 'Ingresar' : 'Crear cuenta'}
+          </button>
+
+          <p class="au-aviso" role="status" hidden data-aviso>
+            Esta es la demo del rediseño y no envía datos. Para {esIngreso ? 'ingresar' : 'registrarte'} hoy, usa la
+            <a href={links.login}>plataforma actual</a>.
+          </p>
+        </form>
+
+        <p class="au-cambio">
+          {esIngreso ? (
+            <>
+              ¿No tienes cuenta? <a href="/registro/">Crea una</a>
+            </>
+          ) : (
+            <>
+              ¿Ya tienes cuenta? <a href="/ingresar/">Ingresa</a>
+            </>
+          )}
+        </p>
+      </div>
+
+      <p class="au-legal">
+        El trading con apalancamiento implica alto riesgo de pérdida; el contenido de Sniper Pro es educativo. Esta es
+        una <a href="/mejoras/">demo de rediseño</a>, no el sitio oficial.
+      </p>
+    </section>
+  </div>
+</Base>
+
+<script>
+  document.querySelectorAll<HTMLFormElement>('[data-auth]').forEach((form) => {
+    const boton = form.querySelector<HTMLButtonElement>('[data-ver]');
+    const clave = form.querySelector<HTMLInputElement>('input[name="clave"]');
+    boton?.addEventListener('click', () => {
+      const ver = clave!.type === 'password';
+      clave!.type = ver ? 'text' : 'password';
+      boton.setAttribute('aria-pressed', String(ver));
+      boton.setAttribute('aria-label', ver ? 'Ocultar contraseña' : 'Mostrar contraseña');
+    });
+    // Demo: no se envía nada, solo se avisa.
+    form.addEventListener('submit', (evento) => {
+      evento.preventDefault();
+      form.querySelector<HTMLElement>('[data-aviso]')!.hidden = false;
+    });
+  });
+</script>
+
+<style>
+  /* Toda la página cabe en la pantalla: sin scroll en ninguna dirección. Los tamaños se ajustan
+     a la altura disponible (vh) para que el registro, que es el más largo, también quepa. */
+  :global(html.sin-scroll),
+  :global(html.sin-scroll body) {
+    height: 100%;
+    overflow: hidden;
+  }
+  .au {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    height: 100svh;
+    overflow: hidden;
+  }
+
+  /* Lado de la marca: Miguel sobre fondo oscuro, con una línea de precio que sube detrás */
+  .au-lado {
+    position: relative;
+    overflow: hidden;
+    background: radial-gradient(ellipse 80% 60% at 50% 100%, #1b2dff55, transparent 70%), #04050c;
+    border-right: 1px solid rgb(255 255 255 / 0.06);
+  }
+  .au-foto {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    height: 88%;
+    max-width: 100%;
+    object-fit: cover;
+    object-position: top;
+    -webkit-mask: radial-gradient(ellipse 50% 58% at 52% 56%, #000 60%, transparent 100%);
+    mask: radial-gradient(ellipse 50% 58% at 52% 56%, #000 60%, transparent 100%);
+    opacity: 0.92;
+  }
+  .au-velas {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 22%;
+    width: 100%;
+    height: 34%;
+    overflow: visible;
+  }
+  .au-velas polyline {
+    fill: none;
+    stroke: var(--cian);
+    stroke-width: 2;
+    vector-effect: non-scaling-stroke;
+    filter: drop-shadow(0 0 8px rgb(34 225 255 / 0.7));
+    stroke-dasharray: 1600;
+    stroke-dashoffset: 1600;
+    animation: trazar 1.6s 0.2s cubic-bezier(0.3, 0.7, 0.3, 1) forwards;
+  }
+  @keyframes trazar {
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+  .au-lado-in {
+    position: relative;
+    padding: clamp(2.5rem, 12vh, 7rem) clamp(2rem, 5vw, 4.5rem) 0;
+  }
+  .au-frase {
+    margin: 0;
+    font-size: clamp(2rem, 1.2rem + 2.2vw, 3.2rem);
+    font-weight: 800;
+    font-stretch: 125%;
+    line-height: 1.02;
+    letter-spacing: -0.02em;
+    max-width: 13ch;
+  }
+  .au-frase span {
+    display: block;
+    font-family: 'Allura', cursive;
+    font-weight: 400;
+    font-stretch: 100%;
+    font-size: 1.35em;
+    letter-spacing: 0;
+    color: var(--cian);
+  }
+
+  /* Lado del formulario */
+  .au-form {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding: clamp(0.75rem, 2.2vh, 1.5rem) clamp(1.25rem, 5vw, 4rem) clamp(0.6rem, 1.6vh, 1.1rem);
+  }
+  .au-barra {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .au-logo img {
+    display: block;
+    height: clamp(28px, 4.4vh, 36px);
+    width: auto;
+  }
+  .au-volver {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.45rem 0.8rem 0.45rem 0.55rem;
+    border-radius: 999px;
+    font-size: var(--t-sm);
+    font-weight: 600;
+    color: var(--bruma);
+    text-decoration: none;
+  }
+  .au-volver:hover {
+    color: var(--hueso);
+    background: rgb(255 255 255 / 0.06);
+  }
+  .au-volver :global(svg) {
+    width: 18px;
+    height: 18px;
+  }
+  .au-caja {
+    width: 100%;
+    max-width: 400px;
+    margin: auto;
+    padding-block: clamp(0.75rem, 2vh, 1.5rem);
+  }
+  .au-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 4px;
+    margin-bottom: clamp(0.9rem, 3vh, 2rem);
+    background: var(--tinta);
+    border: 1px solid var(--linea);
+    border-radius: 12px;
+  }
+  .au-tabs a {
+    padding: clamp(0.4rem, 1.1vh, 0.6rem);
+    border-radius: 9px;
+    text-align: center;
+    font-size: var(--t-sm);
+    font-weight: 700;
+    color: var(--bruma);
+    text-decoration: none;
+  }
+  .au-tabs a:hover {
+    color: var(--hueso);
+  }
+  .au-tabs a[aria-current='page'] {
+    background: var(--tinta-2);
+    color: var(--hueso);
+    box-shadow: inset 0 0 0 1px #2c3a7a;
+  }
+  .au-caja h1 {
+    font-size: clamp(1.3rem, 3vh, 1.65rem);
+    font-stretch: 112%;
+    line-height: 1.15;
+    margin: 0 0 0.3rem;
+  }
+  .au-sub {
+    margin: 0 0 clamp(0.8rem, 2.6vh, 1.75rem);
+    color: var(--bruma);
+    font-size: clamp(0.9rem, 2vh, 1.05rem);
+  }
+  .au-campos {
+    display: grid;
+    gap: clamp(0.55rem, 1.6vh, 1rem);
+  }
+  .campo {
+    display: grid;
+    gap: clamp(0.25rem, 0.7vh, 0.4rem);
+    font-size: var(--t-sm);
+    font-weight: 600;
+  }
+  .campo .input {
+    width: 100%;
+    min-height: clamp(40px, 5.6vh, 48px);
+    padding-block: 0.5rem;
+  }
+  .au-par {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  .au-clave {
+    position: relative;
+    display: block;
+  }
+  .au-clave .input {
+    padding-right: 3rem;
+  }
+  .au-ver {
+    position: absolute;
+    top: 50%;
+    right: 0.4rem;
+    translate: 0 -50%;
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: 8px;
+    background: none;
+    color: var(--bruma);
+    cursor: pointer;
+  }
+  .au-ver:hover,
+  .au-ver[aria-pressed='true'] {
+    color: var(--hueso);
+  }
+  .au-ver :global(svg) {
+    width: 20px;
+    height: 20px;
+  }
+  .au-fila {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    font-size: var(--t-sm);
+  }
+  .au-fila a,
+  .au-cambio a,
+  .au-aviso a,
+  .au-legal a {
+    color: var(--cian);
+    font-weight: 600;
+  }
+  .au-check {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--bruma);
+    cursor: pointer;
+  }
+  .au-check input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--azul);
+  }
+  .au-enviar {
+    width: 100%;
+    margin-top: 0.25rem;
+    min-height: clamp(42px, 6vh, 52px);
+    font-weight: 700;
+  }
+  .au-aviso {
+    margin: 0;
+    padding: 0.6rem 0.9rem;
+    border: 1px solid #2c3a7a;
+    border-radius: 10px;
+    background: var(--tinta-2);
+    font-size: var(--t-xs);
+    color: var(--hueso);
+  }
+  .au-aviso[hidden] {
+    display: none;
+  }
+  .au-cambio {
+    margin: clamp(0.7rem, 2vh, 1.5rem) 0 0;
+    text-align: center;
+    color: var(--bruma);
+    font-size: var(--t-sm);
+  }
+  .au-legal {
+    margin: 0;
+    font-size: 0.72rem;
+    line-height: 1.45;
+    color: #6b7399;
+    text-align: center;
+  }
+
+  @media (max-width: 900px) {
+    .au {
+      grid-template-columns: 1fr;
+    }
+    .au-lado {
+      display: none;
+    }
+  }
+  @media (max-width: 900px) and (max-height: 700px), (max-height: 640px) {
+    .au-sub {
+      display: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .au-velas polyline {
+      animation: none;
+      stroke-dashoffset: 0;
+    }
+  }
+</style>

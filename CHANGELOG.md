@@ -1,6 +1,36 @@
 # Historial de versiones
 
-## 0.11.0 (Actual)
+## 0.12.1 (Actual)
+
+- Ingreso y registro caben en la pantalla sin scroll, en computador y en celular (probado de 360 × 640 a 1920 × 918).
+- Títulos del formulario más pequeños, en una línea.
+- Barra superior con el logo y "Volver al inicio".
+- Se quita la lista de viñetas del lado de la foto; queda solo la frase.
+
+## 0.12.0
+
+**Arreglos**
+
+- Los filtros del menú "Cursos" (por mentor y por tema) funcionan también estando ya en el catálogo: filtran sin recargar, el panel se cierra y el botón Atrás vuelve al filtro anterior. El tema queda en la URL (`/cursos/?tema=forex`).
+- En celular ya no hay desplazamiento lateral.
+
+**Celular**
+
+- El menú hamburguesa es una tarjeta pequeña bajo el botón (no una pantalla completa); se cierra al tocar fuera, al desplazarse o con Escape.
+
+**Ingreso y registro**
+
+- Páginas nuevas `/ingresar/` y `/registro/` con los mismos campos de la plataforma. Son de muestra: no envían datos y enlazan a la plataforma actual. "Ingresar" del menú lleva aquí.
+
+**Pie de página**
+
+- Pie nuevo: el borde de arriba es una línea de precio con el último punto latiendo, fondo azul noche con cuadrícula de gráfico, columnas de Academia, Cursos (por tema), Comunidad y app, y Contacto. Se mantienen el aviso de riesgo y el aviso de demo.
+
+**Nosotros**
+
+- La foto del equipo se ve completa: es panorámica y ahora va a lo ancho debajo del texto, en su proporción real.
+
+## 0.11.0
 
 **Cursos**
 

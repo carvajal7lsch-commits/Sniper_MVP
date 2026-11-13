@@ -34,25 +34,29 @@ const comoEnsenamos = [
   <section class="qs">
     <div class="wrap qs-in">
       <div class="qs-texto" data-revelar>
-        <h1>Quiénes somos</h1>
-        <p class="qs-lead">
-          Sniper Pro es una academia de trading que enseña desde cero hasta nivel profesional en los mercados
-          financieros, con foco en Forex e índices sintéticos.
-        </p>
-        <p>
-          Estamos en Cúcuta, Norte de Santander, y hoy reunimos estudiantes de toda Latinoamérica. Estamos adecuando
-          instalaciones físicas para quienes prefieren aprender en persona.
-        </p>
-        <dl class="qs-cifras">
-          {cifras.map((c) => (
-            <div>
-              <dt>{c.texto}</dt>
-              <dd>{c.valor}</dd>
-            </div>
-          ))}
-        </dl>
+        <div>
+          <h1>Quiénes somos</h1>
+          <p class="qs-lead">
+            Sniper Pro es una academia de trading que enseña desde cero hasta nivel profesional en los mercados
+            financieros, con foco en Forex e índices sintéticos.
+          </p>
+        </div>
+        <div>
+          <p>
+            Estamos en Cúcuta, Norte de Santander, y hoy reunimos estudiantes de toda Latinoamérica. Estamos adecuando
+            instalaciones físicas para quienes prefieren aprender en persona.
+          </p>
+          <dl class="qs-cifras">
+            {cifras.map((c) => (
+              <div>
+                <dt>{c.texto}</dt>
+                <dd>{c.valor}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
       </div>
-      <figure class="qs-foto" data-revelar="lado">
+      <figure class="qs-foto" data-revelar>
         <picture>
           <source media="(max-width: 700px)" srcset="/media/familia-800.webp" />
           <img
@@ -111,13 +115,19 @@ const comoEnsenamos = [
   .qs {
     padding-block: clamp(2rem, 5vh, 3.5rem) clamp(2.5rem, 6vh, 4rem);
   }
+  /* Texto arriba en dos columnas y la foto del equipo completa debajo: es panorámica (1600 × 578),
+     así que se muestra en su proporción real en vez de recortarla en un recuadro alto. */
   .qs-in {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
-    gap: clamp(1.5rem, 5vw, 4rem);
-    align-items: center;
+    gap: clamp(1.75rem, 4vh, 2.75rem);
   }
   .qs-texto {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: 1.25rem clamp(2rem, 6vw, 5rem);
+    align-items: end;
+  }
+  .qs-texto > div {
     display: grid;
     gap: 1rem;
   }
@@ -138,7 +148,7 @@ const comoEnsenamos = [
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem 2.25rem;
-    margin: 0.75rem 0 0;
+    margin: 0.25rem 0 0;
   }
   .qs-cifras div {
     display: flex;
@@ -159,15 +169,20 @@ const comoEnsenamos = [
     margin: 0;
   }
   .qs-foto img {
+    display: block;
     width: 100%;
-    height: clamp(320px, calc(100svh - 64px - 9rem), 560px);
-    object-fit: cover;
-    object-position: center 25%;
+    height: auto;
+    aspect-ratio: 1600 / 578;
     border-radius: var(--r-md);
     background: #000;
     box-shadow:
       0 24px 50px -18px rgb(35 72 255 / 0.75),
       0 0 0 1.5px rgb(34 225 255 / 0.4);
+  }
+  @media (max-width: 760px) {
+    .qs-texto {
+      grid-template-columns: 1fr;
+    }
   }
 
   /* Misión y visión: el mismo azul a morado de sus piezas, con el titular en cian */

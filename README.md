@@ -4,16 +4,17 @@ Propuesta de rediseño de sniperproacademy.com. Sitio estático con Astro y Type
 
 ## Páginas
 
-| Ruta                | Contenido                                                                                         |
-| ------------------- | ------------------------------------------------------------------------------------------------- |
-| `/`                 | Inicio: hero, La Máquina y su equipo, reseñas, comunidad, app de señales y próximos eventos       |
-| `/cursos/`          | Catálogo real por mentor (fila de caras), tema y nivel, con las ediciones de cada curso agrupadas |
-| `/mentores/`        | El equipo: un retrato por mentor que lleva a su perfil                                            |
-| `/cursos/{slug}/`   | Página de cada curso: portada, descripción, clases con duración, reseñas e inscripción            |
-| `/mentores/{slug}/` | Perfil de cada mentor con su ruta de cursos                                                       |
-| `/nosotros/`        | Quiénes somos, misión, visión, cómo enseñamos y presenciales                                      |
-| `/contacto/`        | Canales + formulario que abre WhatsApp con el mensaje listo (tema y mentor)                       |
-| `/mejoras/`         | Antes vs. después, para mostrarle al cliente                                                      |
+| Ruta                       | Contenido                                                                                         |
+| -------------------------- | ------------------------------------------------------------------------------------------------- |
+| `/`                        | Inicio: hero, La Máquina y su equipo, reseñas, comunidad, app de señales y próximos eventos       |
+| `/cursos/`                 | Catálogo real por mentor (fila de caras), tema y nivel, con las ediciones de cada curso agrupadas |
+| `/mentores/`               | El equipo: un retrato por mentor que lleva a su perfil                                            |
+| `/ingresar/`, `/registro/` | Ingreso y registro rediseñados (de muestra: no envían datos)                                      |
+| `/cursos/{slug}/`          | Página de cada curso: portada, descripción, clases con duración, reseñas e inscripción            |
+| `/mentores/{slug}/`        | Perfil de cada mentor con su ruta de cursos                                                       |
+| `/nosotros/`               | Quiénes somos, misión, visión, cómo enseñamos y presenciales                                      |
+| `/contacto/`               | Canales + formulario que abre WhatsApp con el mensaje listo (tema y mentor)                       |
+| `/mejoras/`                | Antes vs. después, para mostrarle al cliente                                                      |
 
 ## Correr en local
 
